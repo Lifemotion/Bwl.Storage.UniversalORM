@@ -1,6 +1,6 @@
 ﻿Public Interface IObjStorage(Of T As ObjBase)
-    Sub Add(obj As T)
-    Sub Remove(id As String)
-    Function Find(id As String) As T
-    Function Find(criterias() As FindCriteria) As T()
+    Sub AddObj(obj As T)
+    Sub RemoveObj(id As String)
+    Function GetObj(id As String) As T
+    Function FindObj(criterias() As FindCriteria) As String()
 End Interface

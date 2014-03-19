@@ -4,7 +4,7 @@ Public Class FileObjStorage(Of T As ObjBase)
     Implements IObjStorage(Of T)
     Private _folder As String
     Private _indexingMembers As String()
-    Private _md5 As System.Security.Cryptography.MD5 = System.Security.Cryptography.MD5.Create
+
     Friend Sub New(folder As String)
         _folder = folder
         _indexingMembers = ReflectionTools.GetIndexingMemberNames(GetType(T))
@@ -23,39 +23,49 @@ Public Class FileObjStorage(Of T As ObjBase)
         Return path
     End Function
 
-    Public Sub Add(obj As T) Implements IObjStorage(Of T).Add
+    Public Sub Add(obj As T) Implements IObjStorage(Of T).AddObj
         Dim file = GetFileName(obj.ID)
         If IO.File.Exists(file) Then Throw New Exception("Object Already Exists with this ID")
         Dim str = JsonConverter.Serialize(obj)
-        '  IO.File.WriteAllText(file, str, Utils.Enc)
+        IO.File.WriteAllText(file, str, Utils.Enc)
         For Each indexing In _indexingMembers
             Dim indexValue = ReflectionTools.GetMemberValue(indexing, obj).ToString
-            Dim bytes = Utils.Enc.GetBytes(indexValue)
-            Dim hash = System.Convert.ToBase64String(_md5.ComputeHash(bytes)).Replace("/", "-")
-            Dim path = GetIndexPath(indexing, hash)
+            Dim path = GetIndexPath(indexing, MD5.GetHash(indexValue))
             IO.File.WriteAllText(path + Utils.Sep + obj.ID + ".hash", "")
         Next
     End Sub
 
-    Public Function Find(criterias() As FindCriteria) As T() Implements IObjStorage(Of T).Find
 
+    Public Sub Remove(id As String) Implements IObjStorage(Of T).RemoveObj
+        Dim file = GetFileName(id)
+        If Not IO.File.Exists(file) Then Throw New Exception("Object Not Exists with this ID")
+
+        IO.File.Delete(file)
+    End Sub
+
+    Private Function GetFileName(objId As String) As String
+        Return _folder + Utils.Sep + objId + ".obj.json"
     End Function
 
-    Public Function Find(id As String) As T Implements IObjStorage(Of T).Find
+    Public Function FindObj(criterias() As FindCriteria) As String() Implements IObjStorage(Of T).FindObj
+        Return FindAllObjs()
+    End Function
+
+    Private Function FindAllObjs() As String()
+        Dim files = IO.Directory.GetFiles(_folder, "*.obj.json")
+        Dim result As New List(Of String)
+        For Each file In files
+            Dim fileParts = file.Split(Utils.Sep, "."c)
+            result.Add(fileParts(fileParts.Length - 3))
+        Next
+        Return result.ToArray
+    End Function
+
+    Public Function GetObj(id As String) As T Implements IObjStorage(Of T).GetObj
         Dim file = GetFileName(id)
         If Not IO.File.Exists(file) Then Return Nothing
         Dim str = IO.File.ReadAllText(file, Utils.Enc)
         Dim obj = JsonConverter.Deserialize(Of T)(str)
         Return obj
-    End Function
-
-    Public Sub Remove(id As String) Implements IObjStorage(Of T).Remove
-        Dim file = GetFileName(id)
-        If Not IO.File.Exists(file) Then Throw New Exception("Object Not Exists with this ID")
-        IO.File.Delete(file)
-    End Sub
-
-    Private Function GetFileName(objId As String) As String
-        Return _folder + Utils.Sep + "obj_" + objId + ".json"
     End Function
 End Class

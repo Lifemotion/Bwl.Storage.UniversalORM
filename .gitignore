@@ -3,3 +3,7 @@ bin
 obj
 dll
 debug-*
+release-*
+debug
+release
+dllOut

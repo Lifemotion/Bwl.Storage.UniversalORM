@@ -1,0 +1,6 @@
+*.suo
+bin
+obj
+dll
+cf-traffic-lights-test-release
+cf-traffic-lights-test

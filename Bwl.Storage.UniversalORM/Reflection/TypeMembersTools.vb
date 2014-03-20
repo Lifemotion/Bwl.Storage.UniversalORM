@@ -44,7 +44,7 @@ Public Class ReflectionTools
             Dim members = obj.GetType.GetMember(fieldParts(0))
             If members.Length > 0 Then
                 If members(0).MemberType = MemberTypes.Property Then
-                    Dim value = DirectCast(members(0), PropertyInfo).GetValue(obj)
+					Dim value = DirectCast(members(0), PropertyInfo).GetValue(obj, Nothing)
                     Return value
                 End If
                 If members(0).MemberType = MemberTypes.Field Then
@@ -65,7 +65,7 @@ Public Class ReflectionTools
 
             For Each member In members
                 If member.MemberType = MemberTypes.Property Then
-                    Dim value = DirectCast(member, PropertyInfo).GetValue(obj)
+					Dim value = DirectCast(member, PropertyInfo).GetValue(obj, Nothing)
                     If value Is Nothing Then Throw New Exception("Value is nothing not found: " + member.Name)
                     Dim nested = GetMemberValue(path, value)
                     Return nested
@@ -98,7 +98,7 @@ Public Class ReflectionTools
 
             For Each member In members
                 If member.MemberType = MemberTypes.Property Then
-                    Dim value = DirectCast(member, PropertyInfo).GetValue(obj)
+					Dim value = DirectCast(member, PropertyInfo).GetValue(obj, Nothing)
                     If value Is Nothing Then Throw New Exception("Value is nothing not found: " + member.Name)
                     Dim nested = GetMember(path, value)
                     Return nested

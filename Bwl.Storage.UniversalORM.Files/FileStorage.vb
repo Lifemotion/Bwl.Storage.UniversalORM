@@ -23,18 +23,34 @@ Public Class FileObjStorage(Of T As ObjBase)
         Return path
     End Function
 
-    Public Sub Add(obj As T) Implements IObjStorage(Of T).AddObj
-        Dim file = GetFileName(obj.ID)
-        If IO.File.Exists(file) Then Throw New Exception("Object Already Exists with this ID")
-        Dim str = JsonConverter.Serialize(obj)
-        IO.File.WriteAllText(file, str, Utils.Enc)
-        For Each indexing In _indexingMembers
-            Dim indexValue = ReflectionTools.GetMemberValue(indexing, obj).ToString
-            Dim path = GetIndexPath(indexing, MD5.GetHash(indexValue))
-            IO.File.WriteAllText(path + Utils.Sep + obj.ID + ".hash", "")
-        Next
-    End Sub
+	Public Property StorageDir As String
+		Get
+			Return _folder
+		End Get
+		Set(value As String)
+			_folder = value
+		End Set
+	End Property
 
+	Public Sub Add(obj As T) Implements IObjStorage(Of T).AddObj
+		Dim file = GetFileName(obj.ID)
+		If IO.File.Exists(file) Then Throw New Exception("Object Already Exists with this ID")
+		Dim str = JsonConverter.Serialize(obj)
+		IO.File.WriteAllText(file, str, Utils.Enc)
+		For Each indexing In _indexingMembers
+			Dim indexValue = ReflectionTools.GetMemberValue(indexing, obj).ToString
+			Dim path = GetIndexPath(indexing, MD5.GetHash(indexValue))
+			IO.File.WriteAllText(path + Utils.Sep + obj.ID + ".hash", "")
+		Next
+	End Sub
+
+	Public Sub UpdateObj(obj As T) Implements IObjStorage(Of T).UpdateObj
+		Dim file = GetFileName(obj.ID)
+		If Not IO.File.Exists(file) Then Throw New Exception("Object Not Exists with this ID")
+
+		IO.File.Delete(file)
+		Add(obj)
+	End Sub
 
     Public Sub Remove(id As String) Implements IObjStorage(Of T).RemoveObj
         Dim file = GetFileName(id)

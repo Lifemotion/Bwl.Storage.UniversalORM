@@ -7,3 +7,4 @@ release-*
 debug
 release
 dllOut
+GuiTest

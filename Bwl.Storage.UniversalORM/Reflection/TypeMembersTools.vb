@@ -2,39 +2,42 @@
 
 Public Class ReflectionTools
 
-    Public Shared Function GetIndexingMemberNames(type As System.Type) As String()
-        Return GetIndexingMemberNamesRecursive("", type)
-    End Function
+	Public Shared Function GetIndexingMemberNames(type As System.Type) As IndexInfo()
+		Return GetIndexingMemberNamesRecursive("", type)
+	End Function
 
-    Private Shared Function GetIndexingMemberNamesRecursive(path As String, type As System.Type) As String()
-        Dim members = type.GetMembers()
-        Dim results As New List(Of String)
-        For Each item In members
+	Private Shared Function GetIndexingMemberNamesRecursive(path As String, type As System.Type) As IndexInfo()
+		Dim members = type.GetMembers()
+		Dim results As New List(Of IndexInfo)
+		For Each item In members
 
-            Dim itemType As System.Type = Nothing
-            If item.MemberType = Reflection.MemberTypes.Property Or item.MemberType = Reflection.MemberTypes.Field Then
-                If item.MemberType = Reflection.MemberTypes.Property Then
-                    Dim itemProperty As PropertyInfo = DirectCast(item, Reflection.PropertyInfo)
-                    itemType = itemProperty.PropertyType
-                End If
-                If item.MemberType = Reflection.MemberTypes.Field Then
-                    Dim itemField As FieldInfo = DirectCast(item, Reflection.FieldInfo)
-                    itemType = itemField.FieldType
-                End If
+			Dim itemType As System.Type = Nothing
+			If item.MemberType = Reflection.MemberTypes.Property Or item.MemberType = Reflection.MemberTypes.Field Then
+				If item.MemberType = Reflection.MemberTypes.Property Then
+					Dim itemProperty As PropertyInfo = DirectCast(item, Reflection.PropertyInfo)
+					itemType = itemProperty.PropertyType
+				End If
+				If item.MemberType = Reflection.MemberTypes.Field Then
+					Dim itemField As FieldInfo = DirectCast(item, Reflection.FieldInfo)
+					itemType = itemField.FieldType
+				End If
 
-                If item.GetCustomAttributes(GetType(Indexing), True).Length > 0 Then
-                    Dim nestedResults = GetIndexingMemberNamesRecursive(path + item.Name + ".", itemType)
+				Dim indexAttributes = item.GetCustomAttributes(GetType(Indexing), True)
+				If (indexAttributes.Any) Then
+					Dim indAttr = CType(indexAttributes.First, Indexing)
+					Dim nestedResults = GetIndexingMemberNamesRecursive(path + item.Name + ".", itemType)
 
-                    If nestedResults.Length > 0 Then
-                        results.AddRange(nestedResults)
-                    Else
-                        results.Add(path + item.Name)
-                    End If
-                End If
-            End If
-        Next
-        Return results.ToArray
-    End Function
+					If nestedResults.Length > 0 Then
+						results.AddRange(nestedResults)
+					Else
+						Dim inInfo = New IndexInfo(path + item.Name, itemType, indAttr.Length)
+						results.Add(inInfo)
+					End If
+				End If
+			End If
+		Next
+		Return results.ToArray
+	End Function
 
 
     Shared Function GetMemberValue(fieldPath As String, obj As Object) As Object

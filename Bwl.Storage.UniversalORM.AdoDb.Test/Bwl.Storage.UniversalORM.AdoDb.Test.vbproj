@@ -4,31 +4,33 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{CFD756AD-1CB6-4B12-A969-D18A434D1E72}</ProjectGuid>
-    <OutputType>Library</OutputType>
-    <RootNamespace>Bwl.Storage.UniversalORM</RootNamespace>
-    <AssemblyName>Bwl.Storage.UniversalORM</AssemblyName>
+    <ProjectGuid>{28960DEC-66DD-4812-8051-91876A6E728B}</ProjectGuid>
+    <OutputType>WinExe</OutputType>
+    <StartupObject>Bwl.Storage.UniversalORM.AdoDb.Test.My.MyApplication</StartupObject>
+    <RootNamespace>Bwl.Storage.UniversalORM.AdoDb.Test</RootNamespace>
+    <AssemblyName>Bwl.Storage.UniversalORM.AdoDb.Test</AssemblyName>
     <FileAlignment>512</FileAlignment>
-    <MyType>Windows</MyType>
+    <MyType>WindowsForms</MyType>
     <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
-    <TargetFrameworkProfile />
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <PlatformTarget>AnyCPU</PlatformTarget>
     <DebugSymbols>true</DebugSymbols>
     <DebugType>full</DebugType>
     <DefineDebug>true</DefineDebug>
     <DefineTrace>true</DefineTrace>
-    <OutputPath>..\debug-dll\</OutputPath>
-    <DocumentationFile>Bwl.Storage.UniversalORM.xml</DocumentationFile>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DocumentationFile>Bwl.Storage.UniversalORM.AdoDb.Test.xml</DocumentationFile>
     <NoWarn>42016,41999,42017,42018,42019,42032,42036,42020,42021,42022</NoWarn>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <PlatformTarget>AnyCPU</PlatformTarget>
     <DebugType>pdbonly</DebugType>
     <DefineDebug>false</DefineDebug>
     <DefineTrace>true</DefineTrace>
     <Optimize>true</Optimize>
-    <OutputPath>..\debug-dll\</OutputPath>
-    <DocumentationFile>Bwl.Storage.UniversalORM.xml</DocumentationFile>
+    <OutputPath>bin\Release\</OutputPath>
+    <DocumentationFile>Bwl.Storage.UniversalORM.AdoDb.Test.xml</DocumentationFile>
     <NoWarn>42016,41999,42017,42018,42019,42032,42036,42020,42021,42022</NoWarn>
   </PropertyGroup>
   <PropertyGroup>
@@ -49,26 +51,35 @@
       <HintPath>..\refs\Newtonsoft.Json.dll</HintPath>
     </Reference>
     <Reference Include="System" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Deployment" />
+    <Reference Include="System.Drawing" />
+    <Reference Include="System.Windows.Forms" />
+    <Reference Include="System.Xml" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
   </ItemGroup>
   <ItemGroup>
     <Import Include="Microsoft.VisualBasic" />
-    <Import Include="Newtonsoft.Json" />
     <Import Include="System" />
     <Import Include="System.Collections" />
     <Import Include="System.Collections.Generic" />
+    <Import Include="System.Data" />
+    <Import Include="System.Drawing" />
     <Import Include="System.Diagnostics" />
+    <Import Include="System.Windows.Forms" />
     <Import Include="System.Linq" />
-    <Import Include="System.Threading.Tasks" />
+    <Import Include="System.Xml.Linq" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Common\CommonObjStorage.vb" />
-    <Compile Include="Common\IObjStorage.vb" />
-    <Compile Include="Common\IObjStorageManager.vb" />
-    <Compile Include="Criteria\FindCondition.vb" />
-    <Compile Include="Criteria\FindCriteria.vb" />
-    <Compile Include="Json\JsonConverter.vb" />
-    <Compile Include="Objects\IndexInfo.vb" />
-    <Compile Include="Objects\Indexing.vb" />
+    <Compile Include="Form1.vb">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Form1.Designer.vb">
+      <DependentUpon>Form1.vb</DependentUpon>
+      <SubType>Form</SubType>
+    </Compile>
     <Compile Include="My Project\AssemblyInfo.vb" />
     <Compile Include="My Project\Application.Designer.vb">
       <AutoGen>True</AutoGen>
@@ -84,10 +95,13 @@
       <DependentUpon>Settings.settings</DependentUpon>
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
     </Compile>
-    <Compile Include="Objects\ObjBase.vb" />
-    <Compile Include="Reflection\TypeMembersTools.vb" />
+    <Compile Include="TestData.vb" />
   </ItemGroup>
   <ItemGroup>
+    <EmbeddedResource Include="Form1.resx">
+      <DependentUpon>Form1.vb</DependentUpon>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
     <EmbeddedResource Include="My Project\Resources.resx">
       <Generator>VbMyResourcesResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.vb</LastGenOutput>
@@ -106,7 +120,16 @@
       <LastGenOutput>Settings.Designer.vb</LastGenOutput>
     </None>
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <ProjectReference Include="..\Bwl.Storage.UniversalORM.AdoDb\Bwl.Storage.UniversalORM.AdoDb.vbproj">
+      <Project>{646dcfe6-8ea7-4afa-a142-395fa1031240}</Project>
+      <Name>Bwl.Storage.UniversalORM.AdoDb</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Bwl.Storage.UniversalORM\Bwl.Storage.UniversalORM.vbproj">
+      <Project>{cfd756ad-1cb6-4b12-a969-d18a434d1e72}</Project>
+      <Name>Bwl.Storage.UniversalORM</Name>
+    </ProjectReference>
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.VisualBasic.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

@@ -8,11 +8,11 @@
         Utils.TestFolder(_folder)
     End Sub
 
-    Public Function CreateStorage(Of T As ObjBase)(name As String) As IObjStorage(Of T) Implements IObjStorageManager.CreateStorage
-        Dim path = _folder + Utils.Sep + name
-        Utils.TestFolder(path)
-        Dim stor As New FileObjStorage(Of T)(path)
-        Return stor
+	Public Function CreateStorage(Of T As ObjBase)(name As String) As IObjStorage(Of T) Implements IObjStorageManager.CreateStorage
+		Dim path = _folder + Utils.Sep + name
+		Utils.TestFolder(path)
+		Dim stor As New FileObjStorage(Of T)(path)
+		Return stor
 	End Function
 
 	Public Property FileStorageDir As String

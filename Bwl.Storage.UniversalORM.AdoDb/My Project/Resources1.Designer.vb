@@ -159,16 +159,13 @@ Namespace My.Resources
         '''SET ANSI_PADDING ON
         '''CREATE TABLE [dbo].[{0}](
         '''	[guid] [nchar](38) NOT NULL,
-        '''	[value] [nvarchar]({2}) NOT NULL,
+        '''	[value][nvarchar]({1}) NOT NULL,
         ''' CONSTRAINT [PK_{0}] PRIMARY KEY CLUSTERED 
         '''(
         '''	[guid] ASC
         ''')WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
         ''') ON [PRIMARY]
-        '''CREATE NONCLUSTERED INDEX [IX_{0}] ON [dbo].[{0}]
-        '''(
-        '''	[value] ASC
-        ''')WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, SORT_IN_TEMPDB = O [остаток строки не уместился]&quot;;.
+        '''SET ANSI_PADDING OFF.
         '''</summary>
         Friend ReadOnly Property CreateStringIndexTableSQL() As String
             Get
@@ -181,7 +178,7 @@ Namespace My.Resources
         '''           ([guid]
         '''           ,[value])
         '''     VALUES
-        '''           (&apos;{1}&apos;,{2}).
+        '''           ({1},{2}).
         '''</summary>
         Friend ReadOnly Property InsertIndexSQL() As String
             Get

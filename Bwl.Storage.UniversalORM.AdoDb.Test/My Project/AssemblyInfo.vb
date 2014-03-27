@@ -8,17 +8,17 @@ Imports System.Runtime.InteropServices
 
 ' Проверьте значения атрибутов сборки
 
-<Assembly: AssemblyTitle("Bwl.Storage.UniversalORM.Files.Test")> 
+<Assembly: AssemblyTitle("Bwl.Storage.UniversalORM.AdoDb.Test")> 
 <Assembly: AssemblyDescription("")> 
 <Assembly: AssemblyCompany("")> 
-<Assembly: AssemblyProduct("Bwl.Storage.UniversalORM.Files.Test")> 
+<Assembly: AssemblyProduct("Bwl.Storage.UniversalORM.AdoDb.Test")> 
 <Assembly: AssemblyCopyright("Copyright ©  2014")> 
 <Assembly: AssemblyTrademark("")> 
 
 <Assembly: ComVisible(False)>
 
 'Следующий GUID служит для идентификации библиотеки типов, если этот проект будет видимым для COM
-<Assembly: Guid("d93459a2-5310-4e7a-a6e6-7e8c65bc8afe")> 
+<Assembly: Guid("3fe76814-f5c7-4e8a-8b30-dd5e9e5fb5f9")> 
 
 ' Сведения о версии сборки состоят из следующих четырех значений:
 '

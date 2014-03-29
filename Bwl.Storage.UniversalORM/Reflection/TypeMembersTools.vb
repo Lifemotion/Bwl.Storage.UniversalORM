@@ -69,16 +69,16 @@ Public Class ReflectionTools
             For Each member In members
                 If member.MemberType = MemberTypes.Property Then
 					Dim value = DirectCast(member, PropertyInfo).GetValue(obj, Nothing)
-                    If value Is Nothing Then Throw New Exception("Value is nothing not found: " + member.Name)
-                    Dim nested = GetMemberValue(path, value)
-                    Return nested
-                End If
-                If member.MemberType = MemberTypes.Field Then
-                    Dim value = DirectCast(member, FieldInfo).GetValue(obj)
-                    Dim nested = GetMemberValue(path, value)
-                    Return nested
-                End If
-            Next
+					If value Is Nothing Then Throw New Exception("Value is nothing not found: " + member.Name)
+					Dim nested = GetMemberValue(path, value)
+					Return nested
+				End If
+				If member.MemberType = MemberTypes.Field Then
+					Dim value = DirectCast(member, FieldInfo).GetValue(obj)
+					Dim nested = GetMemberValue(path, value)
+					Return nested
+				End If
+			Next
             Throw New Exception("Member not found: " + current)
         End If
     End Function

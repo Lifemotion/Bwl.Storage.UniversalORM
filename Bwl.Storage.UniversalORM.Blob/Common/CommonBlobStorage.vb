@@ -143,20 +143,24 @@ Public Class CommonBlobStorage
 			objBlobInfo.BlobsInfo = New List(Of BlobInfo)
 
 			For Each fieldInfo In typeInfo
-				Dim blobValue = ReflectionTools.GetMemberValue(fieldInfo, parentObject)
-				If (blobValue IsNot Nothing) Then
-					Dim blobType = blobValue.GetType
-					Dim streamSaver = _blobStreamSavers.FirstOrDefault(Function(s) s.SupportedTypes.Contains(blobType))
+				Try
+					Dim blobValue = ReflectionTools.GetMemberValue(fieldInfo, parentObject)
+					If (blobValue IsNot Nothing) Then
+						Dim blobType = blobValue.GetType
+						Dim streamSaver = _blobStreamSavers.FirstOrDefault(Function(s) s.SupportedTypes.Contains(blobType))
 
-					If (streamSaver IsNot Nothing) Then
-						Dim blobInfo = New BlobInfo
-						blobInfo.BlobId = Guid.NewGuid.ToString
-						blobInfo.FieldName = fieldInfo
-						blobInfo.FieldType = blobType
-						blobInfo.Data = streamSaver.ToBinary(blobValue)
-						objBlobInfo.BlobsInfo.Add(blobInfo)
+						If (streamSaver IsNot Nothing) Then
+							Dim blobInfo = New BlobInfo
+							blobInfo.BlobId = Guid.NewGuid.ToString
+							blobInfo.FieldName = fieldInfo
+							blobInfo.FieldType = blobType
+							blobInfo.Data = streamSaver.ToBinary(blobValue)
+							objBlobInfo.BlobsInfo.Add(blobInfo)
+						End If
 					End If
-				End If
+				Catch ex As Exception
+					'...
+				End Try
 			Next
 			Return objBlobInfo
 		End SyncLock

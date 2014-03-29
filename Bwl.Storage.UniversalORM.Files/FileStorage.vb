@@ -36,9 +36,13 @@ Public Class FileObjStorage(Of T As ObjBase)
 		Dim str = JsonConverter.Serialize(obj)
 		IO.File.WriteAllText(file, str, Utils.Enc)
 		For Each indexing In _indexingMembers
-			Dim indexValue = ReflectionTools.GetMemberValue(indexing.Name, obj).ToString
-			Dim path = GetIndexPath(indexing.Name, MD5.GetHash(indexValue))
-			IO.File.WriteAllText(path + Utils.Sep + obj.ID + ".hash", "")
+			Try
+				Dim indexValue = ReflectionTools.GetMemberValue(indexing.Name, obj).ToString
+				Dim path = GetIndexPath(indexing.Name, MD5.GetHash(indexValue))
+				IO.File.WriteAllText(path + Utils.Sep + obj.ID + ".hash", "")
+			Catch ex As Exception
+				'...
+			End Try
 		Next
 	End Sub
 

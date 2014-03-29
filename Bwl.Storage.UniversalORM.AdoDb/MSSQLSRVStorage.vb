@@ -17,8 +17,12 @@ Public Class MSSQLSRVStorage(Of T As ObjBase)
 
 		For Each indexing In _indexingMembers
 			Dim indexTableName = GetIndexTableName(indexing)
-			Dim indexValue = ReflectionTools.GetMemberValue(indexing.Name, obj)
-			SaveIndex(indexTableName, obj.ID, indexValue)
+			Try
+				Dim indexValue = ReflectionTools.GetMemberValue(indexing.Name, obj)
+				SaveIndex(indexTableName, obj.ID, indexValue)
+			Catch ex As Exception
+				'...
+			End Try
 		Next
 	End Sub
 

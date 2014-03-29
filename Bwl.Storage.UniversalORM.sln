@@ -19,6 +19,16 @@ Project("{F184B08F-C81C-45F6-A57F-5ABD9991F28F}") = "Bwl.Storage.UniversalORM.Ad
 EndProject
 Project("{F184B08F-C81C-45F6-A57F-5ABD9991F28F}") = "Bwl.Storage.UniversalORM.AdoDb.Test", "Bwl.Storage.UniversalORM.AdoDb.Test\Bwl.Storage.UniversalORM.AdoDb.Test.vbproj", "{28960DEC-66DD-4812-8051-91876A6E728B}"
 EndProject
+Project("{F184B08F-C81C-45F6-A57F-5ABD9991F28F}") = "Bwl.Storage.UniversalORM.LocalStorage", "Bwl.Storage.UniversalORM.LocalStorage\Bwl.Storage.UniversalORM.LocalStorage.vbproj", "{A5B104B3-DA24-4402-B2BB-9E8BDBAA5462}"
+EndProject
+Project("{F184B08F-C81C-45F6-A57F-5ABD9991F28F}") = "Bwl.Storage.UniversalORM.LocalStorage.Test", "Bwl.Storage.UniversalORM.LocalStorage.Test\Bwl.Storage.UniversalORM.LocalStorage.Test.vbproj", "{EA2C356E-2456-4E91-ADDB-AF4561861E72}"
+EndProject
+Project("{F184B08F-C81C-45F6-A57F-5ABD9991F28F}") = "Bwl.Storage.UniversalORM.Blob", "Bwl.Storage.UniversalORM.Blob\Bwl.Storage.UniversalORM.Blob.vbproj", "{6C002239-1F5E-4DAC-B249-AC1994F22E2C}"
+EndProject
+Project("{F184B08F-C81C-45F6-A57F-5ABD9991F28F}") = "Bwl.Storage.UniversalORM.Blob.Test", "Bwl.Storage.UniversalORM.Blob.Test\Bwl.Storage.UniversalORM.Blob.Test.vbproj", "{A85F3A0D-FBAD-417F-B1DA-5536A7E6AFF0}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Test", "Test", "{BFE8DDEA-A0B8-477C-979A-DE143B801176}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -45,8 +55,30 @@ Global
 		{28960DEC-66DD-4812-8051-91876A6E728B}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{28960DEC-66DD-4812-8051-91876A6E728B}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{28960DEC-66DD-4812-8051-91876A6E728B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A5B104B3-DA24-4402-B2BB-9E8BDBAA5462}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A5B104B3-DA24-4402-B2BB-9E8BDBAA5462}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A5B104B3-DA24-4402-B2BB-9E8BDBAA5462}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A5B104B3-DA24-4402-B2BB-9E8BDBAA5462}.Release|Any CPU.Build.0 = Release|Any CPU
+		{EA2C356E-2456-4E91-ADDB-AF4561861E72}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{EA2C356E-2456-4E91-ADDB-AF4561861E72}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{EA2C356E-2456-4E91-ADDB-AF4561861E72}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{EA2C356E-2456-4E91-ADDB-AF4561861E72}.Release|Any CPU.Build.0 = Release|Any CPU
+		{6C002239-1F5E-4DAC-B249-AC1994F22E2C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6C002239-1F5E-4DAC-B249-AC1994F22E2C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6C002239-1F5E-4DAC-B249-AC1994F22E2C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6C002239-1F5E-4DAC-B249-AC1994F22E2C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A85F3A0D-FBAD-417F-B1DA-5536A7E6AFF0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A85F3A0D-FBAD-417F-B1DA-5536A7E6AFF0}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A85F3A0D-FBAD-417F-B1DA-5536A7E6AFF0}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A85F3A0D-FBAD-417F-B1DA-5536A7E6AFF0}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{28960DEC-66DD-4812-8051-91876A6E728B} = {BFE8DDEA-A0B8-477C-979A-DE143B801176}
+		{A85F3A0D-FBAD-417F-B1DA-5536A7E6AFF0} = {BFE8DDEA-A0B8-477C-979A-DE143B801176}
+		{E6499D7D-0169-4812-AE68-68C6B7E58F77} = {BFE8DDEA-A0B8-477C-979A-DE143B801176}
+		{EA2C356E-2456-4E91-ADDB-AF4561861E72} = {BFE8DDEA-A0B8-477C-979A-DE143B801176}
 	EndGlobalSection
 EndGlobal

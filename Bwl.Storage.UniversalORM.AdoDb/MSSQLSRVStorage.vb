@@ -71,7 +71,7 @@ Public Class MSSQLSRVStorage(Of T As ObjBase)
 	End Sub
 
 	Public Overrides Sub UpdateObj(obj As T)
-
+		Throw New Exception("Операция не поддерживается")
 	End Sub
 
 	Public ReadOnly Property Name As String

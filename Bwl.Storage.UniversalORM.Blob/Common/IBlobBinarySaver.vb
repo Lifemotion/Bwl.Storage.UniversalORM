@@ -4,8 +4,8 @@
 ''' Преобразователь BLOB поля в поток и обратно.
 ''' </summary>
 ''' <remarks></remarks>
-Public Interface IBlobStreamSaver
+Public Interface IBlobBinarySaver
 	ReadOnly Property SupportedTypes As IEnumerable(Of Type)
-	Sub ToStream(blob As Object, stream As Stream)
-	Function FromStream(stream As Stream, blobType As Type)
+	Function ToBinary(blob As Object) As Byte()
+	Function FromBinary(data As Byte(), blobType As Type) As Object
 End Interface

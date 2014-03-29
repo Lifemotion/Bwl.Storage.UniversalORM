@@ -3,7 +3,7 @@
 Public Class CommonBlobStorage
 	Implements IBlobStorage
 
-	Private ReadOnly _blobStreamSavers As New List(Of IBlobStreamSaver)()
+	Private ReadOnly _blobStreamSavers As New List(Of IBlobBinarySaver)()
 	Private ReadOnly _blobSavers As New List(Of IBlobSaver)()
 	Private ReadOnly _typesInfo As New Dictionary(Of Type, String())()
 
@@ -20,7 +20,7 @@ Public Class CommonBlobStorage
 		End SyncLock
 	End Sub
 
-	Public Sub RemoveSaver(saver As IBlobStreamSaver)
+	Public Sub RemoveSaver(saver As IBlobBinarySaver)
 		SyncLock (_blobSavers)
 			If (saver IsNot Nothing) AndAlso (_blobSavers.Contains(saver)) Then
 				_blobSavers.Remove(saver)
@@ -28,7 +28,7 @@ Public Class CommonBlobStorage
 		End SyncLock
 	End Sub
 
-	Public Sub AddStreamSaver(streamSaver As IBlobStreamSaver)
+	Public Sub AddStreamSaver(streamSaver As IBlobBinarySaver)
 		SyncLock (_blobStreamSavers)
 			If (streamSaver IsNot Nothing) AndAlso (Not _blobStreamSavers.Contains(streamSaver)) Then
 				_blobStreamSavers.Add(streamSaver)
@@ -36,7 +36,7 @@ Public Class CommonBlobStorage
 		End SyncLock
 	End Sub
 
-	Public Sub RemoveStreamSaver(streamSaver As IBlobStreamSaver)
+	Public Sub RemoveStreamSaver(streamSaver As IBlobBinarySaver)
 		SyncLock (_blobStreamSavers)
 			If (streamSaver IsNot Nothing) AndAlso (_blobStreamSavers.Contains(streamSaver)) Then
 				_blobStreamSavers.Remove(streamSaver)
@@ -44,7 +44,7 @@ Public Class CommonBlobStorage
 		End SyncLock
 	End Sub
 
-	Public ReadOnly Property BlobStreamSavers As IEnumerable(Of IBlobStreamSaver) Implements IBlobStorage.BlobStreamSavers
+	Public ReadOnly Property BlobStreamSavers As IEnumerable(Of IBlobBinarySaver) Implements IBlobStorage.BlobStreamSavers
 		Get
 			Return _blobStreamSavers.ToArray
 		End Get
@@ -113,7 +113,7 @@ Public Class CommonBlobStorage
 				Dim blobType = blobInfo.FieldType
 				Dim streamSaver = _blobStreamSavers.FirstOrDefault(Function(s) s.SupportedTypes.Contains(blobType))
 				If (streamSaver IsNot Nothing) Then
-					Dim blobValue = streamSaver.FromStream(blobInfo.Stream, blobType)
+					Dim blobValue = streamSaver.FromBinary(blobInfo.Data, blobType)
 					ReflectionTools.SetMemberValue(blobInfo.FieldName, parentObject, blobValue)
 				End If
 			Next
@@ -153,9 +153,7 @@ Public Class CommonBlobStorage
 						blobInfo.BlobId = Guid.NewGuid.ToString
 						blobInfo.FieldName = fieldInfo
 						blobInfo.FieldType = blobType
-						blobInfo.Stream = New MemoryStream()
-
-						streamSaver.ToStream(blobValue, blobInfo.Stream)
+						blobInfo.Data = streamSaver.ToBinary(blobValue)
 						objBlobInfo.BlobsInfo.Add(blobInfo)
 					End If
 				End If

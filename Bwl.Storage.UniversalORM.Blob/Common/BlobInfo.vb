@@ -10,5 +10,5 @@ Public Class BlobInfo
 	Public Property FieldName As String
 	Public Property FieldType As Type
 	<JsonIgnore>
-	 Public Property Stream As Stream
+	Public Property Data As Byte()
 End Class

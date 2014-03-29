@@ -75,7 +75,7 @@
     <Compile Include="Common\IBlobSaver.vb" />
     <Compile Include="Common\ObjBlobInfo.vb" />
     <Compile Include="Common\IBlobStorage.vb" />
-    <Compile Include="Common\IBlobStreamSaver.vb" />
+    <Compile Include="Common\IBlobBinarySaver.vb" />
     <Compile Include="Common\CommonBlobStorage.vb" />
     <Compile Include="JsonUtils.vb" />
     <Compile Include="My Project\AssemblyInfo.vb" />

@@ -20,7 +20,7 @@ Public Class LocalStorage
 	''' <param name="blobSaver">Модуль для хранения BLOB данных.</param>
 	''' <param name="blobStremSavers">Преобразователи BLOB данных в потоки.</param>
 	''' <remarks></remarks>
-	Public Sub New(storageManager As IObjStorageManager, blobSaver As IBlobSaver, Optional blobStremSavers As IBlobStreamSaver() = Nothing)
+	Public Sub New(storageManager As IObjStorageManager, blobSaver As IBlobSaver, Optional blobStremSavers As IBlobBinarySaver() = Nothing)
 		_blobStorage = New CommonBlobStorage()
 		_blobStorage.AddSaver(blobSaver)
 

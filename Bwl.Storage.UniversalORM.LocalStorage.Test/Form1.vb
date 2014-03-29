@@ -54,5 +54,11 @@ Public Class Form1
 			localstorage.Remove(Of TestData)(objId)
 		Next
 
+		Dim objDataGen = New ObjDataInfoGenerator
+		Dim di1 = objDataGen.GetObjDataInfo(data1)
+		Dim files = di1.GetFilesForWeb
+
+		Dim di2 = ObjDataInfo.GetFromFiles(files)
+		Dim data5 = objDataGen.GetObject(di2)
 	End Sub
 End Class

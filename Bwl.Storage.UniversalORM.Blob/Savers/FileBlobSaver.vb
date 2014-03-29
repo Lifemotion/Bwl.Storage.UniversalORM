@@ -24,8 +24,7 @@ Public Class FileBlobSaver
 		Dim json = File.ReadAllText(Path.Combine(dir, parentObjId + ".json"))
 		Dim objBlobInfo = JsonUtils.LoadFromJsonString(Of ObjBlobInfo)(json)
 		For Each blobInfo In objBlobInfo.BlobsInfo
-			Dim bytes = File.ReadAllBytes(Path.Combine(dir, blobInfo.BlobId))
-			blobInfo.Stream = New MemoryStream(bytes)
+			blobInfo.Data = File.ReadAllBytes(Path.Combine(dir, blobInfo.BlobId))
 		Next
 		Return objBlobInfo
 	End Function
@@ -53,8 +52,7 @@ Public Class FileBlobSaver
 				File.Delete(fname)
 			End If
 			Dim fileStream = New FileStream(fname, FileMode.CreateNew)
-			blobInfo.Stream.Position = 0
-			blobInfo.Stream.CopyTo(fileStream)
+			fileStream.Write(blobInfo.Data, 0, blobInfo.Data.Length)
 			fileStream.Close()
 			fileStream.Dispose()
 		Next

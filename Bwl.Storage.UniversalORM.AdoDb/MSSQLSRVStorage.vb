@@ -19,6 +19,9 @@ Public Class MSSQLSRVStorage(Of T As ObjBase)
 			Dim indexTableName = GetIndexTableName(indexing)
 			Try
 				Dim indexValue = ReflectionTools.GetMemberValue(indexing.Name, obj)
+				If (TypeOf (indexValue) Is DateTime) Then
+					indexValue = CType(indexValue, DateTime).Ticks
+				End If
 				SaveIndex(indexTableName, obj.ID, indexValue)
 			Catch ex As Exception
 				'...
@@ -158,7 +161,12 @@ Public Class MSSQLSRVStorage(Of T As ObjBase)
 				Else
 					where += " AND " + str
 				End If
-				parameters.Add(New SqlParameter(pName, crit.Value))
+
+				Dim value = crit.Value
+				If (TypeOf (crit.Value) Is DateTime) Then
+					value = CType(crit.Value, DateTime).Ticks
+				End If
+				parameters.Add(New SqlParameter(pName, value))
 				i += 1
 			Else
 				Throw New Exception("Поле " + crit.Field + " не является индексируемым")

@@ -9,6 +9,9 @@ Public Class TestData
 
 	Public Property Dog As Integer = 4
 
+	<Indexing>
+	Public Property Timestamp As DateTime = DateTime.Now
+
 	<Indexing> <BlobContainer>
 	Public Property Int As New TestDataInternal
 

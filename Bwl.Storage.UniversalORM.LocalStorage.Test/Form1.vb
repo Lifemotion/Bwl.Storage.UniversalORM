@@ -5,7 +5,7 @@ Public Class Form1
 
 	Private Sub Form1_Load(sender As Object, e As EventArgs) Handles MyBase.Load
 		Dim conStrBld = New SqlConnectionStringBuilder()
-		conStrBld.InitialCatalog = "TestDB"
+		conStrBld.InitialCatalog = "TestDB1"
 		conStrBld.UserID = "sa"
 		conStrBld.Password = "123"
 		conStrBld.DataSource = "(local)"
@@ -43,7 +43,9 @@ Public Class Form1
 
 		Dim data2 = localstorage.Load(Of TestData)(id)
 
-		Dim ids = localstorage.FindObj(Of TestData)({New FindCriteria("Cat", FindCondition.likeEqaul, "%2%")})
+		Dim ids = localstorage.FindObj(Of TestData)({New FindCriteria("Timestamp", FindCondition.less, DateTime.Now)})
+
+		ids = localstorage.FindObj(Of TestData)({New FindCriteria("Timestamp", FindCondition.greater, DateTime.Now)})
 
 		For Each objId In ids
 			localstorage.Remove(Of TestData)(objId)

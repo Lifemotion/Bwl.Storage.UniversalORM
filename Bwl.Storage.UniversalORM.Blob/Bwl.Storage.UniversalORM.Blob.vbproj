@@ -69,8 +69,6 @@
     <Import Include="System.Xml.Linq" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Common\BlobAttribute.vb" />
-    <Compile Include="Common\BlobContainerAttribute.vb" />
     <Compile Include="Common\BlobInfo.vb" />
     <Compile Include="Common\IBlobSaver.vb" />
     <Compile Include="Common\ObjBlobInfo.vb" />
@@ -118,7 +116,12 @@
       <LastGenOutput>Settings.Designer.vb</LastGenOutput>
     </None>
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <ProjectReference Include="..\Bwl.Storage.UniversalORM\Bwl.Storage.UniversalORM.vbproj">
+      <Project>{cfd756ad-1cb6-4b12-a969-d18a434d1e72}</Project>
+      <Name>Bwl.Storage.UniversalORM</Name>
+    </ProjectReference>
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.VisualBasic.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

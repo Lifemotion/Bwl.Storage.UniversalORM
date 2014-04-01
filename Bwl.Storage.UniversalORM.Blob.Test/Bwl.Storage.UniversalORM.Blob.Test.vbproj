@@ -129,6 +129,10 @@
       <Project>{6c002239-1f5e-4dac-b249-ac1994f22e2c}</Project>
       <Name>Bwl.Storage.UniversalORM.Blob</Name>
     </ProjectReference>
+    <ProjectReference Include="..\Bwl.Storage.UniversalORM\Bwl.Storage.UniversalORM.vbproj">
+      <Project>{cfd756ad-1cb6-4b12-a969-d18a434d1e72}</Project>
+      <Name>Bwl.Storage.UniversalORM</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.VisualBasic.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

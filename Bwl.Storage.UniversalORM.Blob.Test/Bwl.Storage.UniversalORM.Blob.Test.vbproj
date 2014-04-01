@@ -63,7 +63,6 @@
   </ItemGroup>
   <ItemGroup>
     <Import Include="Bwl.Storage.UniversalORM" />
-    <Import Include="Bwl.Storage.UniversalORM.Files" />
     <Import Include="Microsoft.VisualBasic" />
     <Import Include="System" />
     <Import Include="System.Collections" />

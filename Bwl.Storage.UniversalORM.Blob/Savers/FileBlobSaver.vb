@@ -63,5 +63,14 @@ Public Class FileBlobSaver
 		If Directory.Exists(dir) Then
 			Directory.Delete(dir, True)
 		End If
+
+		Try
+			Dim parentDir = Directory.GetParent(dir).FullName
+			If (Not Directory.GetFiles(parentDir).Any) And (Not Directory.GetDirectories(parentDir).Any) Then
+				Directory.Delete(parentDir)
+			End If
+		Catch ex As Exception
+			'...
+		End Try
 	End Sub
 End Class

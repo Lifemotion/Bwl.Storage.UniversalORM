@@ -1,4 +1,5 @@
 ﻿Imports System.Reflection
+Imports System.IO
 
 Public Class FileObjStorage(Of T As ObjBase)
 	Inherits CommonObjStorage(Of T)
@@ -38,8 +39,8 @@ Public Class FileObjStorage(Of T As ObjBase)
 		For Each indexing In _indexingMembers
 			Try
 				Dim indexValue = ReflectionTools.GetMemberValue(indexing.Name, obj).ToString
-				Dim path = GetIndexPath(indexing.Name, MD5.GetHash(indexValue))
-				IO.File.WriteAllText(path + Utils.Sep + obj.ID + ".hash", "")
+				Dim path = GetIndexPath(indexing.Name, MD5.GetHash(obj.ID))
+				IO.File.WriteAllText(path + Utils.Sep + obj.ID + ".hash", indexValue.ToString)
 			Catch ex As Exception
 				'...
 			End Try
@@ -55,10 +56,31 @@ Public Class FileObjStorage(Of T As ObjBase)
 	End Sub
 
 	Public Overrides Sub RemoveObj(id As String)
-		Dim file = GetFileName(id)
-		If Not IO.File.Exists(file) Then Throw New Exception("Object Not Exists with this ID")
+		Dim fileMain = GetFileName(id)
+		If Not IO.File.Exists(fileMain) Then Throw New Exception("Object Not Exists with this ID")
 
-		IO.File.Delete(file)
+		IO.File.Delete(fileMain)
+
+		For Each indexing In _indexingMembers
+			Try
+				Dim path = GetIndexPath(indexing.Name, MD5.GetHash(id))
+				Dim fNameIndex = path + Utils.Sep + id + ".hash"
+
+				If (File.Exists(fNameIndex)) Then
+					File.Delete(fNameIndex)
+				End If
+
+				Try
+					If (Not Directory.GetFiles(path).Any) And (Not Directory.GetDirectories(path).Any) Then
+						Directory.Delete(path)
+					End If
+				Catch ex As Exception
+					'...
+				End Try
+			Catch ex As Exception
+				'...
+			End Try
+		Next
 	End Sub
 
 	Private Function GetFileName(objId As String) As String

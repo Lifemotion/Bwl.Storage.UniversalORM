@@ -12,7 +12,10 @@ Public Class Form1
 		conStrBld.IntegratedSecurity = True
 		conStrBld.ConnectTimeout = 1
 
-		Dim storageManager = New AdoDb.MSSQLSRVStorageManager(conStrBld)
+		Dim fileSaverDir = Path.Combine(Application.StartupPath, "FileData")
+
+		'Dim storageManager = New AdoDb.MSSQLSRVStorageManager(conStrBld)
+		Dim storageManager = New Files.FileStorageManager(fileSaverDir)
 
 		Dim blobSaverDir = Path.Combine(Application.StartupPath, "BlobData")
 

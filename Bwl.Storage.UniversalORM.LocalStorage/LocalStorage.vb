@@ -49,6 +49,17 @@ Public Class LocalStorage
 		Return obj
 	End Function
 
+	Public Function LoadObjects(Of T As ObjBase)(objIds As IEnumerable(Of String)) As IEnumerable(Of T)
+		Dim storage = GetStorage(Of T)()
+		Dim objects = storage.GetObjects(objIds)
+		If (objects IsNot Nothing) Then
+			For Each obj In objects
+				_blobStorage.LoadBlobs(obj, obj.ID)
+			Next
+		End If
+		Return objects
+	End Function
+
 	Public Sub Update(Of T As ObjBase)(obj As T)
 		Dim storage = GetStorage(Of T)()
 		If storage IsNot Nothing Then

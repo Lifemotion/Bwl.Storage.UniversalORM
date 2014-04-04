@@ -220,6 +220,28 @@ Public Class MSSQLSRVStorage(Of T As ObjBase)
 	Public Overrides Function GetObjects(objIds As IEnumerable(Of String)) As IEnumerable(Of T)
 		Dim resList = New List(Of T)
 
+		Dim whereSQL = String.Empty
+		If (objIds IsNot Nothing AndAlso objIds.Any) Then
+			For Each id In objIds
+				If (whereSQL = "") Then
+					whereSQL = String.Format(" ([guid] = '{0}') ", id)
+				Else
+					whereSQL += String.Format(" OR ([guid] = '{0}') ", id)
+				End If
+			Next
+
+
+
+			Dim sql = String.Format("SELECT [json] FROM [dbo].[{0}] WHERE {1}", Name, whereSQL)
+
+			Dim jsonObjList = MSSQLSRVUtils.GetObjectList(ConnectionString, sql)
+			If (jsonObjList IsNot Nothing) Then
+				Dim tmpList = jsonObjList.Select(Function(j) JsonConverter.Deserialize(Of T)(j(0).ToString))
+
+				resList.AddRange(tmpList)
+			End If
+		End If
+
 		Return resList
 	End Function
 End Class

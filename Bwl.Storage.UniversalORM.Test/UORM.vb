@@ -15,7 +15,7 @@
 
 		Dim newData = stor.GetObj(testData1.ID)
 
-        Dim f = stor.FindObj({})
+		Dim f = stor.FindObj(Nothing)
         For Each ff In f
 			stor.RemoveObj(ff)
         Next

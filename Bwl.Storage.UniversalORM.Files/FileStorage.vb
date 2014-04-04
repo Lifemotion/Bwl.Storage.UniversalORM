@@ -87,7 +87,7 @@ Public Class FileObjStorage(Of T As ObjBase)
 		Return _folder + Utils.Sep + objId + ".obj.json"
 	End Function
 
-	Public Overrides Function FindObj(criterias() As FindCriteria) As String()
+	Public Overrides Function FindObj(searchParams As SearchParams) As IEnumerable(Of String)
 		Return FindAllObjs()
 	End Function
 
@@ -107,5 +107,11 @@ Public Class FileObjStorage(Of T As ObjBase)
 		Dim str = IO.File.ReadAllText(file, Utils.Enc)
 		Dim obj = JsonConverter.Deserialize(Of T)(str)
 		Return obj
+	End Function
+
+	Public Overrides Function GetObjects(objIds As IEnumerable(Of String)) As IEnumerable(Of T)
+		Dim resList = New List(Of T)
+
+		Return resList
 	End Function
 End Class

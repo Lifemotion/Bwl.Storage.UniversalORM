@@ -66,8 +66,8 @@
     <Compile Include="Common\CommonObjStorage.vb" />
     <Compile Include="Common\IObjStorage.vb" />
     <Compile Include="Common\IObjStorageManager.vb" />
-    <Compile Include="Criteria\FindCondition.vb" />
-    <Compile Include="Criteria\FindCriteria.vb" />
+    <Compile Include="SearchParams\FindCondition.vb" />
+    <Compile Include="SearchParams\FindCriteria.vb" />
     <Compile Include="Json\JsonConverter.vb" />
     <Compile Include="Objects\IndexInfo.vb" />
     <Compile Include="Objects\Indexing.vb" />
@@ -88,6 +88,11 @@
     </Compile>
     <Compile Include="Objects\ObjBase.vb" />
     <Compile Include="Reflection\TypeMembersTools.vb" />
+    <Compile Include="SearchParams\SearchParams.vb" />
+    <Compile Include="SearchParams\SelectMode.vb" />
+    <Compile Include="SearchParams\SelectOptions.vb" />
+    <Compile Include="SearchParams\SortMode.vb" />
+    <Compile Include="SearchParams\SortParam.vb" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="My Project\Resources.resx">

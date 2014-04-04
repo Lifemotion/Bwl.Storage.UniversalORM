@@ -36,13 +36,15 @@ Public Class Form1
 			storage.AddObj(testData1)
 			storage.AddObj(testData2)
 
-			Dim cat2Id = storage.FindObj({New FindCriteria("Cat", FindCondition.likeEqaul, "%2"), New FindCriteria("Int.Second", FindCondition.eqaul, "4444")})
+			Dim sp = New SearchParams({New FindCriteria("Cat", FindCondition.likeEqaul, "%2"), New FindCriteria("Int.Second", FindCondition.eqaul, "4444")})
+
+			Dim cat2Id = storage.FindObj(sp)
 
 			Dim cat2 = storage.GetObj(cat2Id.First)
 
 			Dim newData = storage.GetObj(testData1.ID)
 
-			Dim allCats = storage.FindObj({})
+			Dim allCats = storage.FindObj(Nothing)
 			For Each ff In allCats
 				storage.RemoveObj(ff)
 			Next

@@ -67,10 +67,10 @@ Public Class LocalStorage
 		End SyncLock
 	End Function
 
-	Public Function FindObj(Of T As ObjBase)(Optional criterias() As FindCriteria = Nothing) As String()
+	Public Function FindObj(Of T As ObjBase)(Optional searchParams As SearchParams = Nothing) As IEnumerable(Of String)
 		Dim storage = GetStorage(Of T)()
 		If storage IsNot Nothing Then
-			Return storage.FindObj(criterias)
+			Return storage.FindObj(searchParams)
 		End If
 		Return Nothing
 	End Function

@@ -73,6 +73,9 @@ Public Class MSSQLSRVUtils
 		Return res
 	End Function
 
+	''' <summary>
+	''' Выполняет SQL запрос и возвращает его результаты в виде списка, содержащего список полей объектов
+	''' </summary>
 	Public Shared Function GetObjectList(connString As String, sql As String, Optional parameters As SqlParameter() = Nothing) As List(Of List(Of Object))
 		Dim list As List(Of List(Of Object)) = Nothing
 		Dim reader As SqlReaderHelper = Nothing

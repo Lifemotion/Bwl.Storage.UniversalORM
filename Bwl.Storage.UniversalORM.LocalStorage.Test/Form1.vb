@@ -14,8 +14,8 @@ Public Class Form1
 
 		Dim fileSaverDir = Path.Combine(Application.StartupPath, "FileData")
 
-		'Dim storageManager = New AdoDb.MSSQLSRVStorageManager(conStrBld)
-		Dim storageManager = New Files.FileStorageManager(fileSaverDir)
+		Dim storageManager = New AdoDb.MSSQLSRVStorageManager(conStrBld)
+		'Dim storageManager = New Files.FileStorageManager(fileSaverDir)
 
 		Dim blobSaverDir = Path.Combine(Application.StartupPath, "BlobData")
 
@@ -46,9 +46,44 @@ Public Class Form1
 
 		Dim data2 = localstorage.Load(Of TestData)(id)
 
-		Dim ids = localstorage.FindObj(Of TestData)({New FindCriteria("Timestamp", FindCondition.less, DateTime.Now)})
+		Dim crit = {New FindCriteria("Timestamp", FindCondition.less, DateTime.Now)}
+		Dim sp = New SearchParams(crit)
+		Dim ids = localstorage.FindObj(Of TestData)(sp)
 
-		ids = localstorage.FindObj(Of TestData)({New FindCriteria("Timestamp", FindCondition.greater, DateTime.Now)})
+
+		Dim sort = New SortParam("Timestamp", SortMode.ASC)
+		sp = New SearchParams(sortParam:=sort)
+		Dim ids1 = localstorage.FindObj(Of TestData)(sp)
+
+		sort = New SortParam("Timestamp", SortMode.DESC)
+		sp = New SearchParams(sortParam:=sort)
+		Dim ids2 = localstorage.FindObj(Of TestData)(sp)
+
+
+		Dim selectOpt = New SelectOptions(10)
+		sp = New SearchParams(selectOptions:=selectOpt)
+		Dim ids3 = localstorage.FindObj(Of TestData)(sp)
+
+		selectOpt = New SelectOptions(10, 5)
+		sp = New SearchParams(selectOptions:=selectOpt)
+		Dim ids4 = localstorage.FindObj(Of TestData)(sp)
+
+		selectOpt = New SelectOptions(4, 10, 0)
+		sp = New SearchParams(selectOptions:=selectOpt)
+		Dim ids5 = localstorage.FindObj(Of TestData)(sp)
+
+		selectOpt = New SelectOptions(4, 10, 7)
+		sp = New SearchParams(selectOptions:=selectOpt)
+		Dim ids6 = localstorage.FindObj(Of TestData)(sp)
+
+		selectOpt = New SelectOptions(10)
+		sort = New SortParam("Timestamp", SortMode.DESC)
+		sp = New SearchParams(selectOptions:=selectOpt, sortParam:=sort)
+		Dim ids7 = localstorage.FindObj(Of TestData)(sp)
+
+		crit = {New FindCriteria("Timestamp", FindCondition.greater, DateTime.Now)}
+		sp = New SearchParams(crit)
+		ids = localstorage.FindObj(Of TestData)(sp)
 
 		For Each objId In ids
 			localstorage.Remove(Of TestData)(objId)

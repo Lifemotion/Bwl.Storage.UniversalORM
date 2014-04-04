@@ -2,6 +2,7 @@
 
 Public Class MSSQLSRVStorage(Of T As ObjBase)
 	Inherits CommonObjStorage(Of T)
+
 	Private _name As String
 
 	Public Sub New(connString As String)
@@ -41,18 +42,53 @@ Public Class MSSQLSRVStorage(Of T As ObjBase)
 		MSSQLSRVUtils.ExecSQL(ConnectionString, sql, {New SqlParameter("@p1", value)})
 	End Sub
 
-	Public Overrides Function FindObj(criterias() As FindCriteria) As String()
-		Dim sql = String.Format("SELECT [{0}].[guid] FROM [dbo].[{0}]", Name)
-		Dim parameters As SqlParameter() = Nothing
+	Public Overrides Function FindObj(searchParams As SearchParams) As IEnumerable(Of String)
 
-		If (criterias IsNot Nothing AndAlso criterias.Any) Then
-			Dim helper = GenerateWhereSql(criterias)
-			sql = sql + helper.SQL
-			parameters = helper.Parameters.ToArray
+		'''' TOP or BETWEEN
+		Dim maxRecordSql = String.Empty
+		Dim selectOptionWhere = String.Empty
+		If (searchParams IsNot Nothing) AndAlso (searchParams.SelectOptions IsNot Nothing) Then
+			If searchParams.SelectOptions.SelectMode = SelectMode.Top Then
+				selectOptionWhere = String.Format(" WHERE RowNum BETWEEN 0 AND {0}", searchParams.SelectOptions.TopValue)
+			Else
+				selectOptionWhere = String.Format(" WHERE RowNum BETWEEN {0} AND {1}", searchParams.SelectOptions.StartValue, searchParams.SelectOptions.EndValue)
+			End If
+
+			If searchParams.SelectOptions.MaxRecordsCount > 0 Then
+				maxRecordSql = " TOP " + searchParams.SelectOptions.MaxRecordsCount.ToString.ToString
+			End If
 		End If
 
-		Dim list = MSSQLSRVUtils.GetObjectList(ConnectionString, sql, parameters)
-		If list IsNot Nothing AndAlso list.Any Then
+		'''' subQuery + sorting
+		Dim sortModeStr = "ASC"
+		Dim sortField = "guid"
+		Dim sortTableName = Name
+		If (searchParams IsNot Nothing) AndAlso (searchParams.SortParam IsNot Nothing) Then
+			sortModeStr = searchParams.SortParam.SortMode.ToString
+			Dim indexInfo = _indexingMembers.FirstOrDefault(Function(indInf) indInf.Name = searchParams.SortParam.Field)
+			If (indexInfo IsNot Nothing) Then
+				sortField = "value"
+				sortTableName = GetIndexTableName(indexInfo)
+			Else
+				Throw New Exception("MSSQLSRVStorage.FindObj _ BadSortParam _ index " + indexInfo.Name + " not found.")
+			End If
+		End If
+		Dim subSql = String.Format("Select {4} [{0}].[guid], ROW_NUMBER() OVER(ORDER BY [{1}].[{2}] {3}) AS RowNum FROM [dbo].[{0}] ", Name, sortTableName, sortField, sortModeStr, maxRecordSql)
+
+		'''' subSQLWhere by index
+		Dim subSQLWhere = String.Empty
+		Dim parameters As SqlParameter() = Nothing
+		Dim helper = GenerateWhereSql(searchParams.FindCriterias)
+		subSQLWhere = helper.SQL
+		parameters = helper.Parameters.ToArray
+
+		
+
+		'''' main sql
+		Dim mainSelect = String.Format("SELECT * FROM ({1}) a {2} ", selectOptionWhere, subSql + subSQLWhere, selectOptionWhere)
+
+		Dim list = MSSQLSRVUtils.GetObjectList(ConnectionString, mainSelect, parameters)
+		If (list IsNot Nothing AndAlso list.Any) Then
 			Dim resList = list.Select(Function(d) d(0).ToString)
 			Return resList.ToArray
 		Else
@@ -119,7 +155,7 @@ Public Class MSSQLSRVStorage(Of T As ObjBase)
 		Return indexTableName
 	End Function
 
-	Public Function GenerateWhereSql(criterias() As FindCriteria) As SqlHelper
+	Public Function GenerateWhereSql(criterias As IEnumerable(Of FindCriteria)) As SqlHelper
 		Dim fromSQl As String = ""
 
 		Dim where = String.Empty
@@ -134,44 +170,45 @@ Public Class MSSQLSRVStorage(Of T As ObjBase)
 			End If
 		Next
 
-
 		Dim parameters As New List(Of SqlParameter)()
 		Dim i = 0
-		For Each crit In criterias
-			Dim ind = _indexingMembers.FirstOrDefault(Function(f) f.Name = crit.Field)
-			If (ind IsNot Nothing) Then
-				Dim indexTableName = GetIndexTableName(ind)
-				Dim str = String.Empty
-				Dim pName = "@p" + i.ToString
-				Select Case crit.Condition
-					Case FindCondition.eqaul
-						str = String.Format(" ([{0}].[value] = {1}) ", indexTableName, pName)
-					Case FindCondition.greater
-						str = String.Format(" ([{0}].[value] > {1}) ", indexTableName, pName)
-					Case FindCondition.less
-						str = String.Format(" ([{0}].[value] < {1}) ", indexTableName, pName)
-					Case FindCondition.notEqual
-						str = String.Format(" ([{0}].[value] <> {1}) ", indexTableName, pName)
-					Case FindCondition.likeEqaul
-						str = String.Format(" ([{0}].[value] LIKE {1}) ", indexTableName, pName)
-				End Select
+		If (criterias IsNot Nothing) Then
+			For Each crit In criterias
+				Dim ind = _indexingMembers.FirstOrDefault(Function(f) f.Name = crit.Field)
+				If (ind IsNot Nothing) Then
+					Dim indexTableName = GetIndexTableName(ind)
+					Dim str = String.Empty
+					Dim pName = "@p" + i.ToString
+					Select Case crit.Condition
+						Case FindCondition.eqaul
+							str = String.Format(" ([{0}].[value] = {1}) ", indexTableName, pName)
+						Case FindCondition.greater
+							str = String.Format(" ([{0}].[value] > {1}) ", indexTableName, pName)
+						Case FindCondition.less
+							str = String.Format(" ([{0}].[value] < {1}) ", indexTableName, pName)
+						Case FindCondition.notEqual
+							str = String.Format(" ([{0}].[value] <> {1}) ", indexTableName, pName)
+						Case FindCondition.likeEqaul
+							str = String.Format(" ([{0}].[value] LIKE {1}) ", indexTableName, pName)
+					End Select
 
-				If (String.IsNullOrEmpty(where)) Then
-					where += str
+					If (String.IsNullOrEmpty(where)) Then
+						where += str
+					Else
+						where += " AND " + str
+					End If
+
+					Dim value = crit.Value
+					If (TypeOf (crit.Value) Is DateTime) Then
+						value = CType(crit.Value, DateTime).Ticks
+					End If
+					parameters.Add(New SqlParameter(pName, value))
+					i += 1
 				Else
-					where += " AND " + str
+					Throw New Exception("Поле " + crit.Field + " не является индексируемым")
 				End If
-
-				Dim value = crit.Value
-				If (TypeOf (crit.Value) Is DateTime) Then
-					value = CType(crit.Value, DateTime).Ticks
-				End If
-				parameters.Add(New SqlParameter(pName, value))
-				i += 1
-			Else
-				Throw New Exception("Поле " + crit.Field + " не является индексируемым")
-			End If
-		Next
+			Next
+		End If
 		Return New SqlHelper(fromSQl + " WHERE " + where, parameters)
 	End Function
 
@@ -180,4 +217,9 @@ Public Class MSSQLSRVStorage(Of T As ObjBase)
 		MSSQLSRVUtils.ExecSQL(ConnectionString, sql)
 	End Sub
 
+	Public Overrides Function GetObjects(objIds As IEnumerable(Of String)) As IEnumerable(Of T)
+		Dim resList = New List(Of T)
+
+		Return resList
+	End Function
 End Class

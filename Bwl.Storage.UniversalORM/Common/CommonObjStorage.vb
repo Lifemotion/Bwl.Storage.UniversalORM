@@ -14,7 +14,7 @@
 
 	Public MustOverride Sub AddObj(obj As T) Implements IObjStorage(Of T).AddObj
 
-	Public MustOverride Function FindObj(criterias() As FindCriteria) As String() Implements IObjStorage(Of T).FindObj
+	Public MustOverride Function FindObj(searchParams As SearchParams) As IEnumerable(Of String) Implements IObjStorage(Of T).FindObj
 
 	Public MustOverride Function GetObj(id As String) As T Implements IObjStorage(Of T).GetObj
 
@@ -22,4 +22,5 @@
 
 	Public MustOverride Sub UpdateObj(obj As T) Implements IObjStorage(Of T).UpdateObj
 
+	Public MustOverride Function GetObjects(objIds As IEnumerable(Of String)) As IEnumerable(Of T) Implements IObjStorage(Of T).GetObjects
 End Class

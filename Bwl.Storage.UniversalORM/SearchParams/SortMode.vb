@@ -1,4 +1,4 @@
 ﻿Public Enum SortMode
-	ASC
-	DESC
+	Ascending
+	Descending
 End Enum

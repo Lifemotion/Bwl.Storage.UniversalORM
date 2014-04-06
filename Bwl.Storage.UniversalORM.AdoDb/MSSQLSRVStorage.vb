@@ -64,7 +64,10 @@ Public Class MSSQLSRVStorage(Of T As ObjBase)
 		Dim sortField = "guid"
 		Dim sortTableName = Name
 		If (searchParams IsNot Nothing) AndAlso (searchParams.SortParam IsNot Nothing) Then
-			sortModeStr = searchParams.SortParam.SortMode.ToString
+			If searchParams.SortParam.SortMode = SortMode.Descending Then
+				sortModeStr = "DESC"
+			End If
+
 			Dim indexInfo = _indexingMembers.FirstOrDefault(Function(indInf) indInf.Name = searchParams.SortParam.Field)
 			If (indexInfo IsNot Nothing) Then
 				sortField = "value"
@@ -78,11 +81,15 @@ Public Class MSSQLSRVStorage(Of T As ObjBase)
 		'''' subSQLWhere by index
 		Dim subSQLWhere = String.Empty
 		Dim parameters As SqlParameter() = Nothing
-		Dim helper = GenerateWhereSql(searchParams.FindCriterias)
+		Dim crit As IEnumerable(Of FindCriteria) = Nothing
+		If (searchParams IsNot Nothing) Then
+			crit = searchParams.FindCriterias
+		End If
+		Dim helper = GenerateWhereSql(crit)
 		subSQLWhere = helper.SQL
 		parameters = helper.Parameters.ToArray
 
-		
+
 
 		'''' main sql
 		Dim mainSelect = String.Format("SELECT * FROM ({1}) a {2} ", selectOptionWhere, subSql + subSQLWhere, selectOptionWhere)

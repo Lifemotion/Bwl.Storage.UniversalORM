@@ -41,6 +41,20 @@ Public Class FileBlobSaver
 		Return dir
 	End Function
 
+	Public Function GetBlobFilePath(id As String, blobName As String) As String
+		Dim dir = GetPath(id)
+		Dim json = File.ReadAllText(Path.Combine(dir, id + ".json"))
+		Dim objBlobInfo = JsonUtils.LoadFromJsonString(Of ObjBlobInfo)(json)
+		Dim bi = objBlobInfo.BlobsInfo.FirstOrDefault(Function(b) b.FieldName = blobName)
+		If (bi IsNot Nothing) Then
+			Return Path.Combine(dir, bi.BlobId)
+		Else
+			Throw New Exception("FileblobSaver.GetBlobFilePath _ не найдено поле " + blobName)
+		End If
+		Return String.Empty
+	End Function
+
+
 	Public Sub Save(objBlobInfo As ObjBlobInfo) Implements IBlobSaver.Save
 		Dim dir = GetPath(objBlobInfo.ParentObjId)
 		Dim json = JsonUtils.ToJson(objBlobInfo)

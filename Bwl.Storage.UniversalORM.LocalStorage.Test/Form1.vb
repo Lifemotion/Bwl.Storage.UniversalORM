@@ -51,11 +51,11 @@ Public Class Form1
 		Dim ids = localstorage.FindObj(Of TestData)(sp)
 
 
-		Dim sort = New SortParam("Timestamp", SortMode.ASC)
+		Dim sort = New SortParam("Timestamp", SortMode.Ascending)
 		sp = New SearchParams(sortParam:=sort)
 		Dim ids1 = localstorage.FindObj(Of TestData)(sp)
 
-		sort = New SortParam("Timestamp", SortMode.DESC)
+		sort = New SortParam("Timestamp", SortMode.Descending)
 		sp = New SearchParams(sortParam:=sort)
 		Dim ids2 = localstorage.FindObj(Of TestData)(sp)
 
@@ -79,7 +79,7 @@ Public Class Form1
 		Dim ids6 = localstorage.FindObj(Of TestData)(sp)
 
 		selectOpt = New SelectOptions(10)
-		sort = New SortParam("Timestamp", SortMode.DESC)
+		sort = New SortParam("Timestamp", SortMode.Descending)
 		sp = New SearchParams(selectOptions:=selectOpt, sortParam:=sort)
 		Dim ids7 = localstorage.FindObj(Of TestData)(sp)
 

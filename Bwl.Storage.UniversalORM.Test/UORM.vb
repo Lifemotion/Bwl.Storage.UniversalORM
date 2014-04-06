@@ -1,6 +1,6 @@
 ﻿Public Class UORM
     Private manager As New FileStorageManager(Application.StartupPath + "\..\data")
-    Private stor As FileObjStorage(Of TestData) = manager.CreateStorage(Of TestData)("TestDataStor")
+	Private stor As FileObjStorage = manager.CreateStorage("TestDataStor", GetType(TestData))
     Private Sub Button1_Click(sender As Object, e As EventArgs) Handles Button1.Click
 		Dim testData1 = New TestData
 		testData1.Cat = "CAT1111111"

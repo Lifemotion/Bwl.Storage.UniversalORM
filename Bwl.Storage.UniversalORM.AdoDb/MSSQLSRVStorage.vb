@@ -1,16 +1,18 @@
 ﻿Imports System.Data.SqlClient
 
-Public Class MSSQLSRVStorage(Of T As ObjBase)
-	Inherits CommonObjStorage(Of T)
+Public Class MSSQLSRVStorage
+	Inherits CommonObjStorage
+
 
 	Private _name As String
 
-	Public Sub New(connString As String)
-		_name = GetType(T).Name
+	Public Sub New(connString As String, type As Type)
+		MyBase.New(type)
+		_name = type.Name
 		ConnectionString = connString
 	End Sub
 
-	Public Overrides Sub AddObj(obj As T)
+	Public Overrides Sub AddObj(obj As ObjBase)
 		CreateMainTable(ConnectionString, Name)
 
 		Dim json = JsonConverter.Serialize(obj)
@@ -28,6 +30,37 @@ Public Class MSSQLSRVStorage(Of T As ObjBase)
 				'...
 			End Try
 		Next
+	End Sub
+
+	Public Overrides Sub AddObjects(objects As ObjBase())
+		CreateMainTable(ConnectionString, Name)
+
+		Dim jsonList = New List(Of String)
+		Dim ids = New List(Of String)
+		Dim indexTableNames = New List(Of String)
+		Dim indexValues = New List(Of Object)
+		For Each obj In objects
+			Dim json = JsonConverter.Serialize(obj)
+			jsonList.Add(json)
+			ids.Add(obj.ID)
+
+			For Each indexing In _indexingMembers
+				Dim indexTableName = GetIndexTableName(indexing)
+				indexTableNames.Add(indexTableName)
+				Try
+					Dim indexValue = ReflectionTools.GetMemberValue(indexing.Name, obj)
+					If (TypeOf (indexValue) Is DateTime) Then
+						indexValue = CType(indexValue, DateTime).Ticks
+					End If
+					indexValues.Add(indexValue)
+				Catch ex As Exception
+					'...
+				End Try
+			Next
+		Next
+
+		'Save(ConnectionString, ids, jsonList)
+		'SaveIndex(indexTableNames, ids, indexValues)
 	End Sub
 
 	Public Shared Sub CreateMainTable(connString As String, tableName As String)
@@ -103,15 +136,14 @@ Public Class MSSQLSRVStorage(Of T As ObjBase)
 		End If
 	End Function
 
-	Public Overrides Function GetObj(id As String) As T
-		Dim res As T = Nothing
+	Public Overrides Function GetObj(id As String) As ObjBase
+		Dim res As ObjBase = Nothing
 		Dim sql = String.Format("SELECT [json] FROM [dbo].[{0}] WHERE [guid] = '{1}'", Name, id)
 		Dim jsonObj = MSSQLSRVUtils.ExecSQLScalar(ConnectionString, sql)
 		If (jsonObj IsNot Nothing) Then
 			Dim json = jsonObj.ToString
-			res = JsonConverter.Deserialize(Of T)(json)
+			res = JsonConverter.Deserialize(json, SupportedType)
 		End If
-
 		Return res
 	End Function
 
@@ -120,7 +152,7 @@ Public Class MSSQLSRVStorage(Of T As ObjBase)
 		MSSQLSRVUtils.ExecSQL(ConnectionString, sql)
 	End Sub
 
-	Public Overrides Sub UpdateObj(obj As T)
+	Public Overrides Sub UpdateObj(obj As ObjBase)
 		Throw New Exception("Операция не поддерживается")
 	End Sub
 
@@ -162,7 +194,7 @@ Public Class MSSQLSRVStorage(Of T As ObjBase)
 		Return indexTableName
 	End Function
 
-	Public Function GenerateWhereSql(criterias As IEnumerable(Of FindCriteria)) As SqlHelper
+	Private Function GenerateWhereSql(criterias As IEnumerable(Of FindCriteria)) As SqlHelper
 		Dim fromSQl As String = ""
 
 		Dim where = String.Empty
@@ -224,7 +256,7 @@ Public Class MSSQLSRVStorage(Of T As ObjBase)
 		MSSQLSRVUtils.ExecSQL(ConnectionString, sql)
 	End Sub
 
-	Public Overrides Function GetObjects(objIds As IEnumerable(Of String)) As IEnumerable(Of T)
+	Public Overrides Function GetObjects(Of T As ObjBase)(objIds As IEnumerable(Of String)) As IEnumerable(Of T)
 		Dim resList = New List(Of T)
 
 		Dim whereSQL = String.Empty
@@ -236,19 +268,25 @@ Public Class MSSQLSRVStorage(Of T As ObjBase)
 					whereSQL += String.Format(" OR ([guid] = '{0}') ", id)
 				End If
 			Next
-
-
-
 			Dim sql = String.Format("SELECT [json] FROM [dbo].[{0}] WHERE {1}", Name, whereSQL)
-
 			Dim jsonObjList = MSSQLSRVUtils.GetObjectList(ConnectionString, sql)
 			If (jsonObjList IsNot Nothing) Then
 				Dim tmpList = jsonObjList.Select(Function(j) JsonConverter.Deserialize(Of T)(j(0).ToString))
-
 				resList.AddRange(tmpList)
 			End If
 		End If
-
 		Return resList
+	End Function
+
+	Public Overrides Function Contains(id As String) As Boolean
+		Throw New Exception("Операция не поддерживается")
+	End Function
+
+	Public Overloads Overrides Function GetObjects(objIds As IEnumerable(Of String)) As IEnumerable(Of ObjBase)
+		Throw New Exception("Операция не поддерживается")
+	End Function
+
+	Public Overloads Overrides Function GetObj(Of T As ObjBase)(id As String) As T
+		Throw New Exception("Операция не поддерживается")
 	End Function
 End Class

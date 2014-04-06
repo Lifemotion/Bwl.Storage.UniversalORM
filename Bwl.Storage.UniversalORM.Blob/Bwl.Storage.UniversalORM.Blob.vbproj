@@ -93,8 +93,8 @@
     </Compile>
     <Compile Include="Savers\FileBlobSaver.vb" />
     <Compile Include="Savers\MemorySaver.vb" />
-    <Compile Include="StreamSavers\BitmapStreamSaver.vb" />
-    <Compile Include="StreamSavers\BytesStreamSaver.vb" />
+    <Compile Include="BinarySavers\BitmapBinarySaver.vb" />
+    <Compile Include="BinarySavers\BytesBinarySaver.vb" />
     <Compile Include="TypeMembersTools.vb" />
   </ItemGroup>
   <ItemGroup>

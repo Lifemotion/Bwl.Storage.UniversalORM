@@ -9,7 +9,7 @@ Public Class Form1
 		conStrBld.UserID = "sa"
 		conStrBld.Password = "123"
 		conStrBld.DataSource = "(local)"
-		conStrBld.IntegratedSecurity = True
+		conStrBld.IntegratedSecurity = False
 		conStrBld.ConnectTimeout = 1
 
 		Dim fileSaverDir = Path.Combine(Application.StartupPath, "FileData")
@@ -32,7 +32,7 @@ Public Class Form1
 		data1.Int.Second = "555555555"
 		data1.Int.SomeData = "999999999999"
 
-		Dim id = localstorage.Save(Of TestData)(data1)
+		localstorage.AddObj(data1)
 		Dim data3 = New TestData()
 		data3.Cat = "111211"
 		data3.Dog = "222222"
@@ -42,14 +42,16 @@ Public Class Form1
 		data3.Int.Second = "555555555"
 		data3.Int.SomeData = "999999999999"
 
-		localstorage.Save(Of TestData)(data3)
+		localstorage.AddObj(data3)
 
-		Dim data2 = localstorage.Load(Of TestData)(id)
+		Dim data2 = localstorage.GetObj(Of TestData)(data1.ID)
 
 		Dim crit = {New FindCriteria("Timestamp", FindCondition.less, DateTime.Now)}
 		Dim sp = New SearchParams(crit)
 		Dim ids = localstorage.FindObj(Of TestData)(sp)
 
+		Dim objs11 = localstorage.GetObjects(Of TestData)(ids)
+		Dim objs22 = localstorage.GetObjects(Of TestData)(ids, False)
 
 		Dim sort = New SortParam("Timestamp", SortMode.Ascending)
 		sp = New SearchParams(sortParam:=sort)
@@ -64,7 +66,8 @@ Public Class Form1
 		sp = New SearchParams(selectOptions:=selectOpt)
 		Dim ids3 = localstorage.FindObj(Of TestData)(sp)
 
-		Dim objs111 = localstorage.LoadObjects(Of TestData)(ids3)
+		Dim objs111 = localstorage.GetObjects(Of TestData)(ids3)
+		Dim objs222 = localstorage.GetObjects(Of TestData)(ids3, False)
 
 		selectOpt = New SelectOptions(10, 5)
 		sp = New SearchParams(selectOptions:=selectOpt)
@@ -88,12 +91,12 @@ Public Class Form1
 		ids = localstorage.FindObj(Of TestData)(sp)
 
 		For Each objId In ids
-			localstorage.Remove(Of TestData)(objId)
+			localstorage.RemoveObj(Of TestData)(objId)
 		Next
 
 		ids = localstorage.FindObj(Of TestData)()
 		For Each objId In ids
-			localstorage.Remove(Of TestData)(objId)
+			localstorage.RemoveObj(Of TestData)(objId)
 		Next
 
 		Dim objDataGen = New ObjDataInfoGenerator

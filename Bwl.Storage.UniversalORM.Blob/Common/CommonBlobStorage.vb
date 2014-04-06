@@ -8,8 +8,8 @@ Public Class CommonBlobStorage
 	Private ReadOnly _typesInfo As New Dictionary(Of Type, String())()
 
 	Public Sub New()
-		AddStreamSaver(New BitmapStreamSaver)
-		AddStreamSaver(New BytesStreamSaver)
+		AddStreamSaver(New BitmapBinarySaver)
+		AddStreamSaver(New BytesBinarySaver)
 	End Sub
 
 	Public Sub AddSaver(saver As IBlobSaver)
@@ -181,4 +181,18 @@ Public Class CommonBlobStorage
 			Next
 		End SyncLock
 	End Sub
+
+	Public Function LoadBlobs(parentObjects() As Object, parentIds() As String) As Boolean Implements IBlobStorage.LoadBlobs
+		For i = 0 To parentObjects.Length - 1
+			LoadBlobs(parentObjects(i), parentIds(i))
+		Next
+		Return True
+	End Function
+
+	Public Function SaveBlobs(parentObjects() As Object, parentIds() As String) As Boolean Implements IBlobStorage.SaveBlobs
+		For i = 0 To parentObjects.Length - 1
+			SaveBlobs(parentObjects(i), parentIds(i))
+		Next
+		Return True
+	End Function
 End Class

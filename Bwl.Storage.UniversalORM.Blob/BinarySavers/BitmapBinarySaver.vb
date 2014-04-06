@@ -1,7 +1,7 @@
 ﻿Imports System.Drawing
 Imports System.IO
 
-Public Class BitmapStreamSaver
+Public Class BitmapBinarySaver
 	Implements Blob.IBlobBinarySaver
 
 	Public Function FromBinary(data As Byte(), blobType As Type) As Object Implements IBlobBinarySaver.FromBinary

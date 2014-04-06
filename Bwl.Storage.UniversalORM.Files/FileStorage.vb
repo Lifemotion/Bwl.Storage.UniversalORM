@@ -1,12 +1,13 @@
 ﻿Imports System.Reflection
 Imports System.IO
 
-Public Class FileObjStorage(Of T As ObjBase)
-	Inherits CommonObjStorage(Of T)
+Public Class FileObjStorage
+	Inherits CommonObjStorage
 
 	Private _folder As String
 
-	Friend Sub New(folder As String)
+	Friend Sub New(folder As String, type As Type)
+		MyBase.New(type)
 		_folder = folder
 	End Sub
 
@@ -31,7 +32,7 @@ Public Class FileObjStorage(Of T As ObjBase)
 		End Set
 	End Property
 
-	Public Overrides Sub AddObj(obj As T)
+	Public Overrides Sub AddObj(obj As ObjBase)
 		Dim file = GetFileName(obj.ID)
 		If IO.File.Exists(file) Then Throw New Exception("Object Already Exists with this ID")
 		Dim str = JsonConverter.Serialize(obj)
@@ -47,7 +48,7 @@ Public Class FileObjStorage(Of T As ObjBase)
 		Next
 	End Sub
 
-	Public Overrides Sub UpdateObj(obj As T)
+	Public Overrides Sub UpdateObj(obj As ObjBase)
 		Dim file = GetFileName(obj.ID)
 		If Not IO.File.Exists(file) Then Throw New Exception("Object Not Exists with this ID")
 
@@ -101,17 +102,34 @@ Public Class FileObjStorage(Of T As ObjBase)
 		Return result.ToArray
 	End Function
 
-	Public Overrides Function GetObj(id As String) As T
+	Public Overrides Function GetObj(id As String) As ObjBase
 		Dim file = GetFileName(id)
 		If Not IO.File.Exists(file) Then Return Nothing
 		Dim str = IO.File.ReadAllText(file, Utils.Enc)
-		Dim obj = JsonConverter.Deserialize(Of T)(str)
+		Dim obj = JsonConverter.Deserialize(str, SupportedType)
 		Return obj
 	End Function
 
-	Public Overrides Function GetObjects(objIds As IEnumerable(Of String)) As IEnumerable(Of T)
-		Dim resList = New List(Of T)
-
-		Return resList
+	Public Overrides Function GetObj(Of T As ObjBase)(id As String) As T
+		Return CType(GetObj(id), T)
 	End Function
+
+	Public Overrides Function GetObjects(objIds As IEnumerable(Of String)) As IEnumerable(Of ObjBase)
+		Return Nothing
+	End Function
+
+	Public Overrides Function Contains(id As String) As Boolean
+		Dim file = GetFileName(id)
+		Return IO.File.Exists(file)
+	End Function
+
+	Public Overrides Function GetObjects(Of T As ObjBase)(objIds As IEnumerable(Of String)) As IEnumerable(Of T)
+		Return Nothing
+	End Function
+
+	Public Overrides Sub AddObjects(objects() As ObjBase)
+		For Each obj In objects
+			AddObj(obj)
+		Next
+	End Sub
 End Class

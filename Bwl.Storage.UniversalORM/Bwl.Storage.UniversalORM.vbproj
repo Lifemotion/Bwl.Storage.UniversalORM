@@ -64,6 +64,7 @@
     <Compile Include="Blob\BlobAttribute.vb" />
     <Compile Include="Blob\BlobContainerAttribute.vb" />
     <Compile Include="Common\CommonObjStorage.vb" />
+    <Compile Include="Common\ILocalStorage.vb" />
     <Compile Include="Common\IObjStorage.vb" />
     <Compile Include="Common\IObjStorageManager.vb" />
     <Compile Include="SearchParams\FindCondition.vb" />

@@ -1,14 +1,18 @@
 ﻿Imports Bwl.Storage.UniversalORM
 Imports Newtonsoft.Json
 
-Public Class TempStorage(Of T As ObjBase)
-	Inherits Bwl.Storage.UniversalORM.CommonObjStorage(Of T)
+Public Class TempStorage
+	Inherits Bwl.Storage.UniversalORM.CommonObjStorage
 	Implements Bwl.Storage.UniversalORM.IObjStorageManager
 	Implements Bwl.Storage.UniversalORM.Blob.IBlobSaver
 
 	Public Property ObjDataInfo As ObjDataInfo
 
-	Public Function CreateStorage(Of T1 As ObjBase)(name As String) As IObjStorage(Of T1) Implements IObjStorageManager.CreateStorage
+	Public Sub New(type As Type)
+		MyBase.New(type)
+	End Sub
+
+	Public Function CreateStorage(Of T As ObjBase)(name As String) As IObjStorage Implements IObjStorageManager.CreateStorage
 		Return Me
 	End Function
 
@@ -24,7 +28,7 @@ Public Class TempStorage(Of T As ObjBase)
 		ObjDataInfo.ObjBlobInfo = objBlobInfo
 	End Sub
 
-	Public Overrides Sub AddObj(obj As T)
+	Public Overrides Sub AddObj(obj As ObjBase)
 		ObjDataInfo = New ObjDataInfo
 		ObjDataInfo.ObjInfo = New ObjInfo
 		ObjDataInfo.ObjInfo.ObjType = obj.GetType
@@ -35,7 +39,7 @@ Public Class TempStorage(Of T As ObjBase)
 		Return Nothing
 	End Function
 
-	Public Overrides Function GetObj(id As String) As T
+	Public Overrides Function GetObj(id As String) As ObjBase
 		Dim t = ObjDataInfo.ObjInfo.ObjType
 		Return JsonConvert.DeserializeObject(ObjDataInfo.ObjInfo.ObjJson, t)
 	End Function
@@ -44,11 +48,30 @@ Public Class TempStorage(Of T As ObjBase)
 
 	End Sub
 
-	Public Overrides Sub UpdateObj(obj As T)
+	Public Overrides Sub UpdateObj(obj As ObjBase)
 
 	End Sub
 
-	Public Overrides Function GetObjects(objIds As IEnumerable(Of String)) As IEnumerable(Of T)
+	Public Overrides Function GetObjects(objIds As IEnumerable(Of String)) As IEnumerable(Of ObjBase)
 		Return Nothing
 	End Function
+
+	Public Overrides Function Contains(id As String) As Boolean
+		Return False
+	End Function
+
+	Public Overloads Overrides Function GetObj(Of T As ObjBase)(id As String) As T
+		Return Nothing
+	End Function
+
+	Public Overloads Overrides Function GetObjects(Of T As ObjBase)(objIds As IEnumerable(Of String)) As IEnumerable(Of T)
+		Return Nothing
+	End Function
+
+	Public Function CreateStorage(name As String, type As Type) As IObjStorage Implements IObjStorageManager.CreateStorage
+		Return Me
+	End Function
+
+	Public Overrides Sub AddObjects(obj() As ObjBase)
+	End Sub
 End Class

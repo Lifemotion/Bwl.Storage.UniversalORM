@@ -11,7 +11,7 @@ Public Class Form1
 		conStrBld.IntegratedSecurity = True
 		conStrBld.ConnectTimeout = 1
 		Dim manager = New MSSQLSRVStorageManager(conStrBld)
-		Dim storage As CommonObjStorage(Of TestData)
+		Dim storage As CommonObjStorage
 
 		Dim testData1 = New TestData
 		testData1.Cat = "CAT1111111"

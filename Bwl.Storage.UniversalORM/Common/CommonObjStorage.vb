@@ -1,26 +1,41 @@
-﻿Public MustInherit Class CommonObjStorage(Of T As ObjBase)
-	Implements IObjStorage(Of T)
+﻿Public MustInherit Class CommonObjStorage
+	Implements IObjStorage
+
+	Private ReadOnly _supportedType As Type
 
 	''' <summary>Описание индексируемых полей.</summary>
-	Protected Shared ReadOnly _indexingMembers As New List(Of IndexInfo)()
+	Protected ReadOnly _indexingMembers As New List(Of IndexInfo)()
 
-	Shared Sub New()
-		SyncLock (_indexingMembers)
-			If (_indexingMembers IsNot Nothing) Then
-				_indexingMembers.AddRange(ReflectionTools.GetIndexingMemberNames(GetType(T)))
-			End If
-		End SyncLock
+	Public Sub New(type As Type)
+		_supportedType = type
+		If (_indexingMembers IsNot Nothing) Then
+			_indexingMembers.AddRange(ReflectionTools.GetIndexingMemberNames(_supportedType))
+		End If
 	End Sub
 
-	Public MustOverride Sub AddObj(obj As T) Implements IObjStorage(Of T).AddObj
+	Public MustOverride Function FindObj(searchParams As SearchParams) As IEnumerable(Of String) Implements IObjStorage.FindObj
 
-	Public MustOverride Function FindObj(searchParams As SearchParams) As IEnumerable(Of String) Implements IObjStorage(Of T).FindObj
+	Public MustOverride Function GetObj(id As String) As ObjBase Implements IObjStorage.GetObj
 
-	Public MustOverride Function GetObj(id As String) As T Implements IObjStorage(Of T).GetObj
+	Public MustOverride Function GetObj(Of T As ObjBase)(id As String) As T Implements IObjStorage.GetObj
 
-	Public MustOverride Sub RemoveObj(id As String) Implements IObjStorage(Of T).RemoveObj
+	Public MustOverride Function GetObjects(objIds As IEnumerable(Of String)) As IEnumerable(Of ObjBase) Implements IObjStorage.GetObjects
 
-	Public MustOverride Sub UpdateObj(obj As T) Implements IObjStorage(Of T).UpdateObj
+	Public MustOverride Function GetObjects(Of T As ObjBase)(objIds As IEnumerable(Of String)) As IEnumerable(Of T) Implements IObjStorage.GetObjects
 
-	Public MustOverride Function GetObjects(objIds As IEnumerable(Of String)) As IEnumerable(Of T) Implements IObjStorage(Of T).GetObjects
+	Public MustOverride Sub RemoveObj(id As String) Implements IObjStorage.RemoveObj
+
+	Public MustOverride Sub UpdateObj(obj As ObjBase) Implements IObjStorage.UpdateObj
+
+	Public MustOverride Sub AddObj(obj As ObjBase) Implements IObjStorage.AddObj
+
+	Public MustOverride Function Contains(id As String) As Boolean Implements IObjStorage.Contains
+
+	Public MustOverride Sub AddObjects(obj() As ObjBase) Implements IObjStorage.AddObjects
+
+	Public ReadOnly Property SupportedType As Type Implements IObjStorage.SupportedType
+		Get
+			Return _supportedType
+		End Get
+	End Property
 End Class

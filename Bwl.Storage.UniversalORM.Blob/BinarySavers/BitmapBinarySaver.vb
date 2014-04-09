@@ -8,7 +8,7 @@ Public Class BitmapBinarySaver
 		If (data IsNot Nothing) AndAlso (blobType = GetType(Bitmap)) Then
 			Dim stream = New MemoryStream(data)
 			Dim bmp = Bitmap.FromStream(stream, True, True)
-			stream.Dispose()
+			'stream.Dispose()
 			Return bmp
 		End If
 		Return Nothing

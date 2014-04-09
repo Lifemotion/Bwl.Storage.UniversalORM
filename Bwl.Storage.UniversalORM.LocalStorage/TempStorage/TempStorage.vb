@@ -1,5 +1,6 @@
 ﻿Imports Bwl.Storage.UniversalORM
 Imports Newtonsoft.Json
+Imports Newtonsoft.Json.Linq
 
 Public Class TempStorage
 	Inherits Bwl.Storage.UniversalORM.CommonObjStorage
@@ -40,8 +41,17 @@ Public Class TempStorage
 	End Function
 
 	Public Overrides Function GetObj(id As String) As ObjBase
-		Dim t = ObjDataInfo.ObjInfo.ObjType
-		Return JsonConvert.DeserializeObject(ObjDataInfo.ObjInfo.ObjJson, t)
+		Dim type = ObjDataInfo.ObjInfo.ObjType
+		Dim obj = JsonConvert.DeserializeObject(ObjDataInfo.ObjInfo.ObjJson, type)
+		Try
+			If TypeOf obj Is ObjContainer Then
+				Dim objCont = CType(obj, ObjContainer)
+				Dim t = objCont.Type
+				objCont.Obj = JsonConvert.DeserializeObject(objCont.Obj.ToString, t)
+			End If
+		Catch ex As Exception
+		End Try
+		Return obj
 	End Function
 
 	Public Overrides Sub RemoveObj(id As String)

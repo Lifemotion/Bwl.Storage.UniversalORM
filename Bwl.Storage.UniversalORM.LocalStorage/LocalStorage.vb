@@ -80,7 +80,7 @@ Public Class LocalStorage
 	Public Function Contains(id As String, type As Type) As Boolean Implements ILocalStorage.Contains
 		Dim storage = GetStorage(type)
 		If storage IsNot Nothing Then
-			storage.Contains(id)
+			Return storage.Contains(id)
 		End If
 		Return Nothing
 	End Function

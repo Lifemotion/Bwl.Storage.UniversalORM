@@ -67,6 +67,8 @@
     <Compile Include="Common\ILocalStorage.vb" />
     <Compile Include="Common\IObjStorage.vb" />
     <Compile Include="Common\IObjStorageManager.vb" />
+    <Compile Include="MemoryStorage\MemoryStorage.vb" />
+    <Compile Include="MemoryStorage\MemoryStorageManager.vb" />
     <Compile Include="SearchParams\FindCondition.vb" />
     <Compile Include="SearchParams\FindCriteria.vb" />
     <Compile Include="Json\JsonConverter.vb" />

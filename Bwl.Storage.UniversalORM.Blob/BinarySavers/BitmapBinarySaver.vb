@@ -7,7 +7,7 @@ Public Class BitmapBinarySaver
 	Public Function FromBinary(data As Byte(), blobType As Type) As Object Implements IBlobBinarySaver.FromBinary
 		If (data IsNot Nothing) AndAlso (blobType = GetType(Bitmap)) Then
 			Dim stream = New MemoryStream(data)
-			Dim bmp = New Bitmap(stream)
+			Dim bmp = Bitmap.FromStream(stream, True, True)
 			stream.Dispose()
 			Return bmp
 		End If
@@ -19,7 +19,7 @@ Public Class BitmapBinarySaver
 			Dim bmp = CType(blob, Bitmap)
 			Dim stream = New MemoryStream
 			bmp.Save(stream, System.Drawing.Imaging.ImageFormat.Jpeg)
-			Dim bytes(stream.Length) As Byte
+			Dim bytes(stream.Length - 1) As Byte
 			stream.Position = 0
 			stream.Read(bytes, 0, stream.Length)
 			stream.Dispose()

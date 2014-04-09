@@ -21,6 +21,7 @@ Public Class Form1
 
 		Dim blobFileSaver = New Blob.FileBlobSaver(blobSaverDir)
 
+		'Dim localstorage = New LocalStorage(storageManager, New Blob.MemorySaver())
 		Dim localstorage = New LocalStorage(storageManager, blobFileSaver)
 
 		Dim data1 = New TestData()
@@ -61,6 +62,10 @@ Public Class Form1
 		sp = New SearchParams(sortParam:=sort)
 		Dim ids2 = localstorage.FindObj(Of TestData)(sp)
 
+
+		Dim tempS = New ObjDataInfoGenerator()
+		Dim f = tempS.GetObjDataInfo(data1).GetOneFileForWeb
+		Dim ob_ttt = tempS.GetObject(ObjDataInfo.GetFromOneFile(f))
 
 		Dim selectOpt = New SelectOptions(10)
 		sp = New SearchParams(selectOptions:=selectOpt)

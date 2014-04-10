@@ -9,11 +9,10 @@ Public Class MSSQLSRVStorage
 		MyBase.New(type)
 		_name = type.Name
 		ConnectionString = connString
+		CreateMainTable(ConnectionString, Name)
 	End Sub
 
 	Public Overrides Sub AddObj(obj As ObjBase)
-		CreateMainTable(ConnectionString, Name)
-
 		Dim json = JsonConverter.Serialize(obj)
 		Save(ConnectionString, obj.ID, json)
 
@@ -32,8 +31,6 @@ Public Class MSSQLSRVStorage
 	End Sub
 
 	Public Overrides Sub AddObjects(objects As ObjBase())
-		CreateMainTable(ConnectionString, Name)
-
 		Dim jsonList = New List(Of String)
 		Dim ids = New List(Of String)
 		Dim indexTableNames = New List(Of String)
@@ -172,7 +169,8 @@ Public Class MSSQLSRVStorage
 
 		If (Not MSSQLSRVUtils.TableExists(ConnectionString, indexTableName)) Then
 			Dim sql = String.Empty
-			Select Case (indexing.Type)
+			Dim t = indexing.Type
+			Select Case (t)
 				Case GetType(String)
 					Dim len = Byte.MaxValue.ToString
 					If (indexing.Length > 0 And indexing.Length < Byte.MaxValue) Then
@@ -187,8 +185,15 @@ Public Class MSSQLSRVStorage
 					sql = String.Format(My.Resources.CreateBigIntIndexTableSQL, indexTableName, Name)
 				Case GetType(Long)
 					sql = String.Format(My.Resources.CreateBigIntIndexTableSQL, indexTableName, Name)
+				Case GetType(Boolean)
+					sql = String.Format(My.Resources.CreateStringIndexTableSQL, indexTableName, Name, Byte.MaxValue.ToString)
 				Case Else
-					Throw New Exception("Обнаружен не поддерживаемый тип индексируемого поля")
+					Dim enumType = Type.GetType("System.Enum, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089")
+					If t.BaseType = enumType Then
+						sql = String.Format(My.Resources.CreateStringIndexTableSQL, indexTableName, Name, Byte.MaxValue.ToString)
+					Else
+						Throw New Exception("Обнаружен не поддерживаемый тип индексируемого поля " + Name + " _ " + t.FullName)
+					End If
 			End Select
 
 			MSSQLSRVUtils.ExecSQL(ConnectionString, sql)

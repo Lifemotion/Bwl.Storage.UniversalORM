@@ -3,7 +3,6 @@
 Public Class MSSQLSRVStorage
 	Inherits CommonObjStorage
 
-
 	Private _name As String
 
 	Public Sub New(connString As String, type As Type)
@@ -147,6 +146,10 @@ Public Class MSSQLSRVStorage
 		Return res
 	End Function
 
+	Public Overloads Overrides Function GetObj(Of T As ObjBase)(id As String) As T
+		Return GetObj(id)
+	End Function
+
 	Public Overrides Sub RemoveObj(id As String)
 		Dim sql = String.Format("DELETE FROM [dbo].[{0}] WHERE [guid] like '{1}'", Name, id)
 		MSSQLSRVUtils.ExecSQL(ConnectionString, sql)
@@ -257,8 +260,11 @@ Public Class MSSQLSRVStorage
 	End Sub
 
 	Public Overrides Function GetObjects(Of T As ObjBase)(objIds As IEnumerable(Of String)) As IEnumerable(Of T)
-		Dim resList = New List(Of T)
+		Return GetObjects(objIds).Select(Function(o) CType(o, T))
+	End Function
 
+	Public Overloads Overrides Function GetObjects(objIds As IEnumerable(Of String)) As IEnumerable(Of ObjBase)
+		Dim resList = New List(Of ObjBase)
 		Dim whereSQL = String.Empty
 		If (objIds IsNot Nothing AndAlso objIds.Any) Then
 			For Each id In objIds
@@ -271,7 +277,7 @@ Public Class MSSQLSRVStorage
 			Dim sql = String.Format("SELECT [json] FROM [dbo].[{0}] WHERE {1}", Name, whereSQL)
 			Dim jsonObjList = MSSQLSRVUtils.GetObjectList(ConnectionString, sql)
 			If (jsonObjList IsNot Nothing) Then
-				Dim tmpList = jsonObjList.Select(Function(j) JsonConverter.Deserialize(Of T)(j(0).ToString))
+				Dim tmpList = jsonObjList.Select(Function(j) CType(JsonConverter.Deserialize(j(0).ToString, SupportedType), ObjBase))
 				resList.AddRange(tmpList)
 			End If
 		End If
@@ -279,14 +285,12 @@ Public Class MSSQLSRVStorage
 	End Function
 
 	Public Overrides Function Contains(id As String) As Boolean
-		Throw New Exception("Операция не поддерживается")
-	End Function
-
-	Public Overloads Overrides Function GetObjects(objIds As IEnumerable(Of String)) As IEnumerable(Of ObjBase)
-		Throw New Exception("Операция не поддерживается")
-	End Function
-
-	Public Overloads Overrides Function GetObj(Of T As ObjBase)(id As String) As T
-		Throw New Exception("Операция не поддерживается")
+		Dim res = False
+		Dim sql = String.Format("SELECT [guid] FROM [dbo].[{0}] WHERE [guid] = '{1}'", Name, id)
+		Dim idFromDb = MSSQLSRVUtils.ExecSQLScalar(ConnectionString, sql)
+		If (Not String.IsNullOrWhiteSpace(idFromDb) AndAlso idFromDb.ToString = id) Then
+			res = True
+		End If
+		Return res
 	End Function
 End Class

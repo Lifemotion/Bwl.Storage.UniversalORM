@@ -54,6 +54,8 @@ Public Class Form1
 		Dim objs11 = localstorage.GetObjects(Of TestData)(ids)
 		Dim objs22 = localstorage.GetObjects(Of TestData)(ids, False)
 
+		Dim res = localstorage.Contains(data1.ID, GetType(TestData))
+
 		Dim sort = New SortParam("Timestamp", SortMode.Ascending)
 		sp = New SearchParams(sortParam:=sort)
 		Dim ids1 = localstorage.FindObj(Of TestData)(sp)

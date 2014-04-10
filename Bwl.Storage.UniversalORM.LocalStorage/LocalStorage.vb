@@ -10,10 +10,10 @@ Imports Bwl.Storage.UniversalORM.Blob
 Public Class LocalStorage
 	Implements ILocalStorage
 
-	Private ReadOnly _blobStorage As CommonBlobStorage
-	Private ReadOnly _fileBlobSaver As FileBlobSaver
-	Private ReadOnly _storages As New Dictionary(Of Type, IObjStorage)
-	Private ReadOnly _storageManager As IObjStorageManager
+	Protected ReadOnly _blobStorage As CommonBlobStorage
+	Protected ReadOnly _blobSaver As IBlobSaver
+	Protected ReadOnly _storages As New Dictionary(Of Type, IObjStorage)
+	Protected ReadOnly _storageManager As IObjStorageManager
 
 	''' <summary>
 	''' Локальное хранилище объектов в JSON + BLOB.
@@ -23,8 +23,9 @@ Public Class LocalStorage
 	''' <param name="blobStremSavers">Преобразователи BLOB данных в потоки.</param>
 	''' <remarks></remarks>
 	Public Sub New(storageManager As IObjStorageManager, blobSaver As IBlobSaver, Optional blobStremSavers As IBlobBinarySaver() = Nothing)
+		_blobSaver = blobSaver
 		_blobStorage = New CommonBlobStorage()
-		_blobStorage.AddSaver(blobSaver)
+		_blobStorage.AddSaver(_blobSaver)
 
 		If (blobStremSavers IsNot Nothing AndAlso blobStremSavers.Any) Then
 			For Each streamSaver In blobStremSavers

@@ -123,7 +123,7 @@ Public Class LocalStorage
 		If storage IsNot Nothing Then
 			Dim objects = storage.GetObjects(objIds)
 			If (loadBlob) Then
-				_blobStorage.LoadBlobs(objects, objIds.ToArray)
+				_blobStorage.LoadBlobs(objects.ToArray, objIds.ToArray)
 			End If
 			Return objects
 		End If

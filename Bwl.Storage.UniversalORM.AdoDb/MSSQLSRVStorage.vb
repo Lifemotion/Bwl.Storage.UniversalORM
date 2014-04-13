@@ -270,16 +270,19 @@ Public Class MSSQLSRVStorage
 
 	Public Overloads Overrides Function GetObjects(objIds As IEnumerable(Of String)) As IEnumerable(Of ObjBase)
 		Dim resList = New List(Of ObjBase)
-		Dim whereSQL = String.Empty
+		Dim sql = String.Empty
+		Dim i = 0
 		If (objIds IsNot Nothing AndAlso objIds.Any) Then
 			For Each id In objIds
-				If (whereSQL = "") Then
-					whereSQL = String.Format(" ([guid] = '{0}') ", id)
+				If String.IsNullOrWhiteSpace(sql) Then
+					sql = String.Format("SELECT [json] , {2} as tmp FROM [dbo].[{0}] WHERE ([guid] = '{1}')", Name, id, i)
 				Else
-					whereSQL += String.Format(" OR ([guid] = '{0}') ", id)
+					sql += String.Format(" Union SELECT [json] , {2} as tmp FROM [dbo].[{0}] WHERE ([guid] = '{1}')", Name, id, i)
 				End If
+				i += 1
 			Next
-			Dim sql = String.Format("SELECT [json] FROM [dbo].[{0}] WHERE {1}", Name, whereSQL)
+			sql += " order by tmp"
+
 			Dim jsonObjList = MSSQLSRVUtils.GetObjectList(ConnectionString, sql)
 			If (jsonObjList IsNot Nothing) Then
 				Dim tmpList = jsonObjList.Select(Function(j) CType(JsonConverter.Deserialize(j(0).ToString, SupportedType), ObjBase))

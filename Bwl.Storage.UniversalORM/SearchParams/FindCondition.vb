@@ -4,5 +4,7 @@ Public Enum FindCondition
     likeEqaul
     notEqual
     greater
-    less
+	less
+	greaterOrEqual
+	lessOrEqual
 End Enum

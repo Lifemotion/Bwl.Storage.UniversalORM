@@ -61,7 +61,7 @@ Public Class ObjDataInfo
 			Array.ConstrainedCopy(oneFile, pos, fLenB, 0, 4)
 			pos += 4
 			Dim fLen = BitConverter.ToInt32(fLenB, 0)
-			Dim f(fLen) As Byte
+			Dim f(fLen - 1) As Byte
 			Array.ConstrainedCopy(oneFile, pos, f, 0, fLen)
 			pos += fLen
 

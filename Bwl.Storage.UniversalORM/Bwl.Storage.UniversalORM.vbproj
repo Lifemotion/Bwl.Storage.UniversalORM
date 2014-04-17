@@ -97,6 +97,7 @@
     <Compile Include="SearchParams\SelectOptions.vb" />
     <Compile Include="SearchParams\SortMode.vb" />
     <Compile Include="SearchParams\SortParam.vb" />
+    <Compile Include="Utils\MD5.vb" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="My Project\Resources.resx">

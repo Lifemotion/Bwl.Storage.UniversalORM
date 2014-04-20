@@ -92,7 +92,9 @@ Public Class MSSQLSRVUtils
 		Catch ex As Exception
 			Throw New Exception(String.Format("MSSQLSRVUtils.ExecSQL({0}, {1}) - {2})", connString, sql, ex.ToString))
 		Finally
-			reader.Close()
+			If reader IsNot Nothing Then
+				reader.Close()
+			End If
 		End Try
 		Return list
 	End Function

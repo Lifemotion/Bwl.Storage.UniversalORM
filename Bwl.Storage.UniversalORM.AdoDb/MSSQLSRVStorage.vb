@@ -115,10 +115,10 @@ Public Class MSSQLSRVStorage
 			crit = searchParams.FindCriterias
 		End If
 		Dim helper = GenerateWhereSql(crit)
-		subSQLWhere = helper.SQL
-		parameters = helper.Parameters.ToArray
-
-
+		If helper IsNot Nothing Then
+			subSQLWhere = helper.SQL
+			parameters = helper.Parameters.ToArray
+		End If
 
 		'''' main sql
 		Dim mainSelect = String.Format("SELECT * FROM ({1}) a {2} ", selectOptionWhere, subSql + subSQLWhere, selectOptionWhere)
@@ -204,22 +204,25 @@ Public Class MSSQLSRVStorage
 
 	Private Function GenerateWhereSql(criterias As IEnumerable(Of FindCriteria)) As SqlHelper
 		Dim fromSQl As String = ""
-
-		Dim where = String.Empty
-		For Each index In _indexingMembers
-			Dim indexTableName = GetIndexTableName(index)
-			fromSQl += String.Format(", [{0}]", indexTableName)
-
-			If (String.IsNullOrEmpty(where)) Then
-				where = String.Format(" ([{0}].[guid] = [{1}].[guid]) ", Name, indexTableName)
-			Else
-				where += " AND " + String.Format(" ([{0}].[guid] = [{1}].[guid]) ", Name, indexTableName)
-			End If
-		Next
-
-		Dim parameters As New List(Of SqlParameter)()
-		Dim i = 0
 		If (criterias IsNot Nothing) Then
+			Dim where = String.Empty
+			For Each index In _indexingMembers
+				Dim crt = criterias.FirstOrDefault(Function(c) c.Field = index.Name)
+				If (crt IsNot Nothing) Then
+					Dim indexTableName = GetIndexTableName(index)
+					fromSQl += String.Format(", [{0}]", indexTableName)
+
+					If (String.IsNullOrEmpty(where)) Then
+						where = String.Format(" ([{0}].[guid] = [{1}].[guid]) ", Name, indexTableName)
+					Else
+						where += " AND " + String.Format(" ([{0}].[guid] = [{1}].[guid]) ", Name, indexTableName)
+					End If
+				End If
+			Next
+
+			Dim parameters As New List(Of SqlParameter)()
+			Dim i = 0
+
 			For Each crit In criterias
 				Dim ind = _indexingMembers.FirstOrDefault(Function(f) f.Name = crit.Field)
 				If (ind IsNot Nothing) Then
@@ -259,8 +262,10 @@ Public Class MSSQLSRVStorage
 					Throw New Exception("Поле " + crit.Field + " не является индексируемым")
 				End If
 			Next
+
+			Return New SqlHelper(fromSQl + " WHERE " + where, parameters)
 		End If
-		Return New SqlHelper(fromSQl + " WHERE " + where, parameters)
+		Return Nothing
 	End Function
 
 	Private Sub Save(connStr As String, id As String, json As String)

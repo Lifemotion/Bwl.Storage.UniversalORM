@@ -33,6 +33,7 @@ Public Class FileObjStorage
 	End Property
 
 	Public Overrides Sub AddObj(obj As ObjBase)
+		Utils.TestFolder(_folder)
 		Dim file = GetFileName(obj.ID)
 		If IO.File.Exists(file) Then Throw New Exception("Object Already Exists with this ID")
 		Dim str = JsonConverter.Serialize(obj)
@@ -49,6 +50,7 @@ Public Class FileObjStorage
 	End Sub
 
 	Public Overrides Sub UpdateObj(obj As ObjBase)
+		Utils.TestFolder(_folder)
 		Dim file = GetFileName(obj.ID)
 		If Not IO.File.Exists(file) Then Throw New Exception("Object Not Exists with this ID")
 
@@ -57,6 +59,7 @@ Public Class FileObjStorage
 	End Sub
 
 	Public Overrides Sub RemoveObj(id As String)
+		Utils.TestFolder(_folder)
 		Dim fileMain = GetFileName(id)
 		If Not IO.File.Exists(fileMain) Then Throw New Exception("Object Not Exists with this ID")
 
@@ -93,6 +96,7 @@ Public Class FileObjStorage
 	End Function
 
 	Private Function FindAllObjs() As String()
+		Utils.TestFolder(_folder)
 		Dim files = IO.Directory.GetFiles(_folder, "*.obj.json")
 		Dim result As New List(Of String)
 		For Each file In files
@@ -103,6 +107,7 @@ Public Class FileObjStorage
 	End Function
 
 	Public Overrides Function GetObj(id As String) As ObjBase
+		Utils.TestFolder(_folder)
 		Dim file = GetFileName(id)
 		If Not IO.File.Exists(file) Then Return Nothing
 		Dim str = IO.File.ReadAllText(file, Utils.Enc)

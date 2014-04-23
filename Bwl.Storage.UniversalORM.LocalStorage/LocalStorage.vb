@@ -90,7 +90,7 @@ Public Class LocalStorage
 		Return Contains(id, GetType(T))
 	End Function
 
-	Public Function FindObj(type As Type, Optional searchParams As SearchParams = Nothing) As IEnumerable(Of String) Implements ILocalStorage.FindObj
+	Public Function FindObj(type As Type, Optional searchParams As SearchParams = Nothing) As String() Implements ILocalStorage.FindObj
 		Dim storage = GetStorage(type)
 		If storage IsNot Nothing Then
 			Return storage.FindObj(searchParams)
@@ -98,7 +98,7 @@ Public Class LocalStorage
 		Return Nothing
 	End Function
 
-	Public Function FindObj(Of T As ObjBase)(Optional searchParams As SearchParams = Nothing) As IEnumerable(Of String) Implements ILocalStorage.FindObj
+	Public Function FindObj(Of T As ObjBase)(Optional searchParams As SearchParams = Nothing) As String() Implements ILocalStorage.FindObj
 		Return FindObj(GetType(T), searchParams)
 	End Function
 
@@ -118,10 +118,10 @@ Public Class LocalStorage
 		Return GetObj(id, GetType(T), loadBlob)
 	End Function
 
-	Public Function GetObjects(objIds As IEnumerable(Of String), type As Type, Optional loadBlob As Boolean = True) As IEnumerable(Of ObjBase) Implements ILocalStorage.GetObjects
+	Public Function GetObjects(objIds As String(), type As Type, Optional loadBlob As Boolean = True, Optional bp As BetweenParam = Nothing) As IEnumerable(Of ObjBase) Implements ILocalStorage.GetObjects
 		Dim storage = GetStorage(type)
 		If storage IsNot Nothing Then
-			Dim objects = storage.GetObjects(objIds)
+			Dim objects = storage.GetObjects(objIds, bp)
 			If (loadBlob) Then
 				_blobStorage.LoadBlobs(objects.ToArray, objIds.ToArray)
 			End If
@@ -130,10 +130,10 @@ Public Class LocalStorage
 		Return Nothing
 	End Function
 
-	Public Function GetObjects(Of T As ObjBase)(objIds As IEnumerable(Of String), Optional loadBlob As Boolean = True) As IEnumerable(Of T) Implements ILocalStorage.GetObjects
+	Public Function GetObjects(Of T As ObjBase)(objIds As String(), Optional loadBlob As Boolean = True, Optional bp As BetweenParam = Nothing) As IEnumerable(Of T) Implements ILocalStorage.GetObjects
 		Dim storage = GetStorage(GetType(T))
 		If storage IsNot Nothing Then
-			Dim objects = storage.GetObjects(Of T)(objIds)
+			Dim objects = storage.GetObjects(Of T)(objIds, bp)
 			If (loadBlob) Then
 				_blobStorage.LoadBlobs(objects.ToArray, objIds.ToArray)
 			End If

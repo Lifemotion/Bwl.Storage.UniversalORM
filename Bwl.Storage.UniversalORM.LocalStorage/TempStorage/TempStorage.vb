@@ -36,7 +36,7 @@ Public Class TempStorage
 		ObjDataInfo.ObjInfo.ObjJson = Bwl.Storage.UniversalORM.JsonConverter.Serialize(obj)
 	End Sub
 
-	Public Overrides Function FindObj(searchParams As SearchParams) As IEnumerable(Of String)
+	Public Overrides Function FindObj(searchParams As SearchParams) As String()
 		Return Nothing
 	End Function
 
@@ -62,7 +62,7 @@ Public Class TempStorage
 
 	End Sub
 
-	Public Overrides Function GetObjects(objIds As IEnumerable(Of String)) As IEnumerable(Of ObjBase)
+	Public Overrides Function GetObjects(objIds As String(), Optional bp As BetweenParam = Nothing) As IEnumerable(Of ObjBase)
 		Return Nothing
 	End Function
 
@@ -74,7 +74,7 @@ Public Class TempStorage
 		Return Nothing
 	End Function
 
-	Public Overloads Overrides Function GetObjects(Of T As ObjBase)(objIds As IEnumerable(Of String)) As IEnumerable(Of T)
+	Public Overloads Overrides Function GetObjects(Of T As ObjBase)(objIds As String(), Optional bp As BetweenParam = Nothing) As IEnumerable(Of T)
 		Return Nothing
 	End Function
 

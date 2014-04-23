@@ -24,8 +24,8 @@ Public Class MemoryStorage
 		End If
 	End Sub
 
-	Public Overrides Function FindObj(searchParams As SearchParams) As IEnumerable(Of String)
-		Return _objects.Keys
+	Public Overrides Function FindObj(searchParams As SearchParams) As String()
+		Return _objects.Keys.ToArray
 	End Function
 
 	Public Overrides Function GetObj(id As String) As ObjBase
@@ -36,7 +36,7 @@ Public Class MemoryStorage
 		Return CType(GetObj(id), T)
 	End Function
 
-	Public Overrides Function GetObjects(objIds As IEnumerable(Of String)) As IEnumerable(Of ObjBase)
+	Public Overrides Function GetObjects(objIds As String(), Optional bp As BetweenParam = Nothing) As IEnumerable(Of ObjBase)
 		Return Nothing
 	End Function
 
@@ -44,7 +44,7 @@ Public Class MemoryStorage
 		Return _objects.ContainsKey(id)
 	End Function
 
-	Public Overrides Function GetObjects(Of T As ObjBase)(objIds As IEnumerable(Of String)) As IEnumerable(Of T)
+	Public Overrides Function GetObjects(Of T As ObjBase)(objIds As String(), Optional bp As BetweenParam = Nothing) As IEnumerable(Of T)
 		Return Nothing
 	End Function
 

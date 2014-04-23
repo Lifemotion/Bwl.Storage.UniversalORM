@@ -13,15 +13,15 @@
 		End If
 	End Sub
 
-	Public MustOverride Function FindObj(searchParams As SearchParams) As IEnumerable(Of String) Implements IObjStorage.FindObj
+	Public MustOverride Function FindObj(searchParams As SearchParams) As String() Implements IObjStorage.FindObj
 
 	Public MustOverride Function GetObj(id As String) As ObjBase Implements IObjStorage.GetObj
 
 	Public MustOverride Function GetObj(Of T As ObjBase)(id As String) As T Implements IObjStorage.GetObj
 
-	Public MustOverride Function GetObjects(objIds As IEnumerable(Of String)) As IEnumerable(Of ObjBase) Implements IObjStorage.GetObjects
+	Public MustOverride Function GetObjects(objIds As String(), Optional bp As BetweenParam = Nothing) As IEnumerable(Of ObjBase) Implements IObjStorage.GetObjects
 
-	Public MustOverride Function GetObjects(Of T As ObjBase)(objIds As IEnumerable(Of String)) As IEnumerable(Of T) Implements IObjStorage.GetObjects
+	Public MustOverride Function GetObjects(Of T As ObjBase)(objIds As String(), Optional bp As BetweenParam = Nothing) As IEnumerable(Of T) Implements IObjStorage.GetObjects
 
 	Public MustOverride Sub RemoveObj(id As String) Implements IObjStorage.RemoveObj
 

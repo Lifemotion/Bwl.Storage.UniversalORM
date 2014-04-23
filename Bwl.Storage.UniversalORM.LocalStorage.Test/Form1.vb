@@ -76,17 +76,12 @@ Public Class Form1
 		Dim objs111 = localstorage.GetObjects(Of TestData)(ids3)
 		Dim objs222 = localstorage.GetObjects(Of TestData)(ids3, False)
 
-		selectOpt = New SelectOptions(10, 5)
+
 		sp = New SearchParams(selectOptions:=selectOpt)
 		Dim ids4 = localstorage.FindObj(Of TestData)(sp)
 
-		selectOpt = New SelectOptions(4, 10, 0)
-		sp = New SearchParams(selectOptions:=selectOpt)
-		Dim ids5 = localstorage.FindObj(Of TestData)(sp)
-
-		selectOpt = New SelectOptions(4, 10, 7)
-		sp = New SearchParams(selectOptions:=selectOpt)
-		Dim ids6 = localstorage.FindObj(Of TestData)(sp)
+		Dim objs = localstorage.GetObjects(Of TestData)(ids4, False, New BetweenParam(3, 4))
+		Dim objs2 = localstorage.GetObjects(Of TestData)(ids4, False)
 
 		selectOpt = New SelectOptions(10)
 		sort = New SortParam("Timestamp", SortMode.Descending)

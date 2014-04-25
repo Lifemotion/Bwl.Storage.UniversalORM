@@ -150,6 +150,18 @@ Public Class LocalStorage
 		_blobStorage.Remove(id)
 	End Sub
 
+	Public ReadOnly Property BlobStorage As IBlobStorage
+		Get
+			Return _blobStorage
+		End Get
+	End Property
+
+	Public ReadOnly Property BlobSaver As IBlobSaver
+		Get
+			Return _blobSaver
+		End Get
+	End Property
+
 	Public Sub RemoveObj(Of T As ObjBase)(id As String) Implements ILocalStorage.RemoveObj
 		RemoveObj(id, GetType(T))
 	End Sub

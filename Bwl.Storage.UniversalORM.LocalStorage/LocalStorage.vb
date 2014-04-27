@@ -45,7 +45,7 @@ Public Class LocalStorage
 		End SyncLock
 	End Function
 
-	Public Sub AddObj(obj As ObjBase) Implements ILocalStorage.AddObj
+	Public Overridable Sub AddObj(obj As ObjBase) Implements ILocalStorage.AddObj
 		Dim storage = GetStorage(obj.GetType)
 		If (String.IsNullOrEmpty(obj.ID)) Then
 			obj.ID = Guid.NewGuid.ToString("B")
@@ -54,7 +54,7 @@ Public Class LocalStorage
 		_blobStorage.SaveBlobs(obj, obj.ID)
 	End Sub
 
-	Public Sub AddObjects(objects() As ObjBase) Implements ILocalStorage.AddObjects
+	Public Overridable Sub AddObjects(objects() As ObjBase) Implements ILocalStorage.AddObjects
 		Dim objIds = New List(Of String)
 		For Each obj In objects
 			If (String.IsNullOrEmpty(obj.ID)) Then
@@ -70,7 +70,7 @@ Public Class LocalStorage
 		End If
 	End Sub
 
-	Public Sub UpdateObj(obj As ObjBase) Implements ILocalStorage.UpdateObj
+	Public Overridable Sub UpdateObj(obj As ObjBase) Implements ILocalStorage.UpdateObj
 		Dim storage = GetStorage(obj.GetType)
 		If storage IsNot Nothing Then
 			storage.UpdateObj(obj)
@@ -78,7 +78,7 @@ Public Class LocalStorage
 		_blobStorage.SaveBlobs(obj, obj.ID)
 	End Sub
 
-	Public Function Contains(id As String, type As Type) As Boolean Implements ILocalStorage.Contains
+	Public Overridable Function Contains(id As String, type As Type) As Boolean Implements ILocalStorage.Contains
 		Dim storage = GetStorage(type)
 		If storage IsNot Nothing Then
 			Return storage.Contains(id)
@@ -86,11 +86,11 @@ Public Class LocalStorage
 		Return Nothing
 	End Function
 
-	Public Function Contains(Of T As ObjBase)(id As String) As Boolean Implements ILocalStorage.Contains
+	Public Overridable Function Contains(Of T As ObjBase)(id As String) As Boolean Implements ILocalStorage.Contains
 		Return Contains(id, GetType(T))
 	End Function
 
-	Public Function FindObj(type As Type, Optional searchParams As SearchParams = Nothing) As String() Implements ILocalStorage.FindObj
+	Public Overridable Function FindObj(type As Type, Optional searchParams As SearchParams = Nothing) As String() Implements ILocalStorage.FindObj
 		Dim storage = GetStorage(type)
 		If storage IsNot Nothing Then
 			Return storage.FindObj(searchParams)
@@ -98,11 +98,11 @@ Public Class LocalStorage
 		Return Nothing
 	End Function
 
-	Public Function FindObj(Of T As ObjBase)(Optional searchParams As SearchParams = Nothing) As String() Implements ILocalStorage.FindObj
+	Public Overridable Function FindObj(Of T As ObjBase)(Optional searchParams As SearchParams = Nothing) As String() Implements ILocalStorage.FindObj
 		Return FindObj(GetType(T), searchParams)
 	End Function
 
-	Public Function GetObj(id As String, type As Type, Optional loadBlob As Boolean = True) As ObjBase Implements ILocalStorage.GetObj
+	Public Overridable Function GetObj(id As String, type As Type, Optional loadBlob As Boolean = True) As ObjBase Implements ILocalStorage.GetObj
 		Dim storage = GetStorage(type)
 		If storage IsNot Nothing Then
 			Dim obj = storage.GetObj(id)
@@ -114,11 +114,11 @@ Public Class LocalStorage
 		Return Nothing
 	End Function
 
-	Public Function GetObj(Of T As ObjBase)(id As String, Optional loadBlob As Boolean = True) As T Implements ILocalStorage.GetObj
+	Public Overridable Function GetObj(Of T As ObjBase)(id As String, Optional loadBlob As Boolean = True) As T Implements ILocalStorage.GetObj
 		Return GetObj(id, GetType(T), loadBlob)
 	End Function
 
-	Public Function GetObjects(objIds As String(), type As Type, Optional loadBlob As Boolean = True, Optional bp As BetweenParam = Nothing) As IEnumerable(Of ObjBase) Implements ILocalStorage.GetObjects
+	Public Overridable Function GetObjects(objIds As String(), type As Type, Optional loadBlob As Boolean = True, Optional bp As BetweenParam = Nothing) As IEnumerable(Of ObjBase) Implements ILocalStorage.GetObjects
 		Dim storage = GetStorage(type)
 		If storage IsNot Nothing Then
 			Dim objects = storage.GetObjects(objIds, bp)
@@ -130,7 +130,7 @@ Public Class LocalStorage
 		Return Nothing
 	End Function
 
-	Public Function GetObjects(Of T As ObjBase)(objIds As String(), Optional loadBlob As Boolean = True, Optional bp As BetweenParam = Nothing) As IEnumerable(Of T) Implements ILocalStorage.GetObjects
+	Public Overridable Function GetObjects(Of T As ObjBase)(objIds As String(), Optional loadBlob As Boolean = True, Optional bp As BetweenParam = Nothing) As IEnumerable(Of T) Implements ILocalStorage.GetObjects
 		Dim storage = GetStorage(GetType(T))
 		If storage IsNot Nothing Then
 			Dim objects = storage.GetObjects(Of T)(objIds, bp)
@@ -142,12 +142,16 @@ Public Class LocalStorage
 		Return Nothing
 	End Function
 
-	Public Sub RemoveObj(id As String, type As Type) Implements ILocalStorage.RemoveObj
+	Public Overridable Sub RemoveObj(id As String, type As Type) Implements ILocalStorage.RemoveObj
 		Dim storage = GetStorage(type)
 		If storage IsNot Nothing Then
 			storage.RemoveObj(id)
 		End If
 		_blobStorage.Remove(id)
+	End Sub
+
+	Public Overridable Sub RemoveObj(Of T As ObjBase)(id As String) Implements ILocalStorage.RemoveObj
+		RemoveObj(id, GetType(T))
 	End Sub
 
 	Public ReadOnly Property BlobStorage As IBlobStorage
@@ -161,8 +165,4 @@ Public Class LocalStorage
 			Return _blobSaver
 		End Get
 	End Property
-
-	Public Sub RemoveObj(Of T As ObjBase)(id As String) Implements ILocalStorage.RemoveObj
-		RemoveObj(id, GetType(T))
-	End Sub
 End Class

@@ -71,6 +71,11 @@ Public Class MSSQLSRVStorage
 		MSSQLSRVUtils.ExecSQL(ConnectionString, sql, {New SqlParameter("@p1", value)})
 	End Sub
 
+	Private Sub UpdateIndex(tableName As String, id As String, value As Object)
+		Dim sql = String.Format("UPDATE [{0}] SET [value] = @p1 WHERE [guid] = @p2", tableName)
+		MSSQLSRVUtils.ExecSQL(ConnectionString, sql, {New SqlParameter("@p1", value), New SqlParameter("@p2", id)})
+	End Sub
+
 	Public Overrides Function FindObj(searchParams As SearchParams) As String()
 		'''' TOP
 		Dim topSql = String.Empty
@@ -153,7 +158,21 @@ Public Class MSSQLSRVStorage
 	End Sub
 
 	Public Overrides Sub UpdateObj(obj As ObjBase)
-		Throw New Exception("Операция не поддерживается")
+		Dim json = JsonConverter.Serialize(obj)
+		Update(ConnectionString, obj.ID, json)
+
+		For Each indexing In _indexingMembers
+			Dim indexTableName = GetIndexTableName(indexing)
+			Try
+				Dim indexValue = ReflectionTools.GetMemberValue(indexing.Name, obj)
+				If (TypeOf (indexValue) Is DateTime) Then
+					indexValue = CType(indexValue, DateTime).Ticks
+				End If
+				UpdateIndex(indexTableName, obj.ID, indexValue)
+			Catch ex As Exception
+				'...
+			End Try
+		Next
 	End Sub
 
 	Public ReadOnly Property Name As String
@@ -299,6 +318,11 @@ Public Class MSSQLSRVStorage
 	Private Sub Save(connStr As String, id As String, json As String)
 		Dim sql = String.Format(My.Resources.InsertMainSQL, Name, id, json)
 		MSSQLSRVUtils.ExecSQL(ConnectionString, sql)
+	End Sub
+
+	Private Sub Update(connStr As String, id As String, json As String)
+		Dim sql = String.Format("UPDATE [{0}] SET [json] = @p1 WHERE [guid] = @p2", Name)
+		MSSQLSRVUtils.ExecSQL(ConnectionString, sql, {New SqlParameter("@p1", json), New SqlParameter("@p2", id)})
 	End Sub
 
 	Public Overrides Function GetObjects(Of T As ObjBase)(objIds As String(), Optional bp As BetweenParam = Nothing) As IEnumerable(Of T)

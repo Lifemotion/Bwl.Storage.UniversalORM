@@ -45,7 +45,7 @@ Public Class MSSQLSRVUtils
 		If (Not MSSQLSRVUtils.CheckConnection(connStringBld.ConnectionString)) Then
 			Threading.Thread.Sleep(2000)
 			If (Not MSSQLSRVUtils.CheckConnection(connStringBld.ConnectionString)) Then
-				connStringBld.InitialCatalog = String.Empty
+				connStringBld.InitialCatalog = dbName
 				Dim sql = String.Format("CREATE DATABASE [{0}]", dbName)
 				MSSQLSRVUtils.ExecSQL(connStringBld.ConnectionString, sql)
 				Threading.Thread.Sleep(2000)

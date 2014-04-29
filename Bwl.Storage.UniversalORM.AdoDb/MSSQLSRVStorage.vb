@@ -235,8 +235,11 @@ Public Class MSSQLSRVStorage
 
 	Private Shared Sub CreateMainTable(connString As String, tableName As String)
 		If (Not MSSQLSRVUtils.TableExists(connString, tableName)) Then
-			Dim sql = String.Format(My.Resources.CreateMainTableSQL, tableName)
-			MSSQLSRVUtils.ExecSQL(connString, sql)
+			Threading.Thread.Sleep(1000)
+			If (Not MSSQLSRVUtils.TableExists(connString, tableName)) Then
+				Dim sql = String.Format(My.Resources.CreateMainTableSQL, tableName)
+				MSSQLSRVUtils.ExecSQL(connString, sql)
+			End If
 		End If
 	End Sub
 
@@ -254,37 +257,39 @@ Public Class MSSQLSRVStorage
 		Dim indexTableName = String.Format("{0}_{1}", Name, indexing.Name.Replace(".", "_"))
 
 		If (Not MSSQLSRVUtils.TableExists(ConnectionString, indexTableName)) Then
-			Dim sql = String.Empty
-			Dim t = indexing.Type
-			Select Case (t)
-				Case GetType(String)
-					Dim len = Byte.MaxValue.ToString
-					If (indexing.Length > 0 And indexing.Length < Byte.MaxValue) Then
-						len = indexing.Length.ToString
-					End If
-					sql = String.Format(My.Resources.CreateStringIndexTableSQL, indexTableName, Name, len)
-				Case GetType(Integer)
-					sql = String.Format(My.Resources.CreateIntIndexTableSQL, indexTableName, Name)
-				Case GetType(Double)
-					sql = String.Format(My.Resources.CreateFloatIndexTableSQL, indexTableName, Name)
-				Case GetType(DateTime)
-					sql = String.Format(My.Resources.CreateBigIntIndexTableSQL, indexTableName, Name)
-				Case GetType(Long)
-					sql = String.Format(My.Resources.CreateBigIntIndexTableSQL, indexTableName, Name)
-				Case GetType(Boolean)
-					sql = String.Format(My.Resources.CreateStringIndexTableSQL, indexTableName, Name, Byte.MaxValue.ToString)
-				Case Else
-					Dim enumType = Type.GetType("System.Enum, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089")
-					If t.BaseType = enumType Then
+			Threading.Thread.Sleep(1000)
+			If (Not MSSQLSRVUtils.TableExists(ConnectionString, indexTableName)) Then
+				Dim sql = String.Empty
+				Dim t = indexing.Type
+				Select Case (t)
+					Case GetType(String)
+						Dim len = Byte.MaxValue.ToString
+						If (indexing.Length > 0 And indexing.Length < Byte.MaxValue) Then
+							len = indexing.Length.ToString
+						End If
+						sql = String.Format(My.Resources.CreateStringIndexTableSQL, indexTableName, Name, len)
+					Case GetType(Integer)
+						sql = String.Format(My.Resources.CreateIntIndexTableSQL, indexTableName, Name)
+					Case GetType(Double)
+						sql = String.Format(My.Resources.CreateFloatIndexTableSQL, indexTableName, Name)
+					Case GetType(DateTime)
+						sql = String.Format(My.Resources.CreateBigIntIndexTableSQL, indexTableName, Name)
+					Case GetType(Long)
+						sql = String.Format(My.Resources.CreateBigIntIndexTableSQL, indexTableName, Name)
+					Case GetType(Boolean)
 						sql = String.Format(My.Resources.CreateStringIndexTableSQL, indexTableName, Name, Byte.MaxValue.ToString)
-					Else
-						Throw New Exception("Обнаружен не поддерживаемый тип индексируемого поля " + Name + " _ " + t.FullName)
-					End If
-			End Select
+					Case Else
+						Dim enumType = Type.GetType("System.Enum, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089")
+						If t.BaseType = enumType Then
+							sql = String.Format(My.Resources.CreateStringIndexTableSQL, indexTableName, Name, Byte.MaxValue.ToString)
+						Else
+							Throw New Exception("Обнаружен не поддерживаемый тип индексируемого поля " + Name + " _ " + t.FullName)
+						End If
+				End Select
 
-			MSSQLSRVUtils.ExecSQL(ConnectionString, sql)
+				MSSQLSRVUtils.ExecSQL(ConnectionString, sql)
+			End If
 		End If
-
 		Return indexTableName
 	End Function
 

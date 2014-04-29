@@ -28,7 +28,6 @@ Public Class MSSQLSRVStorageManager
 
 	Public Function CreateStorage(name As String, type As Type) As IObjStorage Implements IObjStorageManager.CreateStorage
 		Dim tableName = String.Format("{0}_main", name)
-		MSSQLSRVUtils.CreateDB(_connStringBld, _dbName)
-		Return New MSSQLSRVStorage(ConnectionStringBuilder.ConnectionString, type)
+		Return New MSSQLSRVStorage(ConnectionStringBuilder, type, _dbName)
 	End Function
 End Class

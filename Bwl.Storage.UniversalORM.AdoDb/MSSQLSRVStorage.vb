@@ -4,15 +4,19 @@ Public Class MSSQLSRVStorage
 	Inherits CommonObjStorage
 
 	Private _name As String
+	Private _dbName As String
 
-	Public Sub New(connString As String, type As Type)
+	Public Sub New(connStringBld As SqlConnectionStringBuilder, type As Type, dbName As String)
 		MyBase.New(type)
 		_name = type.Name
-		ConnectionString = connString
-		CreateMainTable(ConnectionString, Name)
+		_dbName = dbName
+		ConnectionStringBld = connStringBld
+
+		CheckDB()
 	End Sub
 
 	Public Overrides Sub AddObj(obj As ObjBase)
+		CheckDB()
 		Dim json = JsonConverter.Serialize(obj)
 		Save(ConnectionString, obj.ID, json)
 
@@ -31,6 +35,7 @@ Public Class MSSQLSRVStorage
 	End Sub
 
 	Public Overrides Sub AddObjects(objects As ObjBase())
+		CheckDB()
 		Dim jsonList = New List(Of String)
 		Dim ids = New List(Of String)
 		Dim indexTableNames = New List(Of String)
@@ -59,24 +64,9 @@ Public Class MSSQLSRVStorage
 		'SaveIndex(indexTableNames, ids, indexValues)
 	End Sub
 
-	Public Shared Sub CreateMainTable(connString As String, tableName As String)
-		If (Not MSSQLSRVUtils.TableExists(connString, tableName)) Then
-			Dim sql = String.Format(My.Resources.CreateMainTableSQL, tableName)
-			MSSQLSRVUtils.ExecSQL(connString, sql)
-		End If
-	End Sub
-
-	Private Sub SaveIndex(tableName As String, id As String, value As Object)
-		Dim sql = String.Format(My.Resources.InsertIndexSQL, tableName, id, "@p1")
-		MSSQLSRVUtils.ExecSQL(ConnectionString, sql, {New SqlParameter("@p1", value)})
-	End Sub
-
-	Private Sub UpdateIndex(tableName As String, id As String, value As Object)
-		Dim sql = String.Format("UPDATE [{0}] SET [value] = @p1 WHERE [guid] = @p2", tableName)
-		MSSQLSRVUtils.ExecSQL(ConnectionString, sql, {New SqlParameter("@p1", value), New SqlParameter("@p2", id)})
-	End Sub
-
 	Public Overrides Function FindObj(searchParams As SearchParams) As String()
+		CheckDB()
+
 		'''' TOP
 		Dim topSql = String.Empty
 		If (searchParams IsNot Nothing) AndAlso (searchParams.SelectOptions IsNot Nothing) Then
@@ -138,6 +128,8 @@ Public Class MSSQLSRVStorage
 	End Function
 
 	Public Overrides Function GetObj(id As String) As ObjBase
+		CheckDB()
+
 		Dim res As ObjBase = Nothing
 		Dim sql = String.Format("SELECT [json] FROM [dbo].[{0}] WHERE [guid] = '{1}'", Name, id)
 		Dim jsonObj = MSSQLSRVUtils.ExecSQLScalar(ConnectionString, sql)
@@ -153,11 +145,13 @@ Public Class MSSQLSRVStorage
 	End Function
 
 	Public Overrides Sub RemoveObj(id As String)
+		CheckDB()
 		Dim sql = String.Format("DELETE FROM [dbo].[{0}] WHERE [guid] like '{1}'", Name, id)
 		MSSQLSRVUtils.ExecSQL(ConnectionString, sql)
 	End Sub
 
 	Public Overrides Sub UpdateObj(obj As ObjBase)
+		CheckDB()
 		Dim json = JsonConverter.Serialize(obj)
 		Update(ConnectionString, obj.ID, json)
 
@@ -181,7 +175,80 @@ Public Class MSSQLSRVStorage
 		End Get
 	End Property
 
-	Public Property ConnectionString As String
+	Public Property ConnectionStringBld As SqlConnectionStringBuilder
+
+	Public Overrides Function GetObjects(Of T As ObjBase)(objIds As String(), Optional bp As BetweenParam = Nothing) As IEnumerable(Of T)
+		Return GetObjects(objIds, bp).Select(Function(o) CType(o, T))
+	End Function
+
+	Public Overrides Function GetObjects(objIds As String(), Optional bp As BetweenParam = Nothing) As IEnumerable(Of ObjBase)
+		CheckDB()
+
+		objIds = GetBetweenIds(objIds, bp)
+
+		Dim resList = New List(Of ObjBase)
+		Dim sql = String.Empty
+		Dim i = 0
+		If (objIds IsNot Nothing AndAlso objIds.Any) Then
+			For Each id In objIds
+				If String.IsNullOrWhiteSpace(sql) Then
+					sql = String.Format("SELECT [json] , {2} as tmp FROM [dbo].[{0}] WHERE ([guid] = '{1}')", Name, id, i)
+				Else
+					sql += String.Format(" Union SELECT [json] , {2} as tmp FROM [dbo].[{0}] WHERE ([guid] = '{1}')", Name, id, i)
+				End If
+				i += 1
+			Next
+			sql += " order by tmp"
+
+			Dim jsonObjList = MSSQLSRVUtils.GetObjectList(ConnectionString, sql)
+			If (jsonObjList IsNot Nothing) Then
+				Dim tmpList = jsonObjList.Select(Function(j) CType(JsonConverter.Deserialize(j(0).ToString, SupportedType), ObjBase))
+				resList.AddRange(tmpList)
+			End If
+		End If
+		Return resList
+	End Function
+
+	Public Overrides Function Contains(id As String) As Boolean
+		CheckDB()
+
+		Dim res = False
+		Dim sql = String.Format("SELECT [guid] FROM [dbo].[{0}] WHERE [guid] = '{1}'", Name, id)
+		Dim idFromDb = MSSQLSRVUtils.ExecSQLScalar(ConnectionString, sql)
+		If (Not String.IsNullOrWhiteSpace(idFromDb) AndAlso idFromDb.ToString = id) Then
+			res = True
+		End If
+		Return res
+	End Function
+
+	Private ReadOnly Property ConnectionString As String
+		Get
+			Return ConnectionStringBld.ConnectionString
+		End Get
+	End Property
+
+	Private Sub CheckDB()
+		MSSQLSRVUtils.CreateDB(ConnectionStringBld, _dbName)
+		CreateMainTable(ConnectionString, Name)
+	End Sub
+
+
+	Private Shared Sub CreateMainTable(connString As String, tableName As String)
+		If (Not MSSQLSRVUtils.TableExists(connString, tableName)) Then
+			Dim sql = String.Format(My.Resources.CreateMainTableSQL, tableName)
+			MSSQLSRVUtils.ExecSQL(connString, sql)
+		End If
+	End Sub
+
+	Private Sub SaveIndex(tableName As String, id As String, value As Object)
+		Dim sql = String.Format(My.Resources.InsertIndexSQL, tableName, id, "@p1")
+		MSSQLSRVUtils.ExecSQL(ConnectionString, sql, {New SqlParameter("@p1", value)})
+	End Sub
+
+	Private Sub UpdateIndex(tableName As String, id As String, value As Object)
+		Dim sql = String.Format("UPDATE [{0}] SET [value] = @p1 WHERE [guid] = @p2", tableName)
+		MSSQLSRVUtils.ExecSQL(ConnectionString, sql, {New SqlParameter("@p1", value), New SqlParameter("@p2", id)})
+	End Sub
 
 	Private Function GetIndexTableName(indexing As IndexInfo) As String
 		Dim indexTableName = String.Format("{0}_{1}", Name, indexing.Name.Replace(".", "_"))
@@ -325,10 +392,6 @@ Public Class MSSQLSRVStorage
 		MSSQLSRVUtils.ExecSQL(ConnectionString, sql, {New SqlParameter("@p1", json), New SqlParameter("@p2", id)})
 	End Sub
 
-	Public Overrides Function GetObjects(Of T As ObjBase)(objIds As String(), Optional bp As BetweenParam = Nothing) As IEnumerable(Of T)
-		Return GetObjects(objIds, bp).Select(Function(o) CType(o, T))
-	End Function
-
 	Private Shared Function GetBetweenIds(objIds As String(), Optional bp As BetweenParam = Nothing)
 		If objIds IsNot Nothing Then
 			If bp Is Nothing Then
@@ -357,41 +420,5 @@ Public Class MSSQLSRVStorage
 			End If
 		End If
 		Return Nothing
-	End Function
-
-	Public Overloads Overrides Function GetObjects(objIds As String(), Optional bp As BetweenParam = Nothing) As IEnumerable(Of ObjBase)
-		objIds = GetBetweenIds(objIds, bp)
-
-		Dim resList = New List(Of ObjBase)
-		Dim sql = String.Empty
-		Dim i = 0
-		If (objIds IsNot Nothing AndAlso objIds.Any) Then
-			For Each id In objIds
-				If String.IsNullOrWhiteSpace(sql) Then
-					sql = String.Format("SELECT [json] , {2} as tmp FROM [dbo].[{0}] WHERE ([guid] = '{1}')", Name, id, i)
-				Else
-					sql += String.Format(" Union SELECT [json] , {2} as tmp FROM [dbo].[{0}] WHERE ([guid] = '{1}')", Name, id, i)
-				End If
-				i += 1
-			Next
-			sql += " order by tmp"
-
-			Dim jsonObjList = MSSQLSRVUtils.GetObjectList(ConnectionString, sql)
-			If (jsonObjList IsNot Nothing) Then
-				Dim tmpList = jsonObjList.Select(Function(j) CType(JsonConverter.Deserialize(j(0).ToString, SupportedType), ObjBase))
-				resList.AddRange(tmpList)
-			End If
-		End If
-		Return resList
-	End Function
-
-	Public Overrides Function Contains(id As String) As Boolean
-		Dim res = False
-		Dim sql = String.Format("SELECT [guid] FROM [dbo].[{0}] WHERE [guid] = '{1}'", Name, id)
-		Dim idFromDb = MSSQLSRVUtils.ExecSQLScalar(ConnectionString, sql)
-		If (Not String.IsNullOrWhiteSpace(idFromDb) AndAlso idFromDb.ToString = id) Then
-			res = True
-		End If
-		Return res
 	End Function
 End Class

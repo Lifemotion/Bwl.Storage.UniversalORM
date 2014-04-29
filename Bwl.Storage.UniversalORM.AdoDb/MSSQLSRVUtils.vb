@@ -2,9 +2,9 @@
 
 Public Class MSSQLSRVUtils
 
-	Public Shared Sub ExecSQL(connString As String, sqlHelper As SqlHelper)
-		ExecSQL(connString, sqlHelper.SQL, sqlHelper.Parameters.ToArray)
-	End Sub
+	'Public Shared Sub ExecSQL(connString As String, sqlHelper As SqlHelper)
+	'	ExecSQL(connString, sqlHelper.SQL, sqlHelper.Parameters.ToArray)
+	'End Sub
 
 	Public Shared Sub ExecSQL(connString As String, sql As String, Optional parameters As SqlParameter() = Nothing)
 		Dim con = New SqlConnection(connString)
@@ -43,10 +43,14 @@ Public Class MSSQLSRVUtils
 
 	Public Shared Sub CreateDB(connStringBld As SqlConnectionStringBuilder, dbName As String)
 		If (Not MSSQLSRVUtils.CheckConnection(connStringBld.ConnectionString)) Then
-			connStringBld.InitialCatalog = String.Empty
-			Dim sql = String.Format("CREATE DATABASE [{0}]", dbName)
-			MSSQLSRVUtils.ExecSQL(connStringBld.ConnectionString, sql)
-			connStringBld.InitialCatalog = dbName
+			Threading.Thread.Sleep(2000)
+			If (Not MSSQLSRVUtils.CheckConnection(connStringBld.ConnectionString)) Then
+				connStringBld.InitialCatalog = String.Empty
+				Dim sql = String.Format("CREATE DATABASE [{0}]", dbName)
+				MSSQLSRVUtils.ExecSQL(connStringBld.ConnectionString, sql)
+				Threading.Thread.Sleep(2000)
+				connStringBld.InitialCatalog = dbName
+			End If
 		End If
 	End Sub
 

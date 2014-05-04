@@ -176,7 +176,7 @@ Public Class MSSQLSRVStorage
 
 		Dim betweenSql = String.Empty
 		If (searchParams IsNot Nothing) AndAlso (searchParams.SelectOptions IsNot Nothing) AndAlso (searchParams.SelectOptions.SelectMode = SelectMode.Between) Then
-			betweenSql = String.Format(" OFFSET {0} ROWS FETCH NEXT {1} ROWS ONLY ", searchParams.SelectOptions.StartValue, searchParams.SelectOptions.EndValue - searchParams.SelectOptions.StartValue)
+			betweenSql = String.Format(" OFFSET {0} ROWS FETCH NEXT {1} ROWS ONLY ", searchParams.SelectOptions.StartValue, searchParams.SelectOptions.EndValue - searchParams.SelectOptions.StartValue + 1)
 		End If
 
 		'''' main sql

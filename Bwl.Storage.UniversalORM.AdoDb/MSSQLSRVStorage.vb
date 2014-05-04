@@ -118,8 +118,8 @@ Public Class MSSQLSRVStorage
 		End If
 
 		'''' main sql
-		Dim mainSelect = String.Format("Select count({0} [{1}].[guid]) FROM {2} {3} ", topSql, Name, fromSql, whereSql, sortTableName, sortField, sortModeStr)
-		Dim count = MSSQLSRVUtils.ExecSQLScalar(ConnectionString, mainSelect)
+		Dim mainSelect = String.Format("Select count(*) from (select {4} [{1}].[guid] FROM {2} {3}) a ", topSql, Name, fromSql, whereSql, topSql)
+		Dim count = MSSQLSRVUtils.ExecSQLScalar(ConnectionString, mainSelect, parameters)
 		If count IsNot Nothing Then
 			res = Convert.ToInt64(count)
 		End If
@@ -131,7 +131,7 @@ Public Class MSSQLSRVStorage
 
 		'''' TOP
 		Dim topSql = String.Empty
-		If (searchParams IsNot Nothing) AndAlso (searchParams.SelectOptions IsNot Nothing) Then
+		If (searchParams IsNot Nothing) AndAlso (searchParams.SelectOptions IsNot Nothing) AndAlso (searchParams.SelectOptions.SelectMode = SelectMode.Top) Then
 			If searchParams.SelectOptions.TopValue > 0 Then
 				topSql = " TOP " + searchParams.SelectOptions.TopValue.ToString + " "
 			End If
@@ -177,8 +177,15 @@ Public Class MSSQLSRVStorage
 			parameters = helper.Parameters.ToArray
 		End If
 
+		Dim betweenSql = String.Empty
+		If (searchParams IsNot Nothing) AndAlso (searchParams.SelectOptions IsNot Nothing) AndAlso (searchParams.SelectOptions.SelectMode = SelectMode.Between) Then
+			betweenSql = String.Format(" OFFSET {0} ROWS FETCH NEXT {1} ROWS ONLY ", searchParams.SelectOptions.StartValue, searchParams.SelectOptions.EndValue)
+		End If
+
 		'''' main sql
-		Dim mainSelect = String.Format("Select {0} [{1}].[guid] FROM {2} {3} ORDER BY [{4}].[{5}] {6} ", topSql, Name, fromSql, whereSql, sortTableName, sortField, sortModeStr)
+		'Dim mainSelect = String.Format("Select {0} [{1}].[guid] FROM {2} {3} ORDER BY [{4}].[{5}] {6} ", topSql, Name, fromSql, whereSql, sortTableName, sortField, sortModeStr)
+
+		Dim mainSelect = String.Format("Select {0} [{1}].[guid] FROM {2} {3} ORDER BY [{4}].[{5}] {6} {7}", topSql, Name, fromSql, whereSql, sortTableName, sortField, sortModeStr, betweenSql)
 
 		Dim list = MSSQLSRVUtils.GetObjectList(ConnectionString, mainSelect, parameters)
 		If (list IsNot Nothing AndAlso list.Any) Then
@@ -239,14 +246,12 @@ Public Class MSSQLSRVStorage
 
 	Public Property ConnectionStringBld As SqlConnectionStringBuilder
 
-	Public Overrides Function GetObjects(Of T As ObjBase)(objIds As String(), Optional bp As BetweenParam = Nothing) As IEnumerable(Of T)
-		Return GetObjects(objIds, bp).Select(Function(o) CType(o, T))
+	Public Overrides Function GetObjects(Of T As ObjBase)(objIds As String()) As IEnumerable(Of T)
+		Return GetObjects(objIds).Select(Function(o) CType(o, T))
 	End Function
 
-	Public Overrides Function GetObjects(objIds As String(), Optional bp As BetweenParam = Nothing) As IEnumerable(Of ObjBase)
+	Public Overrides Function GetObjects(objIds As String()) As IEnumerable(Of ObjBase)
 		CheckDB()
-
-		objIds = GetBetweenIds(objIds, bp)
 
 		Dim resList = New List(Of ObjBase)
 		Dim sql = String.Empty
@@ -458,36 +463,6 @@ Public Class MSSQLSRVStorage
 		Dim sql = String.Format("UPDATE [{0}] SET [json] = @p1 WHERE [guid] = @p2", Name)
 		MSSQLSRVUtils.ExecSQL(ConnectionString, sql, {New SqlParameter("@p1", json), New SqlParameter("@p2", id)})
 	End Sub
-
-	Private Shared Function GetBetweenIds(objIds As String(), Optional bp As BetweenParam = Nothing)
-		If objIds IsNot Nothing Then
-			If bp Is Nothing Then
-				Return objIds
-			Else
-				Dim start = bp.StartValue
-				If (start < 0) Then
-					start = 0
-				End If
-				If start >= objIds.Length Then
-					start = objIds.Length - 1
-				End If
-
-				Dim endV = bp.EndValue
-				If (endV < 0) Then
-					endV = 0
-				End If
-				If endV >= objIds.Length Then
-					endV = objIds.Length - 1
-				End If
-
-				Dim len = endV - start + 1
-				Dim arr(len - 1) As String
-				Array.Copy(objIds, start, arr, 0, len)
-				Return arr
-			End If
-		End If
-		Return Nothing
-	End Function
 
 	Public Overrides Sub RemoveAllObjects()
 		CheckDB()

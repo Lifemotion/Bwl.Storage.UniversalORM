@@ -70,7 +70,6 @@
     <Compile Include="MemoryStorage\MemoryStorage.vb" />
     <Compile Include="MemoryStorage\MemoryStorageManager.vb" />
     <Compile Include="Objects\ObjContainer.vb" />
-    <Compile Include="SearchParams\BetweenParam.vb" />
     <Compile Include="SearchParams\FindCondition.vb" />
     <Compile Include="SearchParams\FindCriteria.vb" />
     <Compile Include="Json\JsonConverter.vb" />

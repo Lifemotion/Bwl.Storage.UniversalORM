@@ -62,7 +62,7 @@ Public Class TempStorage
 
 	End Sub
 
-	Public Overrides Function GetObjects(objIds As String(), Optional bp As BetweenParam = Nothing) As IEnumerable(Of ObjBase)
+	Public Overrides Function GetObjects(objIds As String()) As IEnumerable(Of ObjBase)
 		Return Nothing
 	End Function
 
@@ -74,7 +74,7 @@ Public Class TempStorage
 		Return Nothing
 	End Function
 
-	Public Overloads Overrides Function GetObjects(Of T As ObjBase)(objIds As String(), Optional bp As BetweenParam = Nothing) As IEnumerable(Of T)
+	Public Overloads Overrides Function GetObjects(Of T As ObjBase)(objIds As String()) As IEnumerable(Of T)
 		Return Nothing
 	End Function
 

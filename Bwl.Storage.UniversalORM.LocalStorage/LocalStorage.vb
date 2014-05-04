@@ -127,10 +127,10 @@ Public Class LocalStorage
 		Return GetObj(id, GetType(T), loadBlob)
 	End Function
 
-	Public Overridable Function GetObjects(objIds As String(), type As Type, Optional loadBlob As Boolean = True, Optional bp As BetweenParam = Nothing) As IEnumerable(Of ObjBase) Implements ILocalStorage.GetObjects
+	Public Overridable Function GetObjects(objIds As String(), type As Type, Optional loadBlob As Boolean = True) As IEnumerable(Of ObjBase) Implements ILocalStorage.GetObjects
 		Dim storage = GetStorage(type)
 		If storage IsNot Nothing Then
-			Dim objects = storage.GetObjects(objIds, bp)
+			Dim objects = storage.GetObjects(objIds)
 			If (loadBlob) Then
 				_blobStorage.LoadBlobs(objects.ToArray, objIds.ToArray)
 			End If
@@ -139,10 +139,10 @@ Public Class LocalStorage
 		Return Nothing
 	End Function
 
-	Public Overridable Function GetObjects(Of T As ObjBase)(objIds As String(), Optional loadBlob As Boolean = True, Optional bp As BetweenParam = Nothing) As IEnumerable(Of T) Implements ILocalStorage.GetObjects
+	Public Overridable Function GetObjects(Of T As ObjBase)(objIds As String(), Optional loadBlob As Boolean = True) As IEnumerable(Of T) Implements ILocalStorage.GetObjects
 		Dim storage = GetStorage(GetType(T))
 		If storage IsNot Nothing Then
-			Dim objects = storage.GetObjects(Of T)(objIds, bp)
+			Dim objects = storage.GetObjects(Of T)(objIds)
 			If (loadBlob) Then
 				_blobStorage.LoadBlobs(objects.ToArray, objIds.ToArray)
 			End If

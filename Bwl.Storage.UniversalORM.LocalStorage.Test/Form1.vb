@@ -80,7 +80,7 @@ Public Class Form1
 		sp = New SearchParams(selectOptions:=selectOpt)
 		Dim ids4 = localstorage.FindObj(Of TestData)(sp)
 
-		Dim objs = localstorage.GetObjects(Of TestData)(ids4, False, New BetweenParam(3, 4))
+		Dim objs = localstorage.GetObjects(Of TestData)(ids4, False)
 		Dim objs2 = localstorage.GetObjects(Of TestData)(ids4, False)
 
 		selectOpt = New SelectOptions(10)

@@ -24,12 +24,15 @@ Public Class MSSQLSRVUtils
 		End Try
 	End Sub
 
-	Public Shared Function ExecSQLScalar(connString As String, sql As String) As Object
+	Public Shared Function ExecSQLScalar(connString As String, sql As String, Optional parameters As SqlParameter() = Nothing) As Object
 		Dim res As Object = Nothing
 		Dim con = New SqlConnection(connString)
 		Try
 			con.Open()
 			Dim cmd = New SqlCommand(sql, con)
+			If parameters IsNot Nothing Then
+				cmd.Parameters.AddRange(parameters)
+			End If
 			res = cmd.ExecuteScalar()
 			cmd.Dispose()
 		Catch ex As Exception

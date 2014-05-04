@@ -10,8 +10,8 @@
 	Function GetObj(Of T As ObjBase)(id As String) As T
 	Function GetObj(id As String) As ObjBase
 
-	Function GetObjects(objIds As String(), Optional bp As BetweenParam = Nothing) As IEnumerable(Of ObjBase)
-	Function GetObjects(Of T As ObjBase)(objIds As String(), Optional bp As BetweenParam = Nothing) As IEnumerable(Of T)
+	Function GetObjects(objIds As String()) As IEnumerable(Of ObjBase)
+	Function GetObjects(Of T As ObjBase)(objIds As String()) As IEnumerable(Of T)
 
 	Function FindObj(searchParams As SearchParams) As String()
 	Function FindObjCount(searchParams As SearchParams) As Long

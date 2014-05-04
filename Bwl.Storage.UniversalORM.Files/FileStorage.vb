@@ -129,7 +129,7 @@ Public Class FileObjStorage
 		Return CType(GetObj(id), T)
 	End Function
 
-	Public Overrides Function GetObjects(objIds As String(), Optional bp As BetweenParam = Nothing) As IEnumerable(Of ObjBase)
+	Public Overrides Function GetObjects(objIds As String()) As IEnumerable(Of ObjBase)
 		Return Nothing
 	End Function
 
@@ -138,7 +138,7 @@ Public Class FileObjStorage
 		Return IO.File.Exists(file)
 	End Function
 
-	Public Overrides Function GetObjects(Of T As ObjBase)(objIds As String(), Optional bp As BetweenParam = Nothing) As IEnumerable(Of T)
+	Public Overrides Function GetObjects(Of T As ObjBase)(objIds As String()) As IEnumerable(Of T)
 		Return Nothing
 	End Function
 

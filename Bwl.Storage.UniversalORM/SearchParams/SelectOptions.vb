@@ -1,17 +1,4 @@
-﻿'Public Class SelectOptions
-
-'	Public Sub New()
-
-'	End Sub
-
-'	Public Sub New(topValue As Long)
-'		Me.TopValue = topValue
-'	End Sub
-
-'	Public Property TopValue As Long
-'End Class
-
-Public Class SelectOptions
+﻿Public Class SelectOptions
 
 	Dim _selectMode As UniversalORM.SelectMode
 	Dim _topValue As Long
@@ -23,27 +10,16 @@ Public Class SelectOptions
 
 	End Sub
 
-	Public Sub New(topValue As Long, Optional maxRecordsCount As Long = 0)
+	Public Sub New(topValue As Long)
 		_topValue = topValue
 		_selectMode = UniversalORM.SelectMode.Top
-		_maxRecordsCount = maxRecordsCount
 	End Sub
 
-	Public Sub New(startValue As Long, endValue As Long, maxRecordsCount As Long)
+	Public Sub New(startValue As Long, endValue As Long)
 		_selectMode = UniversalORM.SelectMode.Between
 		_startValue = startValue
 		_endValue = endValue
-		_maxRecordsCount = maxRecordsCount
 	End Sub
-
-	Public Property MaxRecordsCount As Long
-		Get
-			Return _maxRecordsCount
-		End Get
-		Set(value As Long)
-			_maxRecordsCount = value
-		End Set
-	End Property
 
 	Public Property TopValue As Long
 		Get

@@ -1,11 +1,6 @@
 ﻿Imports System.Data.SqlClient
 
 Public Class MSSQLSRVUtils
-
-	'Public Shared Sub ExecSQL(connString As String, sqlHelper As SqlHelper)
-	'	ExecSQL(connString, sqlHelper.SQL, sqlHelper.Parameters.ToArray)
-	'End Sub
-
 	Public Shared Sub ExecSQL(connString As String, sql As String, Optional parameters As SqlParameter() = Nothing)
 		Dim con = New SqlConnection(connString)
 		Try

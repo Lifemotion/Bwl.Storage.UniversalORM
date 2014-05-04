@@ -59,9 +59,6 @@ Public Class MSSQLSRVStorage
 				End Try
 			Next
 		Next
-
-		'Save(ConnectionString, ids, jsonList)
-		'SaveIndex(indexTableNames, ids, indexValues)
 	End Sub
 
 
@@ -179,12 +176,10 @@ Public Class MSSQLSRVStorage
 
 		Dim betweenSql = String.Empty
 		If (searchParams IsNot Nothing) AndAlso (searchParams.SelectOptions IsNot Nothing) AndAlso (searchParams.SelectOptions.SelectMode = SelectMode.Between) Then
-			betweenSql = String.Format(" OFFSET {0} ROWS FETCH NEXT {1} ROWS ONLY ", searchParams.SelectOptions.StartValue, searchParams.SelectOptions.EndValue)
+			betweenSql = String.Format(" OFFSET {0} ROWS FETCH NEXT {1} ROWS ONLY ", searchParams.SelectOptions.StartValue, searchParams.SelectOptions.EndValue - searchParams.SelectOptions.StartValue)
 		End If
 
 		'''' main sql
-		'Dim mainSelect = String.Format("Select {0} [{1}].[guid] FROM {2} {3} ORDER BY [{4}].[{5}] {6} ", topSql, Name, fromSql, whereSql, sortTableName, sortField, sortModeStr)
-
 		Dim mainSelect = String.Format("Select {0} [{1}].[guid] FROM {2} {3} ORDER BY [{4}].[{5}] {6} {7}", topSql, Name, fromSql, whereSql, sortTableName, sortField, sortModeStr, betweenSql)
 
 		Dim list = MSSQLSRVUtils.GetObjectList(ConnectionString, mainSelect, parameters)

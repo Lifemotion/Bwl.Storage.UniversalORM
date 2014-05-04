@@ -29,7 +29,7 @@ Public Class FileBlobSaver
 		Return objBlobInfo
 	End Function
 
-	Private Function GetPath(id As String, Optional fullPath As Boolean = True)
+	Private Function GetPath(id As String, Optional fullPath As Boolean = True, Optional needCreate As Boolean = True)
 		Dim subDir = id
 		If subDir.Length > 10 Then
 			subDir = id.Substring(1, 8)
@@ -38,7 +38,7 @@ Public Class FileBlobSaver
 		Dim root = _rootDir
 		If (fullPath) Then
 			Dim dir = Path.Combine(Path.Combine(root, subDir), id)
-			If (Not Directory.Exists(dir)) Then
+			If needCreate AndAlso (Not Directory.Exists(dir)) Then
 				Directory.CreateDirectory(dir)
 			End If
 			Return dir
@@ -82,15 +82,16 @@ Public Class FileBlobSaver
 	End Sub
 
 	Sub Remove(parentObjId As String) Implements IBlobSaver.Remove
-		Dim dir = GetPath(parentObjId)
-		If Directory.Exists(dir) Then
-			Directory.Delete(dir, True)
-		End If
-
 		Try
+			Dim dir = GetPath(parentObjId, True, False)
+			If Directory.Exists(dir) Then
+				Directory.Delete(dir, True)
+			End If
 			Dim parentDir = Directory.GetParent(dir).FullName
-			If (Not Directory.GetFiles(parentDir).Any) And (Not Directory.GetDirectories(parentDir).Any) Then
-				Directory.Delete(parentDir)
+			If Directory.Exists(parentDir) Then
+				If (Not Directory.GetFiles(parentDir).Any) And (Not Directory.GetDirectories(parentDir).Any) Then
+					Directory.Delete(parentDir)
+				End If
 			End If
 		Catch ex As Exception
 			'...

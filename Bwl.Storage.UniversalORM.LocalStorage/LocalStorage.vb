@@ -98,6 +98,15 @@ Public Class LocalStorage
 		Return Nothing
 	End Function
 
+	Public Function FindObjCount(type As Type, Optional searchParams As SearchParams = Nothing) As Long Implements ILocalStorage.FindObjCount
+		Dim res As Long = 0
+		Dim storage = GetStorage(type)
+		If storage IsNot Nothing Then
+			res = storage.FindObjCount(searchParams)
+		End If
+		Return res
+	End Function
+
 	Public Overridable Function FindObj(Of T As ObjBase)(Optional searchParams As SearchParams = Nothing) As String() Implements ILocalStorage.FindObj
 		Return FindObj(GetType(T), searchParams)
 	End Function
@@ -165,4 +174,15 @@ Public Class LocalStorage
 			Return _blobSaver
 		End Get
 	End Property
+
+	Public Overridable Sub RemoveAllObj(type As Type) Implements ILocalStorage.RemoveAllObj
+		Dim storage = GetStorage(type)
+		If storage IsNot Nothing Then
+			Dim ids = storage.FindObj(Nothing)
+			For Each id In ids
+				_blobStorage.Remove(id)
+			Next
+			storage.RemoveAllObjects()
+		End If
+	End Sub
 End Class

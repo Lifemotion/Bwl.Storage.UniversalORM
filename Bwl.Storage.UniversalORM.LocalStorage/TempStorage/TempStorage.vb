@@ -84,4 +84,12 @@ Public Class TempStorage
 
 	Public Overrides Sub AddObjects(obj() As ObjBase)
 	End Sub
+
+	Public Overrides Sub RemoveAllObjects()
+
+	End Sub
+
+	Public Overrides Function FindObjCount(searchParams As SearchParams) As Long
+		Return 0
+	End Function
 End Class

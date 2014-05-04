@@ -38,4 +38,8 @@
 			Return _supportedType
 		End Get
 	End Property
+
+	Public MustOverride Sub RemoveAllObjects() Implements IObjStorage.RemoveAllObjects
+
+	Public MustOverride Function FindObjCount(searchParams As SearchParams) As Long Implements IObjStorage.FindObjCount
 End Class

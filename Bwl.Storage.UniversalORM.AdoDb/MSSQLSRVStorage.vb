@@ -64,6 +64,68 @@ Public Class MSSQLSRVStorage
 		'SaveIndex(indexTableNames, ids, indexValues)
 	End Sub
 
+
+	Public Overrides Function FindObjCount(searchParams As SearchParams) As Long
+		Dim res As Long = 0
+		CheckDB()
+
+		'''' TOP
+		Dim topSql = String.Empty
+		If (searchParams IsNot Nothing) AndAlso (searchParams.SelectOptions IsNot Nothing) Then
+			If searchParams.SelectOptions.TopValue > 0 Then
+				topSql = " TOP " + searchParams.SelectOptions.TopValue.ToString + " "
+			End If
+		End If
+
+		'''' sorting
+		Dim sortModeStr = "ASC"
+		Dim sortField = "guid"
+		Dim sortTableName = Name
+		If (searchParams IsNot Nothing) AndAlso (searchParams.SortParam IsNot Nothing) Then
+			If searchParams.SortParam.SortMode = SortMode.Descending Then
+				sortModeStr = "DESC"
+			End If
+
+			Dim indexInfo = _indexingMembers.FirstOrDefault(Function(indInf) indInf.Name = searchParams.SortParam.Field)
+			If (indexInfo IsNot Nothing) Then
+				sortField = "value"
+				sortTableName = GetIndexTableName(indexInfo)
+			Else
+				Throw New Exception("MSSQLSRVStorage.FindObj _ BadSortParam _ index " + indexInfo.Name + " not found.")
+			End If
+		End If
+
+		Dim crit As IEnumerable(Of FindCriteria) = Nothing
+		If (searchParams IsNot Nothing) Then
+			crit = searchParams.FindCriterias
+		End If
+
+		Dim sort As SortParam = Nothing
+		If (searchParams IsNot Nothing) Then
+			sort = searchParams.SortParam
+		End If
+
+		'''' from + where
+		Dim fromSql = GenerateFromSql(crit, sort)
+
+		'''' where
+		Dim whereSql = String.Empty
+		Dim parameters As SqlParameter() = Nothing
+		Dim helper = GenerateWhereSql(crit, sort)
+		If helper IsNot Nothing Then
+			whereSql = helper.SQL
+			parameters = helper.Parameters.ToArray
+		End If
+
+		'''' main sql
+		Dim mainSelect = String.Format("Select count({0} [{1}].[guid]) FROM {2} {3} ", topSql, Name, fromSql, whereSql, sortTableName, sortField, sortModeStr)
+		Dim count = MSSQLSRVUtils.ExecSQLScalar(ConnectionString, mainSelect)
+		If count IsNot Nothing Then
+			res = Convert.ToInt64(count)
+		End If
+		Return res
+	End Function
+
 	Public Overrides Function FindObj(searchParams As SearchParams) As String()
 		CheckDB()
 
@@ -426,4 +488,10 @@ Public Class MSSQLSRVStorage
 		End If
 		Return Nothing
 	End Function
+
+	Public Overrides Sub RemoveAllObjects()
+		CheckDB()
+		Dim sql = String.Format("DELETE FROM [dbo].[{0}]", Name)
+		MSSQLSRVUtils.ExecSQL(ConnectionString, sql)
+	End Sub
 End Class

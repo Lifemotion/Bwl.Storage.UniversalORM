@@ -53,4 +53,12 @@ Public Class MemoryStorage
 			AddObj(obj)
 		Next
 	End Sub
+
+	Public Overrides Sub RemoveAllObjects()
+		_objects.Clear()
+	End Sub
+
+	Public Overrides Function FindObjCount(searchParams As SearchParams) As Long
+		Return _objects.Count
+	End Function
 End Class

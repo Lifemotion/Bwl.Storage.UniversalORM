@@ -95,6 +95,16 @@ Public Class FileObjStorage
 		Return FindAllObjs()
 	End Function
 
+	Public Overrides Function FindObjCount(searchParams As SearchParams) As Long
+		Dim res As Long = 0
+		Utils.TestFolder(_folder)
+		Dim files = IO.Directory.GetFiles(_folder, "*.obj.json")
+		If files IsNot Nothing Then
+			res = files.Length
+		End If
+		Return res
+	End Function
+
 	Private Function FindAllObjs() As String()
 		Utils.TestFolder(_folder)
 		Dim files = IO.Directory.GetFiles(_folder, "*.obj.json")
@@ -136,5 +146,10 @@ Public Class FileObjStorage
 		For Each obj In objects
 			AddObj(obj)
 		Next
+	End Sub
+
+	Public Overrides Sub RemoveAllObjects()
+		Directory.Delete(_folder)
+		Utils.TestFolder(_folder)
 	End Sub
 End Class

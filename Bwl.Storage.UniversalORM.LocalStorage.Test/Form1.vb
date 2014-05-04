@@ -96,6 +96,8 @@ Public Class Form1
 			localstorage.RemoveObj(Of TestData)(objId)
 		Next
 
+		Dim count = localstorage.FindObjCount(GetType(TestData))
+
 		ids = localstorage.FindObj(Of TestData)()
 		For Each objId In ids
 			localstorage.RemoveObj(Of TestData)(objId)

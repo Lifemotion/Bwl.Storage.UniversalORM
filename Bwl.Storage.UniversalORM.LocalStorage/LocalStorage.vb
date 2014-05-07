@@ -45,8 +45,11 @@ Public Class LocalStorage
 		End SyncLock
 	End Function
 
-	Public Overridable Sub AddObj(obj As ObjBase) Implements ILocalStorage.AddObj
-		Dim storage = GetStorage(obj.GetType)
+	Public Overridable Sub AddObj(obj As ObjBase, Optional type As Type = Nothing) Implements ILocalStorage.AddObj
+		If type Is Nothing Then
+			type = obj.GetType
+		End If
+		Dim storage = GetStorage(type)
 		If (String.IsNullOrEmpty(obj.ID)) Then
 			obj.ID = Guid.NewGuid.ToString("B")
 		End If
@@ -54,7 +57,7 @@ Public Class LocalStorage
 		_blobStorage.SaveBlobs(obj, obj.ID)
 	End Sub
 
-	Public Overridable Sub AddObjects(objects() As ObjBase) Implements ILocalStorage.AddObjects
+	Public Overridable Sub AddObjects(objects() As ObjBase, Optional type As Type = Nothing) Implements ILocalStorage.AddObjects
 		Dim objIds = New List(Of String)
 		For Each obj In objects
 			If (String.IsNullOrEmpty(obj.ID)) Then
@@ -63,15 +66,21 @@ Public Class LocalStorage
 			objIds.Add(obj.ID)
 		Next
 
-		Dim storage = GetStorage(objects.First.GetType)
+		If type Is Nothing Then
+			type = objects.First.GetType
+		End If
+		Dim storage = GetStorage(type)
 		If storage IsNot Nothing Then
 			storage.AddObjects(objects)
 			_blobStorage.SaveBlobs(objects, objIds.ToArray)
 		End If
 	End Sub
 
-	Public Overridable Sub UpdateObj(obj As ObjBase) Implements ILocalStorage.UpdateObj
-		Dim storage = GetStorage(obj.GetType)
+	Public Overridable Sub UpdateObj(obj As ObjBase, Optional type As Type = Nothing) Implements ILocalStorage.UpdateObj
+		If type Is Nothing Then
+			type = obj.GetType
+		End If
+		Dim storage = GetStorage(type)
 		If storage IsNot Nothing Then
 			storage.UpdateObj(obj)
 		End If

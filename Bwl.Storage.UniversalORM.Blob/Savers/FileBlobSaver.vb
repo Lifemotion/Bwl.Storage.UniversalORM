@@ -20,6 +20,7 @@ Public Class FileBlobSaver
 	End Property
 
 	Public Function Load(parentObjId As String) As ObjBlobInfo Implements IBlobSaver.Load
+		parentObjId = parentObjId.Replace(" ", "")
 		Dim dir = GetPath(parentObjId)
 		Dim json = File.ReadAllText(Path.Combine(dir, parentObjId + ".json"))
 		Dim objBlobInfo = JsonUtils.LoadFromJsonString(Of ObjBlobInfo)(json)
@@ -50,6 +51,7 @@ Public Class FileBlobSaver
 	End Function
 
 	Public Function GetBlobFilePath(id As String, blobName As String) As String
+		id = id.Replace(" ", "")
 		Dim dir = GetPath(id)
 		Dim subDir = GetPath(id, False)
 		Dim json = File.ReadAllText(Path.Combine(dir, id + ".json"))
@@ -82,6 +84,7 @@ Public Class FileBlobSaver
 	End Sub
 
 	Sub Remove(parentObjId As String) Implements IBlobSaver.Remove
+		parentObjId = parentObjId.Replace(" ", "")
 		Try
 			Dim dir = GetPath(parentObjId, True, False)
 			If Directory.Exists(dir) Then

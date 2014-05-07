@@ -190,6 +190,7 @@ SET ANSI_PADDING ON
 CREATE TABLE [dbo].[{0}](
 	[id] [int] IDENTITY(1,1) NOT NULL,
 	[guid] [nchar](38) NOT NULL,
+	[type] [nvarchar](max) NULL,
 	[json] [nvarchar](max) NULL,
  CONSTRAINT [PK_{0}] PRIMARY KEY CLUSTERED 
 (
@@ -230,12 +231,5 @@ ALTER TABLE [dbo].[{0}] CHECK CONSTRAINT [FK_{0}_{1}]</value>
            ,[value])
      VALUES
            ('{1}',{2})</value>
-  </data>
-  <data name="InsertMainSQL" xml:space="preserve">
-    <value>INSERT INTO [dbo].[{0}]
-           ([guid]
-           ,[json])
-     VALUES
-           ('{1}', '{2}')</value>
   </data>
 </root>

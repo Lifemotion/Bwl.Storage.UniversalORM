@@ -1,14 +1,10 @@
 ﻿Public Interface ILocalStorage
-	Sub AddObj(obj As ObjBase)
+	Sub AddObj(obj As ObjBase, Optional type As Type = Nothing)
 
-	''' <summary>
-	''' Добоавление объектов одинакового типа в хранилище.
-	''' </summary>
-	''' <param name="obj"></param>
-	''' <remarks></remarks>
-	Sub AddObjects(obj As ObjBase())
+	''' <summary>Добоавление объектов одинакового типа в хранилище.</summary>
+	Sub AddObjects(obj As ObjBase(), Optional type As Type = Nothing)
 
-	Sub UpdateObj(obj As ObjBase)
+	Sub UpdateObj(obj As ObjBase, Optional type As Type = Nothing)
 
 	Sub RemoveObj(id As String, type As Type)
 	Sub RemoveObj(Of T As ObjBase)(id As String)

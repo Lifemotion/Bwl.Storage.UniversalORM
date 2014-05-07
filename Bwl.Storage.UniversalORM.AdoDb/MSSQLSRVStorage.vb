@@ -18,7 +18,7 @@ Public Class MSSQLSRVStorage
 	Public Overrides Sub AddObj(obj As ObjBase)
 		CheckDB()
 		Dim json = JsonConverter.Serialize(obj)
-		Save(ConnectionString, obj.ID, json)
+		Save(ConnectionString, obj.ID, json, obj.GetType)
 
 		For Each indexing In _indexingMembers
 			Dim indexTableName = GetIndexTableName(indexing)
@@ -35,30 +35,32 @@ Public Class MSSQLSRVStorage
 	End Sub
 
 	Public Overrides Sub AddObjects(objects As ObjBase())
-		CheckDB()
-		Dim jsonList = New List(Of String)
-		Dim ids = New List(Of String)
-		Dim indexTableNames = New List(Of String)
-		Dim indexValues = New List(Of Object)
-		For Each obj In objects
-			Dim json = JsonConverter.Serialize(obj)
-			jsonList.Add(json)
-			ids.Add(obj.ID)
+		Throw New NotSupportedException
 
-			For Each indexing In _indexingMembers
-				Dim indexTableName = GetIndexTableName(indexing)
-				indexTableNames.Add(indexTableName)
-				Try
-					Dim indexValue = ReflectionTools.GetMemberValue(indexing.Name, obj)
-					If (TypeOf (indexValue) Is DateTime) Then
-						indexValue = CType(indexValue, DateTime).Ticks
-					End If
-					indexValues.Add(indexValue)
-				Catch ex As Exception
-					'...
-				End Try
-			Next
-		Next
+		'CheckDB()
+		'Dim jsonList = New List(Of String)
+		'Dim ids = New List(Of String)
+		'Dim indexTableNames = New List(Of String)
+		'Dim indexValues = New List(Of Object)
+		'For Each obj In objects
+		'	Dim json = JsonConverter.Serialize(obj)
+		'	jsonList.Add(json)
+		'	ids.Add(obj.ID)
+
+		'	For Each indexing In _indexingMembers
+		'		Dim indexTableName = GetIndexTableName(indexing)
+		'		indexTableNames.Add(indexTableName)
+		'		Try
+		'			Dim indexValue = ReflectionTools.GetMemberValue(indexing.Name, obj)
+		'			If (TypeOf (indexValue) Is DateTime) Then
+		'				indexValue = CType(indexValue, DateTime).Ticks
+		'			End If
+		'			indexValues.Add(indexValue)
+		'		Catch ex As Exception
+		'			'...
+		'		End Try
+		'	Next
+		'Next
 	End Sub
 
 
@@ -88,7 +90,7 @@ Public Class MSSQLSRVStorage
 				sortField = "value"
 				sortTableName = GetIndexTableName(indexInfo)
 			Else
-				Throw New Exception("MSSQLSRVStorage.FindObj _ BadSortParam _ index " + indexInfo.Name + " not found.")
+				Throw New Exception("MSSQLSRVStorage.FindObj _ BadSortParam _ index " + searchParams.SortParam.Field + " not found.")
 			End If
 		End If
 
@@ -195,11 +197,16 @@ Public Class MSSQLSRVStorage
 		CheckDB()
 
 		Dim res As ObjBase = Nothing
-		Dim sql = String.Format("SELECT [json] FROM [dbo].[{0}] WHERE [guid] = '{1}'", Name, id)
-		Dim jsonObj = MSSQLSRVUtils.ExecSQLScalar(ConnectionString, sql)
+		Dim sql = String.Format("SELECT [json], [type] FROM [dbo].[{0}] WHERE [guid] = '{1}'", Name, id)
+		Dim vals = MSSQLSRVUtils.GetObjectList(ConnectionString, sql)
+		Dim jsonObj = vals(0)(0)
+		Dim typeName = vals(0)(1)
+		If typeName Is Nothing Then
+			typeName = SupportedType.AssemblyQualifiedName
+		End If
 		If (jsonObj IsNot Nothing) Then
 			Dim json = jsonObj.ToString
-			res = JsonConverter.Deserialize(json, SupportedType)
+			res = JsonConverter.Deserialize(json, Type.GetType(typeName.ToString))
 		End If
 		Return res
 	End Function
@@ -254,17 +261,23 @@ Public Class MSSQLSRVStorage
 		If (objIds IsNot Nothing AndAlso objIds.Any) Then
 			For Each id In objIds
 				If String.IsNullOrWhiteSpace(sql) Then
-					sql = String.Format("SELECT [json] , {2} as tmp FROM [dbo].[{0}] WHERE ([guid] = '{1}')", Name, id, i)
+					sql = String.Format("SELECT [json] , {2}, [type] as tmp FROM [dbo].[{0}] WHERE ([guid] = '{1}')", Name, id, i)
 				Else
-					sql += String.Format(" Union SELECT [json] , {2} as tmp FROM [dbo].[{0}] WHERE ([guid] = '{1}')", Name, id, i)
+					sql += String.Format(" Union SELECT [json] , {2}, [type] as tmp FROM [dbo].[{0}] WHERE ([guid] = '{1}')", Name, id, i)
 				End If
 				i += 1
 			Next
 			sql += " order by tmp"
 
-			Dim jsonObjList = MSSQLSRVUtils.GetObjectList(ConnectionString, sql)
-			If (jsonObjList IsNot Nothing) Then
-				Dim tmpList = jsonObjList.Select(Function(j) CType(JsonConverter.Deserialize(j(0).ToString, SupportedType), ObjBase))
+			Dim ValuesObjList = MSSQLSRVUtils.GetObjectList(ConnectionString, sql)
+			If (ValuesObjList IsNot Nothing) Then
+				Dim tmpList = ValuesObjList.Select(Function(j)
+													   Dim typeName = j(2)
+													   If typeName Is Nothing Then
+														   typeName = SupportedType.AssemblyQualifiedName
+													   End If
+													   Return CType(JsonConverter.Deserialize(j(0).ToString, Type.GetType(typeName)), ObjBase)
+												   End Function)
 				resList.AddRange(tmpList)
 			End If
 		End If
@@ -303,6 +316,14 @@ Public Class MSSQLSRVStorage
 				MSSQLSRVUtils.ExecSQL(connString, sql)
 			End If
 		End If
+
+		'If (MSSQLSRVUtils.TableExists(connString, tableName)) Then
+		'	Try
+
+		'	Catch ex As Exception
+		'		'...
+		'	End Try
+		'End If
 	End Sub
 
 	Private Sub SaveIndex(tableName As String, id As String, value As Object)
@@ -449,8 +470,8 @@ Public Class MSSQLSRVStorage
 		End If
 	End Function
 
-	Private Sub Save(connStr As String, id As String, json As String)
-		Dim sql = String.Format(My.Resources.InsertMainSQL, Name, id, json)
+	Private Sub Save(connStr As String, id As String, json As String, type As Type)
+		Dim sql = String.Format("INSERT INTO [dbo].[{0}] ([guid] ,[json], [type]) VALUES('{1}', '{2}', '{3}')", Name, id, json, type.AssemblyQualifiedName)
 		MSSQLSRVUtils.ExecSQL(ConnectionString, sql)
 	End Sub
 

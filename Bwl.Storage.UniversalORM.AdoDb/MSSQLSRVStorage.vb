@@ -290,7 +290,7 @@ Public Class MSSQLSRVStorage
 		Dim res = False
 		Dim sql = String.Format("SELECT [guid] FROM [dbo].[{0}] WHERE [guid] = '{1}'", Name, id)
 		Dim idFromDb = MSSQLSRVUtils.ExecSQLScalar(ConnectionString, sql)
-		If (Not String.IsNullOrWhiteSpace(idFromDb) AndAlso idFromDb.ToString = id) Then
+		If (Not String.IsNullOrWhiteSpace(idFromDb) AndAlso idFromDb.ToString.Replace(" ", "") = id) Then
 			res = True
 		End If
 		Return res

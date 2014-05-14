@@ -261,9 +261,9 @@ Public Class MSSQLSRVStorage
 		If (objIds IsNot Nothing AndAlso objIds.Any) Then
 			For Each id In objIds
 				If String.IsNullOrWhiteSpace(sql) Then
-					sql = String.Format("SELECT [json] , {2}, [type] as tmp FROM [dbo].[{0}] WHERE ([guid] = '{1}')", Name, id, i)
+					sql = String.Format("SELECT [json] , {2} as tmp, [type] FROM [dbo].[{0}] WHERE ([guid] = '{1}')", Name, id, i)
 				Else
-					sql += String.Format(" Union SELECT [json] , {2}, [type] as tmp FROM [dbo].[{0}] WHERE ([guid] = '{1}')", Name, id, i)
+					sql += String.Format(" Union SELECT [json] , {2} as tmp, [type] FROM [dbo].[{0}] WHERE ([guid] = '{1}')", Name, id, i)
 				End If
 				i += 1
 			Next

@@ -149,7 +149,7 @@ Public Class FileObjStorage
 	End Sub
 
 	Public Overrides Sub RemoveAllObjects()
-		Directory.Delete(_folder)
+		Directory.Delete(_folder, True)
 		Utils.TestFolder(_folder)
 	End Sub
 End Class

@@ -337,40 +337,44 @@ Public Class MSSQLSRVStorage
 	End Sub
 
 	Private Function GetIndexTableName(indexing As IndexInfo) As String
-		Dim indexTableName = String.Format("{0}_{1}", Name, indexing.Name.Replace(".", "_"))
+		Dim indexTableName = String.Empty
+		If indexing.Name.ToLower = "id" Then
+			indexTableName = Name
+		Else
+			indexTableName = String.Format("{0}_{1}", Name, indexing.Name.Replace(".", "_"))
 
-		If (Not MSSQLSRVUtils.TableExists(ConnectionString, indexTableName)) Then
-			Threading.Thread.Sleep(1000)
 			If (Not MSSQLSRVUtils.TableExists(ConnectionString, indexTableName)) Then
-				Dim sql = String.Empty
-				Dim t = indexing.Type
-				Select Case (t)
-					Case GetType(String)
-						Dim len = Byte.MaxValue.ToString
-						If (indexing.Length > 0 And indexing.Length < Byte.MaxValue) Then
-							len = indexing.Length.ToString
-						End If
-						sql = String.Format(My.Resources.CreateStringIndexTableSQL, indexTableName, Name, len)
-					Case GetType(Integer)
-						sql = String.Format(My.Resources.CreateIntIndexTableSQL, indexTableName, Name)
-					Case GetType(Double)
-						sql = String.Format(My.Resources.CreateFloatIndexTableSQL, indexTableName, Name)
-					Case GetType(DateTime)
-						sql = String.Format(My.Resources.CreateBigIntIndexTableSQL, indexTableName, Name)
-					Case GetType(Long)
-						sql = String.Format(My.Resources.CreateBigIntIndexTableSQL, indexTableName, Name)
-					Case GetType(Boolean)
-						sql = String.Format(My.Resources.CreateStringIndexTableSQL, indexTableName, Name, Byte.MaxValue.ToString)
-					Case Else
-						Dim enumType = Type.GetType("System.Enum, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089")
-						If t.BaseType = enumType Then
+				Threading.Thread.Sleep(1000)
+				If (Not MSSQLSRVUtils.TableExists(ConnectionString, indexTableName)) Then
+					Dim sql = String.Empty
+					Dim t = indexing.Type
+					Select Case (t)
+						Case GetType(String)
+							Dim len = Byte.MaxValue.ToString
+							If (indexing.Length > 0 And indexing.Length < Byte.MaxValue) Then
+								len = indexing.Length.ToString
+							End If
+							sql = String.Format(My.Resources.CreateStringIndexTableSQL, indexTableName, Name, len)
+						Case GetType(Integer)
+							sql = String.Format(My.Resources.CreateIntIndexTableSQL, indexTableName, Name)
+						Case GetType(Double)
+							sql = String.Format(My.Resources.CreateFloatIndexTableSQL, indexTableName, Name)
+						Case GetType(DateTime)
+							sql = String.Format(My.Resources.CreateBigIntIndexTableSQL, indexTableName, Name)
+						Case GetType(Long)
+							sql = String.Format(My.Resources.CreateBigIntIndexTableSQL, indexTableName, Name)
+						Case GetType(Boolean)
 							sql = String.Format(My.Resources.CreateStringIndexTableSQL, indexTableName, Name, Byte.MaxValue.ToString)
-						Else
-							Throw New Exception("Обнаружен не поддерживаемый тип индексируемого поля " + Name + " _ " + t.FullName)
-						End If
-				End Select
-
-				MSSQLSRVUtils.ExecSQL(ConnectionString, sql)
+						Case Else
+							Dim enumType = Type.GetType("System.Enum, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089")
+							If t.BaseType = enumType Then
+								sql = String.Format(My.Resources.CreateStringIndexTableSQL, indexTableName, Name, Byte.MaxValue.ToString)
+							Else
+								Throw New Exception("Обнаружен не поддерживаемый тип индексируемого поля " + Name + " _ " + t.FullName)
+							End If
+					End Select
+					MSSQLSRVUtils.ExecSQL(ConnectionString, sql)
+				End If
 			End If
 		End If
 		Return indexTableName
@@ -423,42 +427,53 @@ Public Class MSSQLSRVStorage
 
 		If criterias IsNot Nothing Then
 			For Each crit In criterias
-				Dim ind = _indexingMembers.FirstOrDefault(Function(f) f.Name = crit.Field)
-				If (ind IsNot Nothing) Then
-					Dim indexTableName = GetIndexTableName(ind)
-					Dim str = String.Empty
+				Dim value = crit.Value
+				If crit.Field.ToLower = "id" Then
 					Dim pName = "@p" + i.ToString
-					Select Case crit.Condition
-						Case FindCondition.eqaul
-							str = String.Format(" ([{0}].[value] = {1}) ", indexTableName, pName)
-						Case FindCondition.greater
-							str = String.Format(" ([{0}].[value] > {1}) ", indexTableName, pName)
-						Case FindCondition.less
-							str = String.Format(" ([{0}].[value] < {1}) ", indexTableName, pName)
-						Case FindCondition.notEqual
-							str = String.Format(" ([{0}].[value] <> {1}) ", indexTableName, pName)
-						Case FindCondition.likeEqaul
-							str = String.Format(" ([{0}].[value] LIKE {1}) ", indexTableName, pName)
-						Case FindCondition.greaterOrEqual
-							str = String.Format(" ([{0}].[value] >= {1}) ", indexTableName, pName)
-						Case FindCondition.lessOrEqual
-							str = String.Format(" ([{0}].[value] <= {1}) ", indexTableName, pName)
-					End Select
-
+					Dim str = String.Format(" ([{0}].[guid] = {1}) ", Name, pName)
 					If (String.IsNullOrEmpty(where)) Then
 						where += str
 					Else
 						where += " AND " + str
 					End If
-
-					Dim value = crit.Value
-					If (TypeOf (crit.Value) Is DateTime) Then
-						value = CType(crit.Value, DateTime).Ticks
-					End If
 					parameters.Add(New SqlParameter(pName, value))
-					i += 1
 				Else
-					Throw New Exception("Поле " + crit.Field + " не является индексируемым")
+					Dim ind = _indexingMembers.FirstOrDefault(Function(f) f.Name = crit.Field)
+					If (ind IsNot Nothing) Then
+						Dim indexTableName = GetIndexTableName(ind)
+						Dim str = String.Empty
+						Dim pName = "@p" + i.ToString
+						Select Case crit.Condition
+							Case FindCondition.eqaul
+								str = String.Format(" ([{0}].[value] = {1}) ", indexTableName, pName)
+							Case FindCondition.greater
+								str = String.Format(" ([{0}].[value] > {1}) ", indexTableName, pName)
+							Case FindCondition.less
+								str = String.Format(" ([{0}].[value] < {1}) ", indexTableName, pName)
+							Case FindCondition.notEqual
+								str = String.Format(" ([{0}].[value] <> {1}) ", indexTableName, pName)
+							Case FindCondition.likeEqaul
+								str = String.Format(" ([{0}].[value] LIKE {1}) ", indexTableName, pName)
+							Case FindCondition.greaterOrEqual
+								str = String.Format(" ([{0}].[value] >= {1}) ", indexTableName, pName)
+							Case FindCondition.lessOrEqual
+								str = String.Format(" ([{0}].[value] <= {1}) ", indexTableName, pName)
+						End Select
+
+						If (String.IsNullOrEmpty(where)) Then
+							where += str
+						Else
+							where += " AND " + str
+						End If
+
+						If (TypeOf (value) Is DateTime) Then
+							value = CType(value, DateTime).Ticks
+						End If
+						parameters.Add(New SqlParameter(pName, value))
+						i += 1
+					Else
+						Throw New Exception("Поле " + crit.Field + " не является индексируемым")
+					End If
 				End If
 			Next
 		End If

@@ -34,6 +34,13 @@ Public Class Form1
 		data1.Int.SomeData = "999999999999"
 
 		localstorage.AddObj(data1)
+
+		Dim sp1 = New SearchParams
+		sp1.FindCriterias = {New FindCriteria("id", FindCondition.eqaul, data1.ID)}
+		Dim id111111 = localstorage.FindObj(Of TestData)(sp1)
+
+
+
 		Dim data3 = New TestData()
 		data3.Cat = "111211"
 		data3.Dog = "222222"

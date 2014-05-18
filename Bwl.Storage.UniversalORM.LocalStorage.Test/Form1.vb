@@ -39,8 +39,6 @@ Public Class Form1
 		sp1.FindCriterias = {New FindCriteria("id", FindCondition.eqaul, data1.ID)}
 		Dim id111111 = localstorage.FindObj(Of TestData)(sp1)
 
-
-
 		Dim data3 = New TestData()
 		data3.Cat = "111211"
 		data3.Dog = "222222"

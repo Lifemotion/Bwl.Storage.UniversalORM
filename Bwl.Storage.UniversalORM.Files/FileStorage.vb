@@ -130,16 +130,24 @@ Public Class FileObjStorage
 	End Function
 
 	Public Overrides Function GetObjects(objIds As String()) As IEnumerable(Of ObjBase)
-		Return Nothing
+		Dim res = New List(Of ObjBase)
+		For Each id In objIds
+			res.Add(GetObj(id))
+		Next
+		Return res
+	End Function
+
+	Public Overrides Function GetObjects(Of T As ObjBase)(objIds As String()) As IEnumerable(Of T)
+		Dim res = New List(Of T)
+		For Each id In objIds
+			res.Add(GetObj(Of T)(id))
+		Next
+		Return res
 	End Function
 
 	Public Overrides Function Contains(id As String) As Boolean
 		Dim file = GetFileName(id)
 		Return IO.File.Exists(file)
-	End Function
-
-	Public Overrides Function GetObjects(Of T As ObjBase)(objIds As String()) As IEnumerable(Of T)
-		Return Nothing
 	End Function
 
 	Public Overrides Sub AddObjects(objects() As ObjBase)

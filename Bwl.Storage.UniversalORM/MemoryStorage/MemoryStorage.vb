@@ -15,7 +15,7 @@ Public Class MemoryStorage
 	End Sub
 
 	Public Overrides Sub UpdateObj(obj As ObjBase)
-		Throw New NotSupportedException()
+		_objects(obj.ID) = obj
 	End Sub
 
 	Public Overrides Sub RemoveObj(id As String)

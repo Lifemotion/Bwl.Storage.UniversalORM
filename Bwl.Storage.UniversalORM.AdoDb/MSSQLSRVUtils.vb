@@ -44,6 +44,8 @@ Public Class MSSQLSRVUtils
 			Threading.Thread.Sleep(2000)
 			If (Not MSSQLSRVUtils.CheckConnection(connStringBld.ConnectionString)) Then
 				Dim conStrBld2 = New SqlConnectionStringBuilder
+				conStrBld2.IntegratedSecurity = connStringBld.IntegratedSecurity
+				conStrBld2.ConnectTimeout = connStringBld.ConnectTimeout
 				conStrBld2.UserID = connStringBld.UserID
 				conStrBld2.Password = connStringBld.Password
 				conStrBld2.DataSource = connStringBld.DataSource

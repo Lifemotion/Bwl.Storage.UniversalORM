@@ -128,10 +128,11 @@ Public Class FileObjStorage
 		Dim obj As ObjBase = Nothing
 		If Utils.TestFolderFsm(_folder) Then
 			Dim file = GetFileName(id)
-			If Not IO.File.Exists(file) Then Return Nothing
-			Dim str = IO.File.ReadAllText(file, Utils.Enc)
-			Dim oi = CType(JsonConverter.Deserialize(str, GetType(ObjInfo)), ObjInfo)
-			obj = CType(JsonConverter.Deserialize(oi.Obj, oi.ObjType), ObjBase)
+			If IO.File.Exists(file) Then
+				Dim str = IO.File.ReadAllText(file, Utils.Enc)
+				Dim oi = CType(JsonConverter.Deserialize(str, GetType(ObjInfo)), ObjInfo)
+				obj = CType(JsonConverter.Deserialize(oi.Obj, oi.ObjType), ObjBase)
+			End If
 		End If
 		Return obj
 	End Function

@@ -17,7 +17,7 @@ Public Class FileObjStorage
 		Return path
 	End Function
 
-	Private Function GetIndexPath(index As String, hash As String)
+	Private Function GetIndexPath(index As String, hash As String) As String
 		Dim path = _folder + Utils.Sep + "index_" + index + Utils.Sep + hash
 		If Not IO.Directory.Exists(path) Then IO.Directory.CreateDirectory(path)
 		Return path
@@ -36,7 +36,10 @@ Public Class FileObjStorage
 		Utils.TestFolder(_folder)
 		Dim file = GetFileName(obj.ID)
 		If IO.File.Exists(file) Then Throw New Exception("Object Already Exists with this ID")
-		Dim str = JsonConverter.Serialize(obj)
+		Dim oi = New ObjInfo
+		oi.Obj = JsonConverter.Serialize(obj)
+		oi.ObjType = obj.GetType
+		Dim str = JsonConverter.Serialize(oi)
 		IO.File.WriteAllText(file, str, Utils.Enc)
 		For Each indexing In _indexingMembers
 			Try
@@ -121,7 +124,8 @@ Public Class FileObjStorage
 		Dim file = GetFileName(id)
 		If Not IO.File.Exists(file) Then Return Nothing
 		Dim str = IO.File.ReadAllText(file, Utils.Enc)
-		Dim obj = JsonConverter.Deserialize(str, SupportedType)
+		Dim oi = CType(JsonConverter.Deserialize(str, GetType(ObjInfo)), ObjInfo)
+		Dim obj = CType(JsonConverter.Deserialize(oi.Obj, oi.ObjType), ObjBase)
 		Return obj
 	End Function
 

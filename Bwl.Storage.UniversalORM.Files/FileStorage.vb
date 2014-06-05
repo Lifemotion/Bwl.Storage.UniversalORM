@@ -33,61 +33,64 @@ Public Class FileObjStorage
 	End Property
 
 	Public Overrides Sub AddObj(obj As ObjBase)
-		Utils.TestFolder(_folder)
-		Dim file = GetFileName(obj.ID)
-		If IO.File.Exists(file) Then Throw New Exception("Object Already Exists with this ID")
-		Dim oi = New ObjInfo
-		oi.Obj = JsonConverter.Serialize(obj)
-		oi.ObjType = obj.GetType
-		Dim str = JsonConverter.Serialize(oi)
-		IO.File.WriteAllText(file, str, Utils.Enc)
-		For Each indexing In _indexingMembers
-			Try
-				Dim indexValue = ReflectionTools.GetMemberValue(indexing.Name, obj).ToString
-				Dim path = GetIndexPath(indexing.Name, MD5.GetHash(obj.ID))
-				IO.File.WriteAllText(path + Utils.Sep + obj.ID + ".hash", indexValue.ToString)
-			Catch ex As Exception
-				'...
-			End Try
-		Next
-	End Sub
-
-	Public Overrides Sub UpdateObj(obj As ObjBase)
-		Utils.TestFolder(_folder)
-		Dim file = GetFileName(obj.ID)
-		If Not IO.File.Exists(file) Then Throw New Exception("Object Not Exists with this ID")
-
-		IO.File.Delete(file)
-		AddObj(obj)
-	End Sub
-
-	Public Overrides Sub RemoveObj(id As String)
-		Utils.TestFolder(_folder)
-		Dim fileMain = GetFileName(id)
-		If Not IO.File.Exists(fileMain) Then Throw New Exception("Object Not Exists with this ID")
-
-		IO.File.Delete(fileMain)
-
-		For Each indexing In _indexingMembers
-			Try
-				Dim path = GetIndexPath(indexing.Name, MD5.GetHash(id))
-				Dim fNameIndex = path + Utils.Sep + id + ".hash"
-
-				If (File.Exists(fNameIndex)) Then
-					File.Delete(fNameIndex)
-				End If
-
+		If Utils.TestFolderFsm(_folder) Then
+			Dim file = GetFileName(obj.ID)
+			If IO.File.Exists(file) Then Throw New Exception("Object Already Exists with this ID")
+			Dim oi = New ObjInfo
+			oi.Obj = JsonConverter.Serialize(obj)
+			oi.ObjType = obj.GetType
+			Dim str = JsonConverter.Serialize(oi)
+			IO.File.WriteAllText(file, str, Utils.Enc)
+			For Each indexing In _indexingMembers
 				Try
-					If (Not Directory.GetFiles(path).Any) And (Not Directory.GetDirectories(path).Any) Then
-						Directory.Delete(path)
-					End If
+					Dim indexValue = ReflectionTools.GetMemberValue(indexing.Name, obj).ToString
+					Dim path = GetIndexPath(indexing.Name, MD5.GetHash(obj.ID))
+					IO.File.WriteAllText(path + Utils.Sep + obj.ID + ".hash", indexValue.ToString)
 				Catch ex As Exception
 					'...
 				End Try
-			Catch ex As Exception
-				'...
-			End Try
-		Next
+			Next
+		End If
+	End Sub
+
+	Public Overrides Sub UpdateObj(obj As ObjBase)
+		If Utils.TestFolderFsm(_folder) Then
+			Dim file = GetFileName(obj.ID)
+			If Not IO.File.Exists(file) Then Throw New Exception("Object Not Exists with this ID")
+
+			IO.File.Delete(file)
+			AddObj(obj)
+		End If
+	End Sub
+
+	Public Overrides Sub RemoveObj(id As String)
+		If Utils.TestFolderFsm(_folder) Then
+			Dim fileMain = GetFileName(id)
+			If Not IO.File.Exists(fileMain) Then Throw New Exception("Object Not Exists with this ID")
+
+			IO.File.Delete(fileMain)
+
+			For Each indexing In _indexingMembers
+				Try
+					Dim path = GetIndexPath(indexing.Name, MD5.GetHash(id))
+					Dim fNameIndex = path + Utils.Sep + id + ".hash"
+
+					If (File.Exists(fNameIndex)) Then
+						File.Delete(fNameIndex)
+					End If
+
+					Try
+						If (Not Directory.GetFiles(path).Any) And (Not Directory.GetDirectories(path).Any) Then
+							Directory.Delete(path)
+						End If
+					Catch ex As Exception
+						'...
+					End Try
+				Catch ex As Exception
+					'...
+				End Try
+			Next
+		End If
 	End Sub
 
 	Private Function GetFileName(objId As String) As String
@@ -100,32 +103,36 @@ Public Class FileObjStorage
 
 	Public Overrides Function FindObjCount(searchParams As SearchParams) As Long
 		Dim res As Long = 0
-		Utils.TestFolder(_folder)
-		Dim files = IO.Directory.GetFiles(_folder, "*.obj.json")
-		If files IsNot Nothing Then
-			res = files.Length
+		If Utils.TestFolderFsm(_folder) Then
+			Dim files = IO.Directory.GetFiles(_folder, "*.obj.json")
+			If files IsNot Nothing Then
+				res = files.Length
+			End If
 		End If
 		Return res
 	End Function
 
 	Private Function FindAllObjs() As String()
-		Utils.TestFolder(_folder)
-		Dim files = IO.Directory.GetFiles(_folder, "*.obj.json")
 		Dim result As New List(Of String)
-		For Each file In files
-			Dim fileParts = file.Split(Utils.Sep, "."c)
-			result.Add(fileParts(fileParts.Length - 3))
-		Next
+		If Utils.TestFolderFsm(_folder) Then
+			Dim files = IO.Directory.GetFiles(_folder, "*.obj.json")
+			For Each file In files
+				Dim fileParts = file.Split(Utils.Sep, "."c)
+				result.Add(fileParts(fileParts.Length - 3))
+			Next
+		End If
 		Return result.ToArray
 	End Function
 
 	Public Overrides Function GetObj(id As String) As ObjBase
-		Utils.TestFolder(_folder)
-		Dim file = GetFileName(id)
-		If Not IO.File.Exists(file) Then Return Nothing
-		Dim str = IO.File.ReadAllText(file, Utils.Enc)
-		Dim oi = CType(JsonConverter.Deserialize(str, GetType(ObjInfo)), ObjInfo)
-		Dim obj = CType(JsonConverter.Deserialize(oi.Obj, oi.ObjType), ObjBase)
+		Dim obj As ObjBase = Nothing
+		If Utils.TestFolderFsm(_folder) Then
+			Dim file = GetFileName(id)
+			If Not IO.File.Exists(file) Then Return Nothing
+			Dim str = IO.File.ReadAllText(file, Utils.Enc)
+			Dim oi = CType(JsonConverter.Deserialize(str, GetType(ObjInfo)), ObjInfo)
+			obj = CType(JsonConverter.Deserialize(oi.Obj, oi.ObjType), ObjBase)
+		End If
 		Return obj
 	End Function
 
@@ -162,6 +169,6 @@ Public Class FileObjStorage
 
 	Public Overrides Sub RemoveAllObjects()
 		Directory.Delete(_folder, True)
-		Utils.TestFolder(_folder)
+		Utils.TestFolderFsm(_folder)
 	End Sub
 End Class

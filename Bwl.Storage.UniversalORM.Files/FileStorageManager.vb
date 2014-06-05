@@ -5,7 +5,7 @@
 
 	Public Sub New(folder As String)
 		_folder = folder
-		Utils.TestFolder(_folder)
+		Utils.TestFolderFsm(_folder)
 	End Sub
 
 	Public Property FileStorageDir As String
@@ -19,8 +19,10 @@
 
 	Public Function CreateStorage(name As String, type As Type) As IObjStorage Implements IObjStorageManager.CreateStorage
 		Dim path = _folder + Utils.Sep + name
-		Utils.TestFolder(path)
-		Dim stor As New FileObjStorage(path, type)
+		Dim stor As FileObjStorage = Nothing
+		If Utils.TestFolderFsm(path) Then
+			stor = New FileObjStorage(path, type)
+		End If
 		Return stor
 	End Function
 

@@ -14,8 +14,8 @@ Public Class Form1
 
 		Dim fileSaverDir = Path.Combine(Application.StartupPath, "FileData")
 
-		Dim storageManager = New AdoDb.MSSQLSRVStorageManager(conStrBld)
-		'Dim storageManager = New Files.FileStorageManager(fileSaverDir)
+		'Dim storageManager = New AdoDb.MSSQLSRVStorageManager(conStrBld)
+		Dim storageManager = New Files.FileStorageManager(fileSaverDir)
 
 		Dim blobSaverDir = Path.Combine(Application.StartupPath, "BlobData")
 
@@ -23,6 +23,8 @@ Public Class Form1
 
 		'Dim localstorage = New LocalStorage(storageManager, New Blob.MemorySaver())
 		Dim localstorage = New LocalStorage(storageManager, blobFileSaver)
+		localstorage.RemoveAllObj(GetType(TestData))
+		localstorage.RemoveAllObj(GetType(TestDataInternal))
 
 		Dim data1 = New TestData()
 		data1.Cat = "111111"
@@ -38,6 +40,13 @@ Public Class Form1
 		Dim sp1 = New SearchParams
 		sp1.FindCriterias = {New FindCriteria("id", FindCondition.eqaul, data1.ID)}
 		Dim id111111 = localstorage.FindObj(Of TestData)(sp1)
+
+
+		Dim tt11 = New TestDataInternal
+		tt11.First = "234234234234"
+		localstorage.AddObj(tt11)
+		id111111 = localstorage.FindObj(Of TestDataInternal)()
+		Dim ob = localstorage.GetObj(Of TestDataInternal)(id111111.First)
 
 		Dim data3 = New TestData()
 		data3.Cat = "111211"

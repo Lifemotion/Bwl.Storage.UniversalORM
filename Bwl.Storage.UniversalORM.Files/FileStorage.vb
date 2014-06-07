@@ -11,17 +11,17 @@ Public Class FileObjStorage
 		_folder = folder
 	End Sub
 
-	Private Function GetIndexPath(index As String)
-		Dim path = _folder + Utils.Sep + "index_" + index
-		If Not IO.Directory.Exists(path) Then IO.Directory.CreateDirectory(path)
-		Return path
-	End Function
+	'Private Function GetIndexPath(index As String)
+	'	Dim path = _folder + Utils.Sep + "index_" + index
+	'	If Not IO.Directory.Exists(path) Then IO.Directory.CreateDirectory(path)
+	'	Return path
+	'End Function
 
-	Private Function GetIndexPath(index As String, hash As String) As String
-		Dim path = _folder + Utils.Sep + "index_" + index + Utils.Sep + hash
-		If Not IO.Directory.Exists(path) Then IO.Directory.CreateDirectory(path)
-		Return path
-	End Function
+	'Private Function GetIndexPath(index As String, hash As String) As String
+	'	Dim path = _folder + Utils.Sep + "index_" + index + Utils.Sep + hash
+	'	If Not IO.Directory.Exists(path) Then IO.Directory.CreateDirectory(path)
+	'	Return path
+	'End Function
 
 	Public Property StorageDir As String
 		Get
@@ -41,15 +41,15 @@ Public Class FileObjStorage
 			oi.ObjType = obj.GetType
 			Dim str = JsonConverter.Serialize(oi)
 			IO.File.WriteAllText(file, str, Utils.Enc)
-			For Each indexing In _indexingMembers
-				Try
-					Dim indexValue = ReflectionTools.GetMemberValue(indexing.Name, obj).ToString
-					Dim path = GetIndexPath(indexing.Name, MD5.GetHash(obj.ID))
-					IO.File.WriteAllText(path + Utils.Sep + obj.ID + ".hash", indexValue.ToString)
-				Catch ex As Exception
-					'...
-				End Try
-			Next
+			'For Each indexing In _indexingMembers
+			'	Try
+			'		Dim indexValue = ReflectionTools.GetMemberValue(indexing.Name, obj).ToString
+			'		Dim path = GetIndexPath(indexing.Name, MD5.GetHash(obj.ID))
+			'		IO.File.WriteAllText(path + Utils.Sep + obj.ID + ".hash", indexValue.ToString)
+			'	Catch ex As Exception
+			'		'...
+			'	End Try
+			'Next
 		End If
 	End Sub
 
@@ -70,26 +70,26 @@ Public Class FileObjStorage
 
 			IO.File.Delete(fileMain)
 
-			For Each indexing In _indexingMembers
-				Try
-					Dim path = GetIndexPath(indexing.Name, MD5.GetHash(id))
-					Dim fNameIndex = path + Utils.Sep + id + ".hash"
+			'For Each indexing In _indexingMembers
+			'	Try
+			'		Dim path = GetIndexPath(indexing.Name, MD5.GetHash(id))
+			'		Dim fNameIndex = path + Utils.Sep + id + ".hash"
 
-					If (File.Exists(fNameIndex)) Then
-						File.Delete(fNameIndex)
-					End If
+			'		If (File.Exists(fNameIndex)) Then
+			'			File.Delete(fNameIndex)
+			'		End If
 
-					Try
-						If (Not Directory.GetFiles(path).Any) And (Not Directory.GetDirectories(path).Any) Then
-							Directory.Delete(path)
-						End If
-					Catch ex As Exception
-						'...
-					End Try
-				Catch ex As Exception
-					'...
-				End Try
-			Next
+			'		Try
+			'			If (Not Directory.GetFiles(path).Any) And (Not Directory.GetDirectories(path).Any) Then
+			'				Directory.Delete(path)
+			'			End If
+			'		Catch ex As Exception
+			'			'...
+			'		End Try
+			'	Catch ex As Exception
+			'		'...
+			'	End Try
+			'Next
 		End If
 	End Sub
 

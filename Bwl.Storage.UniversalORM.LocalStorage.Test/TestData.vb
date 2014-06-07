@@ -22,12 +22,18 @@ Public Class TestData
 End Class
 
 Public Class TestDataInternal
+	Implements ObjBase
+
+
 	Public Property First As String
 	<Indexing> Public Property Second As Integer
 
 	<JsonIgnore>
 	Public Property SomeData As String
 
-	<JsonIgnore> <Blob>
+	<JsonIgnore>
 	Public Property SomeBytes As Byte()
+
+
+	Public Property ID As String Implements ObjBase.ID
 End Class

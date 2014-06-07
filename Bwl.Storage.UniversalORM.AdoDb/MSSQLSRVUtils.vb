@@ -57,7 +57,7 @@ Public Class MSSQLSRVUtils
 		End If
 	End Sub
 
-	Public Shared Function TableExists(connString As String, tableName As String)
+	Public Shared Function TableExists(connString As String, tableName As String) As Boolean
 		Dim res = False
 		Dim sql = String.Format("SELECT object_id('{0}')", tableName)
 		If (Not DBNull.Value.Equals(MSSQLSRVUtils.ExecSQLScalar(connString, sql))) Then

@@ -108,16 +108,18 @@ Public Class CommonBlobStorage
 	End Function
 
 	Private Sub SetBlobsValue(objBlobInfo As ObjBlobInfo, parentObject As Object)
-		SyncLock (_blobStreamSavers)
-			For Each blobInfo In objBlobInfo.BlobsInfo
-				Dim blobType = blobInfo.FieldType
-				Dim streamSaver = _blobStreamSavers.FirstOrDefault(Function(s) s.SupportedTypes.Contains(blobType))
-				If (streamSaver IsNot Nothing) Then
-					Dim blobValue = streamSaver.FromBinary(blobInfo.Data, blobType)
-					ReflectionTools.SetMemberValue(blobInfo.FieldName, parentObject, blobValue)
-				End If
-			Next
-		End SyncLock
+		If objBlobInfo IsNot Nothing Then
+			SyncLock (_blobStreamSavers)
+				For Each blobInfo In objBlobInfo.BlobsInfo
+					Dim blobType = blobInfo.FieldType
+					Dim streamSaver = _blobStreamSavers.FirstOrDefault(Function(s) s.SupportedTypes.Contains(blobType))
+					If (streamSaver IsNot Nothing) Then
+						Dim blobValue = streamSaver.FromBinary(blobInfo.Data, blobType)
+						ReflectionTools.SetMemberValue(blobInfo.FieldName, parentObject, blobValue)
+					End If
+				Next
+			End SyncLock
+		End If
 	End Sub
 
 	''' <summary>

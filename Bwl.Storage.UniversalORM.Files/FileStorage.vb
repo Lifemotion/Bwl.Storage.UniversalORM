@@ -33,7 +33,7 @@ Public Class FileObjStorage
 	End Property
 
 	Public Overrides Sub AddObj(obj As ObjBase)
-		If Utils.TestFolderFsm(_folder) Then
+		If Utils.TestFolderFsm(_folder) AndAlso obj IsNot Nothing Then
 			Dim file = GetFileName(obj.ID)
 			If IO.File.Exists(file) Then Throw New Exception("Object Already Exists with this ID")
 			Dim oi = New ObjInfo
@@ -54,7 +54,7 @@ Public Class FileObjStorage
 	End Sub
 
 	Public Overrides Sub UpdateObj(obj As ObjBase)
-		If Utils.TestFolderFsm(_folder) Then
+		If Utils.TestFolderFsm(_folder) AndAlso obj IsNot Nothing Then
 			Dim file = GetFileName(obj.ID)
 			If Not IO.File.Exists(file) Then Throw New Exception("Object Not Exists with this ID")
 
@@ -128,11 +128,20 @@ Public Class FileObjStorage
 		Dim obj As ObjBase = Nothing
 		If Utils.TestFolderFsm(_folder) Then
 			Dim file = GetFileName(id)
-			If IO.File.Exists(file) Then
-				Dim str = IO.File.ReadAllText(file, Utils.Enc)
-				Dim oi = CType(JsonConverter.Deserialize(str, GetType(ObjInfo)), ObjInfo)
-				obj = CType(JsonConverter.Deserialize(oi.Obj, oi.ObjType), ObjBase)
-			End If
+			Try
+
+				If IO.File.Exists(file) Then
+					Dim str = IO.File.ReadAllText(file, Utils.Enc)
+					Dim oi = CType(JsonConverter.Deserialize(str, GetType(ObjInfo)), ObjInfo)
+					obj = CType(JsonConverter.Deserialize(oi.Obj, oi.ObjType), ObjBase)
+				End If
+
+			Catch ex As Exception
+				Dim err = "Err FileStorage.GetObj _ file: " + file + vbCrLf + ex.ToString
+				Dim ex1 = New InvalidOperationException(err, ex)
+				'Throw ex1
+				obj = Nothing
+			End Try
 		End If
 		Return obj
 	End Function

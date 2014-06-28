@@ -122,14 +122,14 @@ Public Class LocalStorage
 
 	Public Overridable Function GetObj(id As String, type As Type, Optional loadBlob As Boolean = True) As ObjBase Implements ILocalStorage.GetObj
 		Dim storage = GetStorage(type)
+		Dim obj = Nothing
 		If storage IsNot Nothing Then
-			Dim obj = storage.GetObj(id)
-			If (loadBlob) Then
+			obj = storage.GetObj(id)
+			If obj IsNot Nothing AndAlso loadBlob Then
 				_blobStorage.LoadBlobs(obj, obj.ID)
 			End If
-			Return obj
 		End If
-		Return Nothing
+		Return obj
 	End Function
 
 	Public Overridable Function GetObj(Of T As ObjBase)(id As String, Optional loadBlob As Boolean = True) As T Implements ILocalStorage.GetObj

@@ -8,10 +8,10 @@ Public Class ObjDataInfo
 	Public Function GetFilesForWeb() As IEnumerable(Of Byte())
 		Dim files = New List(Of Byte())
 
-		Dim webObjInoJson = JsonUtils.ToJson(ObjInfo)
+		Dim webObjInoJson = CfJsonConverter.Serialize(ObjInfo)
 		files.Add(Encoding.UTF8.GetBytes(webObjInoJson))
 
-		Dim ObjBlobInfoJson = JsonUtils.ToJson(ObjBlobInfo)
+		Dim ObjBlobInfoJson = CfJsonConverter.Serialize(ObjBlobInfo)
 		files.Add(Encoding.UTF8.GetBytes(ObjBlobInfoJson))
 
 		For Each b In ObjBlobInfo.BlobsInfo
@@ -24,10 +24,10 @@ Public Class ObjDataInfo
 	Public Shared Function GetFromFiles(files As IEnumerable(Of Byte())) As ObjDataInfo
 		Dim str1 = Encoding.UTF8.GetString(files(0))
 		Dim objDataInfo = New ObjDataInfo
-		objDataInfo.ObjInfo = JsonConverter.Deserialize(Of ObjInfo)(str1)
+		objDataInfo.ObjInfo = CfJsonConverter.Deserialize(Of ObjInfo)(str1)
 
 		Dim str2 = Encoding.UTF8.GetString(files(1))
-		objDataInfo.ObjBlobInfo = JsonConverter.Deserialize(Of ObjBlobInfo)(str2)
+		objDataInfo.ObjBlobInfo = CfJsonConverter.Deserialize(Of ObjBlobInfo)(str2)
 
 		Dim i = 2
 		For Each bi In objDataInfo.ObjBlobInfo.BlobsInfo

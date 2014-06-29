@@ -17,7 +17,7 @@ Public Class MSSQLSRVStorage
 
 	Public Overrides Sub AddObj(obj As ObjBase)
 		CheckDB()
-		Dim json = JsonConverter.Serialize(obj)
+		Dim json = CfJsonConverter.Serialize(obj)
 		Save(ConnectionString, obj.ID, json, obj.GetType)
 
 		For Each indexing In _indexingMembers
@@ -206,7 +206,7 @@ Public Class MSSQLSRVStorage
 		End If
 		If (jsonObj IsNot Nothing) Then
 			Dim json = jsonObj.ToString
-			res = JsonConverter.Deserialize(json, Type.GetType(typeName.ToString))
+			res = CfJsonConverter.Deserialize(json, Type.GetType(typeName.ToString))
 		End If
 		Return res
 	End Function
@@ -223,7 +223,7 @@ Public Class MSSQLSRVStorage
 
 	Public Overrides Sub UpdateObj(obj As ObjBase)
 		CheckDB()
-		Dim json = JsonConverter.Serialize(obj)
+		Dim json = CfJsonConverter.Serialize(obj)
 		Update(ConnectionString, obj.ID, json)
 
 		For Each indexing In _indexingMembers
@@ -276,7 +276,7 @@ Public Class MSSQLSRVStorage
 													   If typeName Is Nothing Then
 														   typeName = SupportedType.AssemblyQualifiedName
 													   End If
-													   Return CType(JsonConverter.Deserialize(j(0).ToString, Type.GetType(typeName)), ObjBase)
+													   Return CType(CfJsonConverter.Deserialize(j(0).ToString, Type.GetType(typeName)), ObjBase)
 												   End Function)
 				resList.AddRange(tmpList)
 			End If

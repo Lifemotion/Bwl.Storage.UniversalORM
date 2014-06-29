@@ -18,16 +18,16 @@ Public Class UORM
 		testData.Data.VeryBigData = {0, 1, 2, 3, 4, 5, 65, 44, 2, 3, 6, 34, 77, 24, 78, 35, 57, 78}
 
 		Dim id = Guid.NewGuid.ToString
-		Dim json = JsonUtils.ToJson(testData)
+		Dim json = CfJsonConverter.Serialize(testData)
 		blobStorage.SaveBlobs(testData, id)
 
 
 
-		Dim newData = JsonUtils.LoadFromJsonString(Of SomeData)(json)
+		Dim newData = CfJsonConverter.Deserialize(Of SomeData)(json)
 		blobStorage.LoadBlobs(newData, id)
 
 		blobStorage.Remove(id)
-		Dim newData2 = JsonUtils.LoadFromJsonString(Of SomeData)(json)
+		Dim newData2 = CfJsonConverter.Deserialize(Of SomeData)(json)
 		blobStorage.LoadBlobs(newData2, id)
 
 	End Sub

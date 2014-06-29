@@ -25,7 +25,7 @@ Public Class FileBlobSaver
 		Dim objBlobInfo As ObjBlobInfo = Nothing
 		If Directory.Exists(dir) Then
 			Dim json = File.ReadAllText(Path.Combine(dir, parentObjId + ".json"))
-			objBlobInfo = JsonUtils.LoadFromJsonString(Of ObjBlobInfo)(json)
+			objBlobInfo = CfJsonConverter.Deserialize(Of ObjBlobInfo)(json)
 			For Each blobInfo In objBlobInfo.BlobsInfo
 				blobInfo.Data = File.ReadAllBytes(Path.Combine(dir, blobInfo.BlobId))
 			Next
@@ -60,7 +60,7 @@ Public Class FileBlobSaver
 		Dim subDir = GetPath(id, False, False)
 		If Directory.Exists(dir) Then
 			Dim json = File.ReadAllText(Path.Combine(dir, id + ".json"))
-			Dim objBlobInfo = JsonUtils.LoadFromJsonString(Of ObjBlobInfo)(json)
+			Dim objBlobInfo = CfJsonConverter.Deserialize(Of ObjBlobInfo)(json)
 			Dim bi = objBlobInfo.BlobsInfo.FirstOrDefault(Function(b) b.FieldName = blobName)
 			If (bi IsNot Nothing) Then
 				res = Path.Combine(subDir, bi.BlobId)
@@ -74,7 +74,7 @@ Public Class FileBlobSaver
 	Public Sub Save(objBlobInfo As ObjBlobInfo) Implements IBlobSaver.Save
 		If objBlobInfo IsNot Nothing AndAlso objBlobInfo.BlobsInfo IsNot Nothing AndAlso objBlobInfo.BlobsInfo.Any Then
 			Dim dir = GetPath(objBlobInfo.ParentObjId, True, True)
-			Dim json = JsonUtils.ToJson(objBlobInfo)
+			Dim json = CfJsonConverter.Serialize(objBlobInfo)
 			File.WriteAllText(Path.Combine(dir, objBlobInfo.ParentObjId + ".json"), json)
 
 			For Each blobInfo In objBlobInfo.BlobsInfo

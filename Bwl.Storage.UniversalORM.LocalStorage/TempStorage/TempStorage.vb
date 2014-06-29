@@ -33,7 +33,7 @@ Public Class TempStorage
 		ObjDataInfo = New ObjDataInfo
 		ObjDataInfo.ObjInfo = New ObjInfo
 		ObjDataInfo.ObjInfo.ObjType = obj.GetType
-		ObjDataInfo.ObjInfo.ObjJson = Bwl.Storage.UniversalORM.JsonConverter.Serialize(obj)
+		ObjDataInfo.ObjInfo.ObjJson = Bwl.Storage.UniversalORM.CfJsonConverter.Serialize(obj)
 	End Sub
 
 	Public Overrides Function FindObj(searchParams As SearchParams) As String()
@@ -42,12 +42,12 @@ Public Class TempStorage
 
 	Public Overrides Function GetObj(id As String) As ObjBase
 		Dim type = ObjDataInfo.ObjInfo.ObjType
-		Dim obj = JsonConvert.DeserializeObject(ObjDataInfo.ObjInfo.ObjJson, type)
+		Dim obj = CfJsonConverter.Deserialize(ObjDataInfo.ObjInfo.ObjJson, type)
 		Try
 			If TypeOf obj Is ObjContainer Then
 				Dim objCont = CType(obj, ObjContainer)
 				Dim t = objCont.Type
-				objCont.Obj = JsonConvert.DeserializeObject(objCont.Obj.ToString, t)
+				objCont.Obj = CfJsonConverter.Deserialize(objCont.Obj.ToString, t)
 			End If
 		Catch ex As Exception
 		End Try

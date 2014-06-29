@@ -37,9 +37,9 @@ Public Class FileObjStorage
 			Dim file = GetFileName(obj.ID)
 			If IO.File.Exists(file) Then Throw New Exception("Object Already Exists with this ID")
 			Dim oi = New ObjInfo
-			oi.Obj = JsonConverter.Serialize(obj)
+			oi.Obj = CfJsonConverter.Serialize(obj)
 			oi.ObjType = obj.GetType
-			Dim str = JsonConverter.Serialize(oi)
+			Dim str = CfJsonConverter.Serialize(oi)
 			IO.File.WriteAllText(file, str, Utils.Enc)
 			'For Each indexing In _indexingMembers
 			'	Try
@@ -132,8 +132,8 @@ Public Class FileObjStorage
 
 				If IO.File.Exists(file) Then
 					Dim str = IO.File.ReadAllText(file, Utils.Enc)
-					Dim oi = CType(JsonConverter.Deserialize(str, GetType(ObjInfo)), ObjInfo)
-					obj = CType(JsonConverter.Deserialize(oi.Obj, oi.ObjType), ObjBase)
+					Dim oi = CType(CfJsonConverter.Deserialize(str, GetType(ObjInfo)), ObjInfo)
+					obj = CType(CfJsonConverter.Deserialize(oi.Obj, oi.ObjType), ObjBase)
 				End If
 
 			Catch ex As Exception

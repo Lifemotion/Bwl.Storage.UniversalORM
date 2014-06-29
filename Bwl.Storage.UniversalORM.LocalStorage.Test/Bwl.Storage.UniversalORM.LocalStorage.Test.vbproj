@@ -46,9 +46,6 @@
     <OptionInfer>On</OptionInfer>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Bwl.Storage.UniversalORM.Blob">
-      <HintPath>..\dllOut\Bwl.Storage.UniversalORM.Blob.dll</HintPath>
-    </Reference>
     <Reference Include="Newtonsoft.Json, Version=4.5.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\refs\Newtonsoft.Json.dll</HintPath>
@@ -126,6 +123,10 @@
     <ProjectReference Include="..\Bwl.Storage.UniversalORM.AdoDb\Bwl.Storage.UniversalORM.AdoDb.vbproj">
       <Project>{646dcfe6-8ea7-4afa-a142-395fa1031240}</Project>
       <Name>Bwl.Storage.UniversalORM.AdoDb</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Bwl.Storage.UniversalORM.Blob\Bwl.Storage.UniversalORM.Blob.vbproj">
+      <Project>{6c002239-1f5e-4dac-b249-ac1994f22e2c}</Project>
+      <Name>Bwl.Storage.UniversalORM.Blob</Name>
     </ProjectReference>
     <ProjectReference Include="..\Bwl.Storage.UniversalORM.Files\Bwl.Storage.UniversalORM.Files.vbproj">
       <Project>{c5ef603a-b36d-4fea-a710-85a84908c896}</Project>

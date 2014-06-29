@@ -42,11 +42,24 @@ Public Class Form1
 		Dim id111111 = localstorage.FindObj(Of TestData)(sp1)
 
 
+
+
+
+
+
+
+
+
 		Dim tt11 = New TestDataInternal
 		tt11.First = "234234234234"
 		localstorage.AddObj(tt11)
 		id111111 = localstorage.FindObj(Of TestDataInternal)()
 		Dim ob = localstorage.GetObj(Of TestDataInternal)(id111111.First)
+
+
+
+
+
 
 		Dim data3 = New TestData()
 		data3.Cat = "111211"
@@ -60,6 +73,10 @@ Public Class Form1
 		localstorage.AddObj(data3)
 
 		Dim data2 = localstorage.GetObj(Of TestData)(data1.ID)
+
+
+
+
 
 		Dim crit = {New FindCriteria("Timestamp", FindCondition.less, DateTime.Now)}
 		Dim sp = New SearchParams(crit)

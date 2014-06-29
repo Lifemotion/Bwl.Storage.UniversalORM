@@ -199,14 +199,16 @@ Public Class MSSQLSRVStorage
 		Dim res As ObjBase = Nothing
 		Dim sql = String.Format("SELECT [json], [type] FROM [dbo].[{0}] WHERE [guid] = '{1}'", Name, id)
 		Dim vals = MSSQLSRVUtils.GetObjectList(ConnectionString, sql)
-		Dim jsonObj = vals(0)(0)
-		Dim typeName = vals(0)(1)
-		If typeName Is Nothing Then
-			typeName = SupportedType.AssemblyQualifiedName
-		End If
-		If (jsonObj IsNot Nothing) Then
-			Dim json = jsonObj.ToString
-			res = CfJsonConverter.Deserialize(json, Type.GetType(typeName.ToString))
+		If vals IsNot Nothing AndAlso vals.Any Then
+			Dim jsonObj = vals(0)(0)
+			Dim typeName = vals(0)(1)
+			If typeName Is Nothing Then
+				typeName = SupportedType.AssemblyQualifiedName
+			End If
+			If (jsonObj IsNot Nothing) Then
+				Dim json = jsonObj.ToString
+				res = CfJsonConverter.Deserialize(json, Type.GetType(typeName.ToString))
+			End If
 		End If
 		Return res
 	End Function

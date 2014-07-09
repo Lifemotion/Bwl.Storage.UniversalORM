@@ -11,12 +11,16 @@ Public Class ObjDataInfoGenerator
 	End Sub
 
 	Public Function GetObjDataInfo(obj As ObjBase) As ObjDataInfo
-		_localStorage.AddObj(obj)
-		Return _tempStorage.ObjDataInfo
+		SyncLock (_tempStorage)
+			_localStorage.AddObj(obj)
+			Return _tempStorage.ObjDataInfo
+		End SyncLock
 	End Function
 
 	Public Function GetObject(objDataInfo As ObjDataInfo) As ObjBase
-		_tempStorage.ObjDataInfo = objDataInfo
-		Return _localStorage.GetObj(Of ObjBase)("1")
+		SyncLock (_tempStorage)
+			_tempStorage.ObjDataInfo = objDataInfo
+			Return _localStorage.GetObj(Of ObjBase)("1")
+		End SyncLock
 	End Function
 End Class

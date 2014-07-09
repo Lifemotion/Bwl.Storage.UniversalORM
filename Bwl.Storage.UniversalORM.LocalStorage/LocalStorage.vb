@@ -46,15 +46,28 @@ Public Class LocalStorage
 	End Function
 
 	Public Overridable Sub AddObj(obj As ObjBase, Optional type As Type = Nothing) Implements ILocalStorage.AddObj
-		If type Is Nothing Then
-			type = obj.GetType
-		End If
-		Dim storage = GetStorage(type)
-		If (String.IsNullOrEmpty(obj.ID)) Then
-			obj.ID = Guid.NewGuid.ToString("B")
-		End If
-		storage.AddObj(obj)
-		_blobStorage.SaveBlobs(obj, obj.ID)
+		Try
+			If type Is Nothing Then
+				type = obj.GetType
+			End If
+			Dim storage = GetStorage(type)
+			If (String.IsNullOrEmpty(obj.ID)) Then
+				obj.ID = Guid.NewGuid.ToString("B")
+			End If
+			storage.AddObj(obj)
+			_blobStorage.SaveBlobs(obj, obj.ID)
+		Catch ex As Exception
+			Dim objStr = "Nothing"
+			If obj IsNot Nothing Then
+				objStr = obj.ToString
+			End If
+			Dim tStr = "Nothing"
+			If type IsNot Nothing Then
+				tStr = type.ToString
+			End If
+
+			Throw New Exception("Local.Storage(" + objStr + ", " + tStr + vbCrLf + ex.ToString, ex)
+		End Try
 	End Sub
 
 	Public Overridable Sub AddObjects(objects() As ObjBase, Optional type As Type = Nothing) Implements ILocalStorage.AddObjects

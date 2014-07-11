@@ -14,8 +14,8 @@
 	Function GetObj(Of T As ObjBase)(id As String, Optional loadBlob As Boolean = True) As T
 	Function GetObj(id As String, type As Type, Optional loadBlob As Boolean = True) As ObjBase
 
-	Function GetObjects(objIds As String(), type As Type, Optional loadBlob As Boolean = True) As IEnumerable(Of ObjBase)
-	Function GetObjects(Of T As ObjBase)(objIds As String(), Optional loadBlob As Boolean = True) As IEnumerable(Of T)
+	Function GetObjects(objIds As String(), type As Type, Optional loadBlob As Boolean = True, Optional sortParam As SortParam = Nothing) As IEnumerable(Of ObjBase)
+	Function GetObjects(Of T As ObjBase)(objIds As String(), Optional loadBlob As Boolean = True, Optional sortParam As SortParam = Nothing) As IEnumerable(Of T)
 
 	Function FindObj(type As Type, Optional searchParams As SearchParams = Nothing) As String()
 	Function FindObj(Of T As ObjBase)(Optional searchParams As SearchParams = Nothing) As String()

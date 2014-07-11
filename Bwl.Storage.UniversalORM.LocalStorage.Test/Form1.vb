@@ -14,8 +14,8 @@ Public Class Form1
 
 		Dim fileSaverDir = Path.Combine(Application.StartupPath, "FileData")
 
-		'Dim storageManager = New AdoDb.MSSQLSRVStorageManager(conStrBld)
-		Dim storageManager = New Files.FileStorageManager(fileSaverDir)
+		Dim storageManager = New AdoDb.MSSQLSRVStorageManager(conStrBld)
+		'Dim storageManager = New Files.FileStorageManager(fileSaverDir)
 
 		Dim blobSaverDir = Path.Combine(Application.StartupPath, "BlobData")
 
@@ -82,7 +82,7 @@ Public Class Form1
 		Dim sp = New SearchParams(crit)
 		Dim ids = localstorage.FindObj(Of TestData)(sp)
 
-		Dim objs11 = localstorage.GetObjects(Of TestData)(ids)
+		Dim objs11 = localstorage.GetObjects(Of TestData)(ids, True, New SortParam("Timestamp", SortMode.Descending))
 		Dim objs22 = localstorage.GetObjects(Of TestData)(ids, False)
 
 		Dim res = localstorage.Contains(data1.ID, GetType(TestData))

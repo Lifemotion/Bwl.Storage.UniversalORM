@@ -150,7 +150,7 @@ Public Class FileObjStorage
 		Return CType(GetObj(id), T)
 	End Function
 
-	Public Overrides Function GetObjects(objIds As String()) As IEnumerable(Of ObjBase)
+	Public Overrides Function GetObjects(objIds As String(), Optional sortParam As SortParam = Nothing) As IEnumerable(Of ObjBase)
 		Dim res = New List(Of ObjBase)
 		For Each id In objIds
 			res.Add(GetObj(id))
@@ -158,7 +158,7 @@ Public Class FileObjStorage
 		Return res
 	End Function
 
-	Public Overrides Function GetObjects(Of T As ObjBase)(objIds As String()) As IEnumerable(Of T)
+	Public Overrides Function GetObjects(Of T As ObjBase)(objIds As String(), Optional sortParam As SortParam = Nothing) As IEnumerable(Of T)
 		Dim res = New List(Of T)
 		For Each id In objIds
 			res.Add(GetObj(Of T)(id))

@@ -250,31 +250,77 @@ Public Class MSSQLSRVStorage
 
 	Public Property ConnectionStringBld As SqlConnectionStringBuilder
 
-	Public Overrides Function GetObjects(Of T As ObjBase)(objIds As String()) As IEnumerable(Of T)
-		Return GetObjects(objIds).Select(Function(o) CType(o, T))
+	Public Overrides Function GetObjects(Of T As ObjBase)(objIds As String(), Optional sortParam As SortParam = Nothing) As IEnumerable(Of T)
+		Return GetObjects(objIds, sortParam).Select(Function(o) CType(o, T))
 	End Function
 
-	Public Overrides Function GetObjects(objIds As String()) As IEnumerable(Of ObjBase)
+	'Public Overrides Function GetObjects_slow(objIds As String()) As IEnumerable(Of ObjBase)
+	'	CheckDB()
+
+	'	Dim resList = New List(Of ObjBase)
+	'	Dim sql = String.Empty
+	'	Dim i = 0
+	'	If (objIds IsNot Nothing AndAlso objIds.Any) Then
+	'		For Each id In objIds
+	'			If String.IsNullOrWhiteSpace(sql) Then
+	'				sql = String.Format("SELECT [json] , {2} as tmp, [type] FROM [dbo].[{0}] WHERE ([guid] = '{1}')", Name, id, i)
+	'			Else
+	'				sql += String.Format(" Union SELECT [json] , {2} as tmp, [type] FROM [dbo].[{0}] WHERE ([guid] = '{1}')", Name, id, i)
+	'			End If
+	'			i += 1
+	'		Next
+	'		sql += " order by tmp"
+
+	'		Dim ValuesObjList = MSSQLSRVUtils.GetObjectList(ConnectionString, sql)
+	'		If (ValuesObjList IsNot Nothing) Then
+	'			Dim tmpList = ValuesObjList.Select(Function(j)
+	'												   Dim typeName = j(2)
+	'												   If typeName Is Nothing Then
+	'													   typeName = SupportedType.AssemblyQualifiedName
+	'												   End If
+	'												   Return CType(CfJsonConverter.Deserialize(j(0).ToString, Type.GetType(typeName)), ObjBase)
+	'											   End Function)
+	'			resList.AddRange(tmpList)
+	'		End If
+	'	End If
+	'	Return resList
+	'End Function
+
+	Public Overrides Function GetObjects(objIds As String(), Optional sortParam As SortParam = Nothing) As IEnumerable(Of ObjBase)
 		CheckDB()
 
+		'''' sorting
+		Dim sortModeStr = "ASC"
+		Dim sortField = ""
+		Dim sortTableName = ""
+		If sortParam IsNot Nothing Then
+			If sortParam.SortMode = SortMode.Descending Then
+				sortModeStr = "DESC"
+			End If
+
+			Dim indexInfo = _indexingMembers.FirstOrDefault(Function(indInf) indInf.Name = sortParam.Field)
+			If (indexInfo IsNot Nothing) Then
+				sortField = " , [value]"
+				sortTableName = ", [dbo].[" + GetIndexTableName(indexInfo) + "] s "
+			Else
+				Throw New Exception("MSSQLSRVStorage.GetObjects _ BadSortParam _ index " + indexInfo.Name + " not found.")
+			End If
+		End If
+
 		Dim resList = New List(Of ObjBase)
-		Dim sql = String.Empty
-		Dim i = 0
 		If (objIds IsNot Nothing AndAlso objIds.Any) Then
-			For Each id In objIds
-				If String.IsNullOrWhiteSpace(sql) Then
-					sql = String.Format("SELECT [json] , {2} as tmp, [type] FROM [dbo].[{0}] WHERE ([guid] = '{1}')", Name, id, i)
-				Else
-					sql += String.Format(" Union SELECT [json] , {2} as tmp, [type] FROM [dbo].[{0}] WHERE ([guid] = '{1}')", Name, id, i)
-				End If
-				i += 1
-			Next
-			sql += " order by tmp"
+			Dim strIds = " ( ( t.[guid] = '" + String.Join("' ) or ( t.[guid] = '", objIds) + "' ) ) "
+			Dim sql = String.Format("SELECT [json] , [type] " + sortField + " FROM [dbo].[{0}] t " + sortTableName + "  WHERE {1}", Name, strIds)
+
+			If (sortTableName <> "") Then
+				sql += " and  (s.[guid] = t.[guid]) "
+				sql += " order by [value] " + sortModeStr
+			End If
 
 			Dim ValuesObjList = MSSQLSRVUtils.GetObjectList(ConnectionString, sql)
 			If (ValuesObjList IsNot Nothing) Then
 				Dim tmpList = ValuesObjList.Select(Function(j)
-													   Dim typeName = j(2)
+													   Dim typeName = j(1)
 													   If typeName Is Nothing Then
 														   typeName = SupportedType.AssemblyQualifiedName
 													   End If

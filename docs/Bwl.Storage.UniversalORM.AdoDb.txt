@@ -1,0 +1,6 @@
+Модуль для взаимодействия с БД.
+Классы:
+1) MSSQLSRVStorage - Наследуется от класса CommonObjStorage.  Реализует функции работы с БД (сохранение, удаление, обновление, поиск и т.п.)
+	
+2) MSSQLSRVStorageManager - реализует интерфейс IObjStorageManager
+	

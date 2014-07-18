@@ -6,10 +6,11 @@ Public Class Form1
 	Private Sub Form1_Load(sender As Object, e As EventArgs) Handles MyBase.Load
 		Dim conStrBld = New SqlConnectionStringBuilder()
 		conStrBld.InitialCatalog = "TestDB1"
-		conStrBld.UserID = "sa"
-		conStrBld.Password = "123"
-		conStrBld.DataSource = "(local)"
-		conStrBld.IntegratedSecurity = False
+		conStrBld.UserID = "DrFenazepam-ПК\DrFenazepam"	'"sa"
+		conStrBld.Password = ""	'"123"
+		conStrBld.DataSource = "DRFENAZEPAM-ПК\SQLEXPRESS" ' "(local)"
+		conStrBld.IntegratedSecurity = True
+
 		conStrBld.ConnectTimeout = 1
 
 		Dim fileSaverDir = Path.Combine(Application.StartupPath, "FileData")
@@ -87,18 +88,25 @@ Public Class Form1
 
 		Dim res = localstorage.Contains(data1.ID, GetType(TestData))
 
+
+
+
+		Dim tmp = localstorage.Storages(GetType(TestData)).FindObj(Nothing)
 		Dim sort = New SortParam("Timestamp", SortMode.Ascending)
 		sp = New SearchParams(sortParam:=sort)
 		Dim ids1 = localstorage.FindObj(Of TestData)(sp)
+		Dim polo = tmp(0)
+		Dim polo2 = ids1(0)
 
 		sort = New SortParam("Timestamp", SortMode.Descending)
 		sp = New SearchParams(sortParam:=sort)
 		Dim ids2 = localstorage.FindObj(Of TestData)(sp)
 
-
 		Dim tempS = New ObjDataInfoGenerator()
-		Dim f = tempS.GetObjDataInfo(data1).GetOneFileForWeb
+		Dim pp = tempS.GetObjDataInfo(data1)
+		Dim f = pp.GetOneFileForWeb
 		Dim ob_ttt = tempS.GetObject(ObjDataInfo.GetFromOneFile(f))
+
 
 		Dim selectOpt = New SelectOptions(10)
 		sp = New SearchParams(selectOptions:=selectOpt)
@@ -119,9 +127,10 @@ Public Class Form1
 		sp = New SearchParams(selectOptions:=selectOpt, sortParam:=sort)
 		Dim ids7 = localstorage.FindObj(Of TestData)(sp)
 
-		crit = {New FindCriteria("Timestamp", FindCondition.greater, DateTime.Now)}
+		crit = {New FindCriteria("Timestamp", FindCondition.notEqual, DateTime.Now)}
 		sp = New SearchParams(crit)
 		ids = localstorage.FindObj(Of TestData)(sp)
+		Dim count1 = localstorage.FindObjCount(GetType(TestData))
 
 		For Each objId In ids
 			localstorage.RemoveObj(Of TestData)(objId)
@@ -140,5 +149,6 @@ Public Class Form1
 
 		Dim di2 = ObjDataInfo.GetFromFiles(files)
 		Dim data5 = objDataGen.GetObject(di2)
+
 	End Sub
 End Class

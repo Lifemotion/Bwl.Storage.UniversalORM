@@ -18,25 +18,11 @@ Imports Bwl.Storage.UniversalORM.LocalStorage
 
 	<TestInitialize()>
 	Public Sub Init()
-		Dim conStrBld = New SqlConnectionStringBuilder()
-		conStrBld.InitialCatalog = "TestDB1"
-		conStrBld.UserID = "DrFenazepam-ПК\DrFenazepam"	'"sa"
-		conStrBld.Password = ""	'"123"
-		conStrBld.DataSource = "DRFENAZEPAM-ПК\SQLEXPRESS" ' "(local)"
-		conStrBld.IntegratedSecurity = True
-		conStrBld.ConnectTimeout = 1
 
-		Dim fileSaverDir = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "FileData")
-
-		Dim storageManager = New AdoDb.MSSQLSRVStorageManager(conStrBld)
-		'Dim storageManager = New Files.FileStorageManager(fileSaverDir)
-
-		Dim blobSaverDir = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "BlobData")
-
-		Dim blobFileSaver = New Blob.FileBlobSaver(blobSaverDir)
-
-		'Dim localstorage = New LocalStorage(storageManager, New Blob.MemorySaver())
-		_localStorage = New Bwl.Storage.UniversalORM.LocalStorage.LocalStorage(storageManager, blobFileSaver)
+		Dim appBase = New Bwl.Framework.AppBase(True)
+		'параметры подключения нужно настраивать в конфиг файле
+		Dim sqlSrvStorage = New SqlSrvStorage(appBase.RootStorage.CreateChildStorage("DB_test"), appBase.RootLogger)
+		_localStorage = sqlSrvStorage.Storage
 
 		_data1 = New TestData
 		_data1.Cat = "cat11"

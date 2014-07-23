@@ -20,7 +20,7 @@
     <DebugType>full</DebugType>
     <DefineDebug>true</DefineDebug>
     <DefineTrace>true</DefineTrace>
-    <OutputPath>..\BlobGuiTest\bin\</OutputPath>
+    <OutputPath>bin\Debug\</OutputPath>
     <DocumentationFile>Bwl.Storage.UniversalORM.Blob.Test.xml</DocumentationFile>
     <NoWarn>42016,41999,42017,42018,42019,42032,42036,42020,42021,42022</NoWarn>
   </PropertyGroup>
@@ -30,7 +30,7 @@
     <DefineDebug>false</DefineDebug>
     <DefineTrace>true</DefineTrace>
     <Optimize>true</Optimize>
-    <OutputPath>..\BlobGuiTest\bin\</OutputPath>
+    <OutputPath>bin\Release\</OutputPath>
     <DocumentationFile>Bwl.Storage.UniversalORM.Blob.Test.xml</DocumentationFile>
     <NoWarn>42016,41999,42017,42018,42019,42032,42036,42020,42021,42022</NoWarn>
   </PropertyGroup>
@@ -47,9 +47,8 @@
     <OptionInfer>On</OptionInfer>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Newtonsoft.Json, Version=4.5.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\refs\Newtonsoft.Json.dll</HintPath>
+    <Reference Include="Newtonsoft.Json">
+      <HintPath>..\..\refs\Newtonsoft.Json.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Data" />
@@ -124,11 +123,11 @@
     <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Bwl.Storage.UniversalORM.Blob\Bwl.Storage.UniversalORM.Blob.vbproj">
+    <ProjectReference Include="..\..\Bwl.Storage.UniversalORM.Blob\Bwl.Storage.UniversalORM.Blob.vbproj">
       <Project>{6c002239-1f5e-4dac-b249-ac1994f22e2c}</Project>
       <Name>Bwl.Storage.UniversalORM.Blob</Name>
     </ProjectReference>
-    <ProjectReference Include="..\Bwl.Storage.UniversalORM\Bwl.Storage.UniversalORM.vbproj">
+    <ProjectReference Include="..\..\Bwl.Storage.UniversalORM\Bwl.Storage.UniversalORM.vbproj">
       <Project>{cfd756ad-1cb6-4b12-a969-d18a434d1e72}</Project>
       <Name>Bwl.Storage.UniversalORM</Name>
     </ProjectReference>

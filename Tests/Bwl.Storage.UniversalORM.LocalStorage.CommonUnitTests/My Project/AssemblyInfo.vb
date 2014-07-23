@@ -8,10 +8,10 @@ Imports System.Runtime.InteropServices
 
 ' Проверьте значения атрибутов сборки
 
-<Assembly: AssemblyTitle("CommonUnitTests")> 
+<Assembly: AssemblyTitle("Bwl.Storage.UniversalORM.LocalStorage.CommonUnitTests")> 
 <Assembly: AssemblyDescription("")> 
 <Assembly: AssemblyCompany("")> 
-<Assembly: AssemblyProduct("CommonUnitTests")> 
+<Assembly: AssemblyProduct("Bwl.Storage.UniversalORM.LocalStorage.CommonUnitTests")> 
 <Assembly: AssemblyCopyright("Copyright ©  2014")> 
 <Assembly: AssemblyTrademark("")> 
 

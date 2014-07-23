@@ -1,2 +1,2 @@
 git pull origin master
-msbuilder
+build.cmd

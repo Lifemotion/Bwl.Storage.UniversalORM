@@ -91,7 +91,7 @@ Public Class Form1
 
 
 
-		Dim tmp = localstorage.Storages(GetType(TestData)).FindObj(Nothing)
+		Dim tmp = localstorage.FindObj(Of TestData)(Nothing)
 		Dim sort = New SortParam("Timestamp", SortMode.Ascending)
 		sp = New SearchParams(sortParam:=sort)
 		Dim ids1 = localstorage.FindObj(Of TestData)(sp)

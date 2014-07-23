@@ -1,11 +1,6 @@
 *.suo
 bin
 obj
-dll
-debug-*
-release-*
-debug
-release
-dllOut
-GuiTest
-AdoDbGuiTest
+*Debug*
+*Release*
+TestResults

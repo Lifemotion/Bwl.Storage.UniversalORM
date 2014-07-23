@@ -4,33 +4,33 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{EA2C356E-2456-4E91-ADDB-AF4561861E72}</ProjectGuid>
+    <ProjectGuid>{28960DEC-66DD-4812-8051-91876A6E728B}</ProjectGuid>
     <OutputType>WinExe</OutputType>
-    <StartupObject>Bwl.Storage.UniversalORM.LocalStorage.Test.My.MyApplication</StartupObject>
-    <RootNamespace>Bwl.Storage.UniversalORM.LocalStorage.Test</RootNamespace>
-    <AssemblyName>Bwl.Storage.UniversalORM.LocalStorage.Test</AssemblyName>
+    <StartupObject>Bwl.Storage.UniversalORM.AdoDb.Test.My.MyApplication</StartupObject>
+    <RootNamespace>Bwl.Storage.UniversalORM.AdoDb.Test</RootNamespace>
+    <AssemblyName>Bwl.Storage.UniversalORM.AdoDb.Test</AssemblyName>
     <FileAlignment>512</FileAlignment>
     <MyType>WindowsForms</MyType>
     <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
-    <PlatformTarget>x86</PlatformTarget>
+    <PlatformTarget>AnyCPU</PlatformTarget>
     <DebugSymbols>true</DebugSymbols>
     <DebugType>full</DebugType>
     <DefineDebug>true</DefineDebug>
     <DefineTrace>true</DefineTrace>
-    <OutputPath>..\LocalStorageGuiTest\bin\</OutputPath>
-    <DocumentationFile>Bwl.Storage.UniversalORM.LocalStorage.Test.xml</DocumentationFile>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DocumentationFile>Bwl.Storage.UniversalORM.AdoDb.Test.xml</DocumentationFile>
     <NoWarn>42016,41999,42017,42018,42019,42032,42036,42020,42021,42022</NoWarn>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
-    <PlatformTarget>x86</PlatformTarget>
+    <PlatformTarget>AnyCPU</PlatformTarget>
     <DebugType>pdbonly</DebugType>
     <DefineDebug>false</DefineDebug>
     <DefineTrace>true</DefineTrace>
     <Optimize>true</Optimize>
-    <OutputPath>..\LocalStorageGuiTest\bin\</OutputPath>
-    <DocumentationFile>Bwl.Storage.UniversalORM.LocalStorage.Test.xml</DocumentationFile>
+    <OutputPath>bin\Release\</OutputPath>
+    <DocumentationFile>Bwl.Storage.UniversalORM.AdoDb.Test.xml</DocumentationFile>
     <NoWarn>42016,41999,42017,42018,42019,42032,42036,42020,42021,42022</NoWarn>
   </PropertyGroup>
   <PropertyGroup>
@@ -48,7 +48,7 @@
   <ItemGroup>
     <Reference Include="Newtonsoft.Json, Version=4.5.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\refs\Newtonsoft.Json.dll</HintPath>
+      <HintPath>..\..\refs\Newtonsoft.Json.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Data" />
@@ -100,6 +100,7 @@
   <ItemGroup>
     <EmbeddedResource Include="Form1.resx">
       <DependentUpon>Form1.vb</DependentUpon>
+      <SubType>Designer</SubType>
     </EmbeddedResource>
     <EmbeddedResource Include="My Project\Resources.resx">
       <Generator>VbMyResourcesResXFileCodeGenerator</Generator>
@@ -120,23 +121,11 @@
     </None>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Bwl.Storage.UniversalORM.AdoDb\Bwl.Storage.UniversalORM.AdoDb.vbproj">
+    <ProjectReference Include="..\..\Bwl.Storage.UniversalORM.AdoDb\Bwl.Storage.UniversalORM.AdoDb.vbproj">
       <Project>{646dcfe6-8ea7-4afa-a142-395fa1031240}</Project>
       <Name>Bwl.Storage.UniversalORM.AdoDb</Name>
     </ProjectReference>
-    <ProjectReference Include="..\Bwl.Storage.UniversalORM.Blob\Bwl.Storage.UniversalORM.Blob.vbproj">
-      <Project>{6c002239-1f5e-4dac-b249-ac1994f22e2c}</Project>
-      <Name>Bwl.Storage.UniversalORM.Blob</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\Bwl.Storage.UniversalORM.Files\Bwl.Storage.UniversalORM.Files.vbproj">
-      <Project>{c5ef603a-b36d-4fea-a710-85a84908c896}</Project>
-      <Name>Bwl.Storage.UniversalORM.Files</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\Bwl.Storage.UniversalORM.LocalStorage\Bwl.Storage.UniversalORM.LocalStorage.vbproj">
-      <Project>{a5b104b3-da24-4402-b2bb-9e8bdbaa5462}</Project>
-      <Name>Bwl.Storage.UniversalORM.LocalStorage</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\Bwl.Storage.UniversalORM\Bwl.Storage.UniversalORM.vbproj">
+    <ProjectReference Include="..\..\Bwl.Storage.UniversalORM\Bwl.Storage.UniversalORM.vbproj">
       <Project>{cfd756ad-1cb6-4b12-a969-d18a434d1e72}</Project>
       <Name>Bwl.Storage.UniversalORM</Name>
     </ProjectReference>

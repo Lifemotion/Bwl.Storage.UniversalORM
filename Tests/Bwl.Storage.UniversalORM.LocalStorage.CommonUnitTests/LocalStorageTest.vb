@@ -187,7 +187,7 @@ Imports Bwl.Storage.UniversalORM.LocalStorage
 		_localStorage.RemoveAllObj(GetType(TestData))
 		_localStorage.AddObj(_data1)
 		_localStorage.AddObj(_data2)
-		Dim tmp = _localStorage.Storages(GetType(TestData)).FindObj(Nothing)
+		Dim tmp = _localStorage.FindObj(Of TestData)(Nothing)
 		Dim sp = New SearchParams()
 		Dim sort = New SortParam("Timestamp", SortMode.Ascending)
 		sp = New SearchParams(sortParam:=sort)

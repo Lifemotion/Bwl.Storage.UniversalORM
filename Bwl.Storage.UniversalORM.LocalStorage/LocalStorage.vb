@@ -36,6 +36,7 @@ Public Class LocalStorage
 	End Sub
 
 	Private Function GetStorage(type As Type) As IObjStorage
+		If type Is Nothing Then Return Nothing
 		SyncLock (_storages)
 			If (Not _storages.ContainsKey(type)) Then
 				Dim storage = _storageManager.CreateStorage(type.Name, type)

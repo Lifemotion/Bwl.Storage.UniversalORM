@@ -5,6 +5,8 @@ Imports System.IO
 Imports Bwl.Storage.UniversalORM
 Imports System.Drawing
 Imports Bwl.Storage.UniversalORM.LocalStorage
+Imports FirebirdSql.Data.FirebirdClient
+Imports Bwl.Storage.UniversalORM.Firebird
 
 <TestClass()> Public Class LocalStorageDBTest
 
@@ -18,24 +20,28 @@ Imports Bwl.Storage.UniversalORM.LocalStorage
 
 	<TestInitialize()>
 	Public Sub Init()
-		Dim conStrBld = New SqlConnectionStringBuilder()
-		conStrBld.InitialCatalog = "TestDB1"
-		conStrBld.UserID = "DrFenazepam-ПК\DrFenazepam"	'"sa"
-		conStrBld.Password = ""	'"123"
-		conStrBld.DataSource = "DRFENAZEPAM-ПК\SQLEXPRESS" ' "(local)"
-		conStrBld.IntegratedSecurity = True
-		conStrBld.ConnectTimeout = 1
+		Dim conStrBld = New FbConnectionStringBuilder()
+		conStrBld.Database = "D:\CleverFlow\Bwl.storage.UniversalORM\bwl.storage.universalorm\CommonUnitTests\data\TestDB_EMBEDDED.fdb"
+		'conStrBld.Database = "D:\CleverFlow\Bwl.storage.UniversalORM\bwl.storage.universalorm\CommonUnitTests\data\TestDB_DEFAULT.fdb"
+		conStrBld.UserID = "sysdba"
+		conStrBld.Password = "masterkey"
+		'conStrBld.UserID = "123"
+		'conStrBld.Password = "123"
+		conStrBld.Dialect = 3
+		conStrBld.ServerType = FbServerType.Embedded
+		conStrBld.ConnectionTimeout = 1
+		conStrBld.ClientLibrary = "D:\CleverFlow\Bwl.storage.UniversalORM\bwl.storage.universalorm\refs\fbe32\fbembed.dll"
+
+
 
 		Dim fileSaverDir = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "FileData")
 
-		Dim storageManager = New AdoDb.MSSQLSRVStorageManager(conStrBld)
-		'Dim storageManager = New Files.FileStorageManager(fileSaverDir)
+		Dim storageManager = New Firebird.FbStorageManager(conStrBld)
 
 		Dim blobSaverDir = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "BlobData")
 
 		Dim blobFileSaver = New Blob.FileBlobSaver(blobSaverDir)
 
-		'Dim localstorage = New LocalStorage(storageManager, New Blob.MemorySaver())
 		_localStorage = New Bwl.Storage.UniversalORM.LocalStorage.LocalStorage(storageManager, blobFileSaver)
 
 		_data1 = New TestData
@@ -157,12 +163,105 @@ Imports Bwl.Storage.UniversalORM.LocalStorage
 
 	End Sub
 
+	<TestMethod()> Public Sub LocalStorageDB_FindObjBetween()
+		Dim td1 = New TestData
+		td1.Cat = "td"
+		td1.Dog = 111
+		td1.ID = "{00000000-0000-0000-0000-000000000000}"
+		td1.Int = New TestDataInternal
+		td1.Int.First = "1111"
+		td1.Int.Second = 1112
+		td1.Int.SomeData = "bad data"
+		td1.Int.ID = "{000}"
+
+		Dim td2 = New TestData
+		td2.Cat = "td"
+		td2.Dog = 111
+		td2.ID = "{11111111-1111-1111-1111-111111111111}"
+		td2.Int = New TestDataInternal
+		td2.Int.First = "2221"
+		td2.Int.Second = 2222
+		td2.Int.SomeData = "bad data"
+		td2.Int.ID = "{111}"
+
+		Dim td3 = New TestData
+		td3.Cat = "td"
+		td3.Dog = 111
+		td3.ID = "{22222222-2222-2222-2222-222222222222}"
+		td3.Int = New TestDataInternal
+		td3.Int.First = "3331"
+		td3.Int.Second = 3332
+		td3.Int.SomeData = "bad data"
+		td3.Int.ID = "{222}"
+
+		Dim td4 = New TestData
+		td4.Cat = "td"
+		td4.Dog = 111
+		td4.ID = "{33333333-3333-3333-3333-333333333333}"
+		td4.Int = New TestDataInternal
+		td4.Int.First = "4441"
+		td4.Int.Second = 4442
+		td4.Int.SomeData = "bad data"
+		td4.Int.ID = "{333}"
+
+		Dim td5 = New TestData
+		td5.Cat = "td"
+		td5.Dog = 111
+		td5.ID = "{44444444-4444-4444-4444-444444444444}"
+		td5.Int = New TestDataInternal
+		td5.Int.First = "5551"
+		td5.Int.Second = 5552
+		td5.Int.SomeData = "bad data"
+		td5.Int.ID = "{444}"
+		Dim massAdd As TestData()
+		massAdd = {td1, td2, td3, td4, td5}
+		_localStorage.AddObjects(massAdd)
+		Dim spadd As New SearchParams({New FindCriteria("Cat", FindCondition.eqaul, "td")})
+		spadd.SelectOptions = New SelectOptions(0, 3)
+		Dim F1 = _localStorage.FindObj(Of TestData)(spadd)
+		spadd.SelectOptions = New SelectOptions(0, 2)
+		Dim F2 = _localStorage.FindObj(Of TestData)(spadd)
+		Assert.AreEqual(F1.Count, 3)
+		Assert.AreEqual(F2.Count, 2)
+	End Sub
+
 	<TestMethod()> Public Sub LocalStorageDB_FindBadObjById()
 		Dim sp = New SearchParams
-		sp.FindCriterias = {New FindCriteria("id", FindCondition.eqaul, "{C12FADA0-190F-4A11-B12E-CBA1C7DF0D03}")}
+		sp.FindCriterias = {New FindCriteria("id", FindCondition.eqaul, "{11111-22222-3333-44444-5555555555}")}
 		Dim ids = _localStorage.FindObj(Of TestDataInternal)(sp)
 		Assert.AreNotEqual(ids, Nothing)
 		Assert.AreEqual(ids.Count, 0)
+	End Sub
+
+	<TestMethod()> Public Sub LocalStorageDB_FindGoodObjById()
+		_localStorage.RemoveObj(Of TestDataInternal)("{temp-id-123-456-789}")
+		Dim sp = New SearchParams
+		sp.FindCriterias = {New FindCriteria("id", FindCondition.eqaul, "{temp-id-123-456-789}")}
+		Dim ids1 = _localStorage.FindObj(Of TestDataInternal)(sp)
+		Dim data = New TestDataInternal
+		data.First = "FindGoodObjById"
+		data.Second = 2222
+		data.ID = "{temp-id-123-456-789}"
+		_localStorage.AddObj(data)
+
+		Dim ids2 = _localStorage.FindObj(Of TestDataInternal)(sp)
+		Assert.AreNotEqual(ids1, Nothing)
+		Assert.AreEqual(ids1.Count, 0)
+		Assert.AreEqual(ids2.Count, 1)
+	End Sub
+
+	<TestMethod()> Public Sub LocalStorageDB_GetGoodObjById()
+		_localStorage.RemoveObj(Of TestDataInternal)("{temp-id-123-456-789}")
+		Dim obj1 = _localStorage.GetObj(Of TestDataInternal)("{temp-id-123-456-789}")
+		Dim data = New TestDataInternal
+		data.First = "GetGoodObjById"
+		data.Second = 66081
+		data.ID = "{temp-id-123-456-789}"
+		_localStorage.AddObj(data)
+
+		Dim obj2 = _localStorage.GetObj(Of TestDataInternal)("{temp-id-123-456-789}")
+		Assert.AreEqual(obj1, Nothing)
+		Assert.AreEqual(obj2.ID, data.ID)
 	End Sub
 
 	<TestMethod()> Public Sub LocalStorageDB_GetBadObjById()
@@ -178,8 +277,9 @@ Imports Bwl.Storage.UniversalORM.LocalStorage
 	<TestMethod()> Public Sub LocalStorageDB_ContainsGoodObjById()
 		Dim data = New TestDataInternal
 		data.First = "2222"
+		data.Second = 2222
 		_localStorage.AddObj(data)
-		Dim contains = _localStorage.Contains(Of TestDataInternal)(data.ID)
+		Dim contains = _localStorage.Contains(data.ID, GetType(TestDataInternal))
 		Assert.AreEqual(contains, True)
 	End Sub
 
@@ -187,19 +287,20 @@ Imports Bwl.Storage.UniversalORM.LocalStorage
 		_localStorage.RemoveAllObj(GetType(TestData))
 		_localStorage.AddObj(_data1)
 		_localStorage.AddObj(_data2)
-		Dim tmp = _localStorage.Storages(GetType(TestData)).FindObj(Nothing)
+		Dim tmp = _localStorage.FindObj(Nothing)
 		Dim sp = New SearchParams()
-		Dim sort = New SortParam("Timestamp", SortMode.Ascending)
+		Dim sort = New SortParam("Cat", SortMode.Ascending)
 		sp = New SearchParams(sortParam:=sort)
 		Dim ids1 = _localStorage.FindObj(Of TestData)(sp)
 
-		sort = New SortParam("Timestamp", SortMode.Descending)
+		sort = New SortParam("Cat", SortMode.Descending)
 		sp = New SearchParams(sortParam:=sort)
 		Dim ids2 = _localStorage.FindObj(Of TestData)(sp)
 		_localStorage.RemoveAllObj(GetType(TestData))
-		Assert.AreEqual(tmp.Count, 2)
-		Assert.AreEqual(tmp(0), ids1(0))
-		Assert.AreEqual(tmp(0), ids2(1))
+		Assert.AreEqual(tmp, Nothing)
+		Assert.AreEqual(ids2.Count, 2)
+		Assert.AreEqual(ids2(1), ids1(0))
+		Assert.AreEqual(ids1(0), ids2(1))
 	End Sub
 
 	<TestMethod()> Public Sub LocalStorageDB_GetDataInfo()

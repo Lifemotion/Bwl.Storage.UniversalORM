@@ -1,5 +1,5 @@
 ﻿<Global.Microsoft.VisualBasic.CompilerServices.DesignerGenerated()> _
-Partial Class FormFbBigDataTest
+Partial Class FormBigDataTest
 	Inherits System.Windows.Forms.Form
 
 	'Форма переопределяет dispose для очистки списка компонентов.
@@ -24,13 +24,13 @@ Partial Class FormFbBigDataTest
 	Private Sub InitializeComponent()
 		Me.SuspendLayout()
 		'
-		'FormFbBigDataTest
+		'FormBigDataTest
 		'
 		Me.AutoScaleDimensions = New System.Drawing.SizeF(6.0!, 13.0!)
 		Me.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font
 		Me.ClientSize = New System.Drawing.Size(611, 339)
-		Me.Name = "FormFbBigDataTest"
-		Me.Text = "FirebirdBigDataTest"
+		Me.Name = "FormBigDataTest"
+		Me.Text = "BigDataTest"
 		Me.ResumeLayout(False)
 
 	End Sub

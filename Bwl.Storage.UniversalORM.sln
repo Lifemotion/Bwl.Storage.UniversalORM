@@ -1,8 +1,6 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 2013
-VisualStudioVersion = 12.0.21005.1
-MinimumVisualStudioVersion = 10.0.40219.1
+# Visual Studio Express 2012 for Windows Desktop
 Project("{F184B08F-C81C-45F6-A57F-5ABD9991F28F}") = "Bwl.Storage.UniversalORM", "Bwl.Storage.UniversalORM\Bwl.Storage.UniversalORM.vbproj", "{CFD756AD-1CB6-4B12-A969-D18A434D1E72}"
 EndProject
 Project("{F184B08F-C81C-45F6-A57F-5ABD9991F28F}") = "Bwl.Storage.UniversalORM.Files.Test", "Bwl.Storage.UniversalORM.Test\Bwl.Storage.UniversalORM.Files.Test.vbproj", "{E6499D7D-0169-4812-AE68-68C6B7E58F77}"
@@ -30,6 +28,12 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Test", "Test", "{BFE8DDEA-A0B8-477C-979A-DE143B801176}"
 EndProject
 Project("{F184B08F-C81C-45F6-A57F-5ABD9991F28F}") = "CommonUnitTests", "CommonUnitTests\CommonUnitTests.vbproj", "{4064529B-8AAB-4A64-9481-A08972C24AB1}"
+EndProject
+Project("{F184B08F-C81C-45F6-A57F-5ABD9991F28F}") = "Bwl.Storage.UniversalORM.Firebird", "Bwl.Storage.UniversalORM.Firebird\Bwl.Storage.UniversalORM.Firebird.vbproj", "{B58E49C1-7FD7-4674-A1D4-282BC3C88F47}"
+EndProject
+Project("{F184B08F-C81C-45F6-A57F-5ABD9991F28F}") = "Bwl.Storage.UniversalORM.BigDataTest", "Bwl.Storage.UniversalORM.Firebird.BigDataTest\Bwl.Storage.UniversalORM.BigDataTest.vbproj", "{A737808F-3C2D-466A-9712-81FFAB6D4601}"
+EndProject
+Project("{F184B08F-C81C-45F6-A57F-5ABD9991F28F}") = "Bwl.Storage.UniversalORM.Firebird.Test", "Bwl.Storage.UniversalORM.Firebird.Test\Bwl.Storage.UniversalORM.Firebird.Test.vbproj", "{4B5090D2-F045-43D5-939A-F83F45FC9EB1}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -77,6 +81,18 @@ Global
 		{4064529B-8AAB-4A64-9481-A08972C24AB1}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{4064529B-8AAB-4A64-9481-A08972C24AB1}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{4064529B-8AAB-4A64-9481-A08972C24AB1}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B58E49C1-7FD7-4674-A1D4-282BC3C88F47}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B58E49C1-7FD7-4674-A1D4-282BC3C88F47}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B58E49C1-7FD7-4674-A1D4-282BC3C88F47}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B58E49C1-7FD7-4674-A1D4-282BC3C88F47}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A737808F-3C2D-466A-9712-81FFAB6D4601}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A737808F-3C2D-466A-9712-81FFAB6D4601}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A737808F-3C2D-466A-9712-81FFAB6D4601}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A737808F-3C2D-466A-9712-81FFAB6D4601}.Release|Any CPU.Build.0 = Release|Any CPU
+		{4B5090D2-F045-43D5-939A-F83F45FC9EB1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4B5090D2-F045-43D5-939A-F83F45FC9EB1}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4B5090D2-F045-43D5-939A-F83F45FC9EB1}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4B5090D2-F045-43D5-939A-F83F45FC9EB1}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -87,5 +103,7 @@ Global
 		{A85F3A0D-FBAD-417F-B1DA-5536A7E6AFF0} = {BFE8DDEA-A0B8-477C-979A-DE143B801176}
 		{E6499D7D-0169-4812-AE68-68C6B7E58F77} = {BFE8DDEA-A0B8-477C-979A-DE143B801176}
 		{4064529B-8AAB-4A64-9481-A08972C24AB1} = {BFE8DDEA-A0B8-477C-979A-DE143B801176}
+		{A737808F-3C2D-466A-9712-81FFAB6D4601} = {BFE8DDEA-A0B8-477C-979A-DE143B801176}
+		{4B5090D2-F045-43D5-939A-F83F45FC9EB1} = {BFE8DDEA-A0B8-477C-979A-DE143B801176}
 	EndGlobalSection
 EndGlobal

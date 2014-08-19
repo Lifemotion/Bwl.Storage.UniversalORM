@@ -5,21 +5,24 @@ Public Class MSSQLSRVStorage
 
 	Private _name As String
 	Private _dbName As String
+	Private _connectionStringBld As SqlConnectionStringBuilder
 
 	Public Sub New(connStringBld As SqlConnectionStringBuilder, type As Type, dbName As String)
 		MyBase.New(type)
 		_name = type.Name
 		_dbName = dbName
-		ConnectionStringBld = connStringBld
+
+		ConnectionStringBld = New SqlConnectionStringBuilder(connStringBld.ConnectionString)
+		_connectionStringBld.InitialCatalog = _dbName
 
 		CheckDB()
 	End Sub
+
 
 	Public Overrides Sub AddObj(obj As ObjBase)
 		CheckDB()
 		Dim json = CfJsonConverter.Serialize(obj)
 		Save(ConnectionString, obj.ID, json, obj.GetType)
-
 		For Each indexing In _indexingMembers
 			Dim indexTableName = GetIndexTableName(indexing)
 			Try
@@ -195,7 +198,6 @@ Public Class MSSQLSRVStorage
 
 	Public Overrides Function GetObj(id As String) As ObjBase
 		CheckDB()
-
 		Dim res As ObjBase = Nothing
 		Dim sql = String.Format("SELECT [json], [type] FROM [dbo].[{0}] WHERE [guid] = '{1}'", Name, id)
 		Dim vals = MSSQLSRVUtils.GetObjectList(ConnectionString, sql)
@@ -249,6 +251,13 @@ Public Class MSSQLSRVStorage
 	End Property
 
 	Public Property ConnectionStringBld As SqlConnectionStringBuilder
+		Get
+			Return _connectionStringBld
+		End Get
+		Set(value As SqlConnectionStringBuilder)
+			_connectionStringBld = value
+		End Set
+	End Property
 
 	Public Overrides Function GetObjects(Of T As ObjBase)(objIds As String(), Optional sortParam As SortParam = Nothing) As IEnumerable(Of T)
 		Return GetObjects(objIds, sortParam).Select(Function(o) CType(o, T))
@@ -547,5 +556,6 @@ Public Class MSSQLSRVStorage
 		CheckDB()
 		Dim sql = String.Format("DELETE FROM [dbo].[{0}]", Name)
 		MSSQLSRVUtils.ExecSQL(ConnectionString, sql)
+
 	End Sub
 End Class

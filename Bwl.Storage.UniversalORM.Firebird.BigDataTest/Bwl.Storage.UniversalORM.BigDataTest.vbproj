@@ -127,6 +127,10 @@
     <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\Bwl.Storage.UniversalORM.AdoDb\Bwl.Storage.UniversalORM.AdoDb.vbproj">
+      <Project>{646dcfe6-8ea7-4afa-a142-395fa1031240}</Project>
+      <Name>Bwl.Storage.UniversalORM.AdoDb</Name>
+    </ProjectReference>
     <ProjectReference Include="..\Bwl.Storage.UniversalORM.Firebird\Bwl.Storage.UniversalORM.Firebird.vbproj">
       <Project>{b58e49c1-7fd7-4674-a1d4-282bc3c88f47}</Project>
       <Name>Bwl.Storage.UniversalORM.Firebird</Name>

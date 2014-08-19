@@ -16,6 +16,8 @@ Public Class Form1
 		Dim fileSaverDir = Path.Combine(Application.StartupPath, "FileData")
 
 		Dim storageManager = New AdoDb.MSSQLSRVStorageManager(conStrBld)
+		storageManager.AddType(GetType(TestData), "TD1")
+		storageManager.AddType(GetType(TestDataInternal), "TD2")
 		'Dim storageManager = New Files.FileStorageManager(fileSaverDir)
 
 		Dim blobSaverDir = Path.Combine(Application.StartupPath, "BlobData")
@@ -26,29 +28,38 @@ Public Class Form1
 		Dim localstorage = New LocalStorage(storageManager, blobFileSaver)
 		localstorage.RemoveAllObj(GetType(TestData))
 		localstorage.RemoveAllObj(GetType(TestDataInternal))
+		localstorage.RemoveAllObj(GetType(TestData2))
+
+		Dim dataInt = New TestDataInternal()
+		dataInt.First = "dataInt"
+		dataInt.ID = "{12345}"
+		dataInt.SomeBytes = New Byte() {12, 31, 123}
+		localstorage.AddObj(dataInt)
+
 
 		Dim data1 = New TestData()
 		data1.Cat = "111111"
 		data1.Dog = "222222"
 		data1.Image = New Bitmap(33, 44)
-		data1.Int.SomeBytes = {1, 1, 1, 2, 2, 3, 3, 3, 44, 55, 23}
-		data1.Int.First = "44444444"
-		data1.Int.Second = "555555555"
-		data1.Int.SomeData = "999999999999"
+		'data1.Int.SomeBytes = {1, 1, 1, 2, 2, 3, 3, 3, 44, 55, 23}
+		'data1.Int.First = "44444444"
+		'data1.Int.Second = "555555555"
+		'data1.Int.SomeData = "999999999999"
 
 		localstorage.AddObj(data1)
+
+		Dim testdata2 = New TestData2()
+		testdata2.F1 = "testdata2"
+		testdata2.ID = "{387391312}"
+		testdata2.Timestamp = DateTime.Now()
+		localstorage.AddObj(testdata2)
+
+
+
 
 		Dim sp1 = New SearchParams
 		sp1.FindCriterias = {New FindCriteria("id", FindCondition.eqaul, data1.ID)}
 		Dim id111111 = localstorage.FindObj(Of TestData)(sp1)
-
-
-
-
-
-
-
-
 
 
 		Dim tt11 = New TestDataInternal
@@ -57,26 +68,18 @@ Public Class Form1
 		id111111 = localstorage.FindObj(Of TestDataInternal)()
 		Dim ob = localstorage.GetObj(Of TestDataInternal)(id111111.First)
 
-
-
-
-
-
 		Dim data3 = New TestData()
 		data3.Cat = "111211"
 		data3.Dog = "222222"
 		data3.Image = New Bitmap(33, 44)
-		data3.Int.SomeBytes = {1, 1, 1, 2, 2, 3, 3, 3, 44, 55, 23}
-		data3.Int.First = "44444444"
-		data3.Int.Second = "555555555"
-		data3.Int.SomeData = "999999999999"
+		'data3.Int.SomeBytes = {1, 1, 1, 2, 2, 3, 3, 3, 44, 55, 23}
+		'data3.Int.First = "44444444"
+		'data3.Int.Second = "555555555"
+		'data3.Int.SomeData = "999999999999"
 
 		localstorage.AddObj(data3)
 
 		Dim data2 = localstorage.GetObj(Of TestData)(data1.ID)
-
-
-
 
 
 		Dim crit = {New FindCriteria("Timestamp", FindCondition.less, DateTime.Now)}
@@ -91,11 +94,11 @@ Public Class Form1
 
 
 
-		Dim tmp = localstorage.Storages(GetType(TestData)).FindObj(Nothing)
+		'Dim tmp = localstorage.Storages(GetType(TestData)).FindObj(Nothing)
 		Dim sort = New SortParam("Timestamp", SortMode.Ascending)
 		sp = New SearchParams(sortParam:=sort)
 		Dim ids1 = localstorage.FindObj(Of TestData)(sp)
-		Dim polo = tmp(0)
+		'Dim polo = tmp(0)
 		Dim polo2 = ids1(0)
 
 		sort = New SortParam("Timestamp", SortMode.Descending)

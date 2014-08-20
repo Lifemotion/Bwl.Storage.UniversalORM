@@ -179,13 +179,20 @@ Public Class MSSQLSRVStorage
 			parameters = helper.Parameters.ToArray
 		End If
 
-		Dim betweenSql = String.Empty
+		'Dim betweenSql = String.Empty
+		Dim mainSelect = String.Empty
 		If (searchParams IsNot Nothing) AndAlso (searchParams.SelectOptions IsNot Nothing) AndAlso (searchParams.SelectOptions.SelectMode = SelectMode.Between) Then
-			betweenSql = String.Format(" OFFSET {0} ROWS FETCH NEXT {1} ROWS ONLY ", searchParams.SelectOptions.StartValue, searchParams.SelectOptions.EndValue - searchParams.SelectOptions.StartValue + 1)
+			mainSelect = String.Format("SELECT [{0}].[guid] FROM {1} OFFSET {2} ROWS FETCH NEXT {3} ROWS ONLY ", Name, fromSql, searchParams.SelectOptions.StartValue, searchParams.SelectOptions.EndValue - searchParams.SelectOptions.StartValue + 1)
+		Else
+			If (searchParams Is Nothing) Or ((searchParams IsNot Nothing) AndAlso (searchParams.SortParam Is Nothing)) Then
+				mainSelect = String.Format("SELECT {3} [{0}].[guid] FROM {1} {2}", Name, fromSql, whereSql, topSql)
+			ElseIf (searchParams.SortParam IsNot Nothing) Then
+
+				mainSelect = String.Format("Select {0} [{1}].[guid] FROM {2} {3} ORDER BY [{4}].[{5}] {6}", topSql, Name, fromSql, whereSql, sortTableName, sortField, sortModeStr)
+			End If
 		End If
 
 		'''' main sql
-		Dim mainSelect = String.Format("Select {0} [{1}].[guid] FROM {2} {3} ORDER BY [{4}].[{5}] {6} {7}", topSql, Name, fromSql, whereSql, sortTableName, sortField, sortModeStr, betweenSql)
 
 		Dim list = MSSQLSRVUtils.GetObjectList(ConnectionString, mainSelect, parameters)
 		If (list IsNot Nothing AndAlso list.Any) Then

@@ -11,13 +11,21 @@
 		testData1.Int.Second = "2222222"
 		testData1.Int.SomeData = "bad data"
 
+		Dim tdi = New TestData2()
+		tdi.F1 = "tdi"
+		tdi.F2 = 391
+		tdi.ID = Guid.NewGuid.ToString("B")
+		'stor.AddObj(tdi)
 		stor.AddObj(testData1)
+		stor.RemoveObj(testData1.ID)
+		'stor.AddObjects({testData1, tdi})
 
 		Dim newData = stor.GetObj(testData1.ID)
 
-		Dim f = stor.FindObj(Nothing)
-        For Each ff In f
-			stor.RemoveObj(ff)
-        Next
+
+		'Dim f = stor.FindObj(Nothing)
+		'      For Each ff In f
+		'	stor.RemoveObj(ff)
+		'      Next
     End Sub
 End Class

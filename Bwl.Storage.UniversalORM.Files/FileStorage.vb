@@ -41,6 +41,9 @@ Public Class FileObjStorage
 			oi.ObjType = obj.GetType
 			Dim str = CfJsonConverter.Serialize(oi)
 			IO.File.WriteAllText(file, str, Utils.Enc)
+
+			CreateIndex(obj)
+
 			'For Each indexing In _indexingMembers
 			'	Try
 			'		Dim indexValue = ReflectionTools.GetMemberValue(indexing.Name, obj).ToString
@@ -67,9 +70,9 @@ Public Class FileObjStorage
 		If Utils.TestFolderFsm(_folder) Then
 			Dim fileMain = GetFileName(id)
 			If Not IO.File.Exists(fileMain) Then Throw New Exception("Object Not Exists with this ID")
-
+			Dim oldobj = GetObj(id)
 			IO.File.Delete(fileMain)
-
+			DeleteIndex(oldobj)
 			'For Each indexing In _indexingMembers
 			'	Try
 			'		Dim path = GetIndexPath(indexing.Name, MD5.GetHash(id))
@@ -93,12 +96,93 @@ Public Class FileObjStorage
 		End If
 	End Sub
 
+	Private Function CreateIndex(obj As ObjBase) As Boolean
+		For Each indexing In _indexingMembers
+			Try
+				Dim indexValue = ReflectionTools.GetMemberValue(indexing.Name, obj).ToString
+				Dim path = GetIndexFileName(obj.GetType, indexing.Name)
+				Dim value = obj.ID + " " + indexValue + vbCrLf
+
+				Dim existsID As Boolean = False
+				If File.Exists(path) Then
+					Dim fileReader = My.Computer.FileSystem.OpenTextFileReader(path)
+					Dim lineVal As String()
+					While fileReader.Peek <> -1
+						lineVal = fileReader.ReadLine().Split(" "c)
+						If lineVal(0) = obj.ID Then existsID = True
+					End While
+					fileReader.Close()
+				End If
+				If Not existsID Then
+					IO.File.AppendAllText(path, value)
+				End If
+			Catch
+				Return False
+			End Try
+		Next
+		Return True
+	End Function
+
+	Private Function DeleteIndex(obj As ObjBase) As Boolean
+		Dim lst As New List(Of ObjBase)()
+		For Each Indexing In _indexingMembers
+			Try
+				Dim path = GetIndexFileName(obj.GetType, Indexing.Name)
+
+				Dim fileReader = My.Computer.FileSystem.OpenTextFileReader(path)
+				Dim stringReader = String.Empty
+				While fileReader.Peek <> -1
+					stringReader = fileReader.ReadLine()
+					If stringReader <> String.Empty Then
+						Dim line = stringReader.Split(" "c)
+						If line(0) <> obj.ID Then
+							Dim ob = GetObj(line(0))
+							If ob IsNot Nothing Then
+								lst.Add(ob)
+							End If
+						End If
+					End If
+				End While
+				fileReader.Close()
+				Threading.Thread.Sleep(100)
+				If File.Exists(path) Then
+					File.Delete(path)
+					Threading.Thread.Sleep(100)
+					If lst IsNot Nothing Then
+						For Each obj In lst
+							CreateIndex(obj)
+						Next
+					End If
+				End If
+			Catch exc As Exception
+				MessageBox.Show(exc.Message)
+			End Try
+		Next
+	End Function
+
 	Private Function GetFileName(objId As String) As String
 		Return _folder + Utils.Sep + objId + ".obj.json"
 	End Function
 
+	Private Function GetIndexFileName(type As Type, index As String) As String
+		Return _folder + Utils.Sep + type.Name + "." + index + ".index"
+	End Function
+
 	Public Overrides Function FindObj(searchParams As SearchParams) As String()
-		Return FindAllObjs()
+		'ДОДЕЛАТЬ
+		If searchParams Is Nothing Then Return FindAllObjs()
+
+		Dim indexFileName = String.Empty
+		If searchParams.SortParam IsNot Nothing Then
+			Dim indexInfo = _indexingMembers.Find(Function(x) x.Name = searchParams.SortParam.Field)
+			If indexInfo IsNot Nothing Then
+				indexFileName = GetIndexFileName(indexInfo.Type, indexInfo.Name)
+			Else
+				MessageBox.Show(String.Format("Указанный тип ({0}) не является индексируемым"), searchParams.SortParam.Field)
+			End If
+
+		End If
+		Return {""}
 	End Function
 
 	Public Overrides Function FindObjCount(searchParams As SearchParams) As Long

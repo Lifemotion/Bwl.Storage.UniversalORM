@@ -34,10 +34,18 @@ Public Class Form1
 		dataInt.First = "dataInt"
 		dataInt.ID = "{12345}"
 		dataInt.SomeBytes = New Byte() {12, 31, 123}
+
+		Dim dataInt2 = New TestDataInternal()
+		dataInt2.First = "dataInt2"
+		dataInt2.ID = "{6789}"
+		dataInt2.SomeBytes = New Byte() {13, 32, 124}
+
 		localstorage.AddObj(dataInt)
+		localstorage.AddObj(dataInt2)
 
 
 		Dim data1 = New TestData()
+		data1.Timestamp = DateTime.Now()
 		data1.Cat = "111111"
 		data1.Dog = "222222"
 		data1.Image = New Bitmap(33, 44)
@@ -82,17 +90,23 @@ Public Class Form1
 		Dim data2 = localstorage.GetObj(Of TestData)(data1.ID)
 
 
-		Dim crit = {New FindCriteria("Timestamp", FindCondition.less, DateTime.Now)}
+		Dim crit = {New FindCriteria("Cat", FindCondition.eqaul, "111211")}
 		Dim sp = New SearchParams(crit)
 		Dim ids = localstorage.FindObj(Of TestData)(sp)
+
+		Dim sopt = New SelectOptions(10)
+		Dim spppp = New SearchParams(selectOptions:=sopt)
+		Dim idstop = localstorage.FindObj(Of TestData)(spppp)
 
 		Dim objs11 = localstorage.GetObjects(Of TestData)(ids, True, New SortParam("Timestamp", SortMode.Descending))
 		Dim objs22 = localstorage.GetObjects(Of TestData)(ids, False)
 
 		Dim res = localstorage.Contains(data1.ID, GetType(TestData))
+		Dim result = localstorage.FindObj(Nothing)
 
+		tt11.First = "tt11tt11tt11tt11"
 
-
+		localstorage.UpdateObj(tt11)
 
 		'Dim tmp = localstorage.Storages(GetType(TestData)).FindObj(Nothing)
 		Dim sort = New SortParam("Timestamp", SortMode.Ascending)
@@ -101,9 +115,9 @@ Public Class Form1
 		'Dim polo = tmp(0)
 		Dim polo2 = ids1(0)
 
-		sort = New SortParam("Timestamp", SortMode.Descending)
+		sort = New SortParam("Second", SortMode.Descending)
 		sp = New SearchParams(sortParam:=sort)
-		Dim ids2 = localstorage.FindObj(Of TestData)(sp)
+		Dim ids2 = localstorage.FindObj(Of TestDataInternal)(sp)
 
 		Dim tempS = New ObjDataInfoGenerator()
 		Dim pp = tempS.GetObjDataInfo(data1)
@@ -153,5 +167,8 @@ Public Class Form1
 		Dim di2 = ObjDataInfo.GetFromFiles(files)
 		Dim data5 = objDataGen.GetObject(di2)
 
+		If MessageBox.Show("Выполнено") = Windows.Forms.DialogResult.OK Then
+			End
+		End If
 	End Sub
 End Class

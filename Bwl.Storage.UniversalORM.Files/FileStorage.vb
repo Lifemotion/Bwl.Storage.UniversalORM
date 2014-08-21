@@ -170,18 +170,51 @@ Public Class FileObjStorage
 
 	Public Overrides Function FindObj(searchParams As SearchParams) As String()
 		'ДОДЕЛАТЬ
+		'НАДО В ФУНКЦИЮ ПЕРЕДАТь ТИП ИСКОМОГО ОБЪЕКТА
 		If searchParams Is Nothing Then Return FindAllObjs()
 
-		Dim indexFileName = String.Empty
-		If searchParams.SortParam IsNot Nothing Then
-			Dim indexInfo = _indexingMembers.Find(Function(x) x.Name = searchParams.SortParam.Field)
-			If indexInfo IsNot Nothing Then
-				indexFileName = GetIndexFileName(indexInfo.Type, indexInfo.Name)
-			Else
-				MessageBox.Show(String.Format("Указанный тип ({0}) не является индексируемым"), searchParams.SortParam.Field)
-			End If
+		For Each crit In searchParams.FindCriterias
+			Dim result As New List(Of String)()
+			Dim indexFileName = String.Empty
+			If searchParams.FindCriterias IsNot Nothing Then
+				Dim indexInfo = _indexingMembers.Find(Function(x) x.Name = crit.Field)
+				If indexInfo IsNot Nothing Then
+					'вместо "indexInfo.Type" впри передаче в функцию "GetIndexFileName" надо obj.getType
+					indexFileName = GetIndexFileName(indexInfo.Type, indexInfo.Name)
+					Dim fileReader = My.Computer.FileSystem.OpenTextFileReader(indexFileName)
+					Dim stringReader = String.Empty
+					While fileReader.Peek <> -1
+						stringReader = fileReader.ReadLine()
+						If stringReader <> String.Empty Then
+							Dim line = stringReader.Split(" "c)
 
-		End If
+							Select Case (crit.Condition)
+								Case FindCondition.eqaul
+									If (line(1) = crit.Value) Then result.Add(line(0))
+								Case FindCondition.greater
+									If (line(1) > crit.Value) Then result.Add(line(0))
+								Case FindCondition.greaterOrEqual
+									If (line(1) >= crit.Value) Then result.Add(line(0))
+								Case FindCondition.less
+									If (line(1) < crit.Value) Then result.Add(line(0))
+								Case FindCondition.lessOrEqual
+									If (line(1) <= crit.Value) Then result.Add(line(0))
+								Case FindCondition.likeEqaul
+									If (line(1) = crit.Value) Then result.Add(line(0)) 'СДЕЛАТЬ LIKE
+								Case FindCondition.notEqual
+									If (line(1) <> crit.Value) Then result.Add(line(0))
+							End Select
+						End If
+					End While
+					fileReader.Close()
+
+					Return result.ToArray()
+				Else
+					MessageBox.Show(String.Format("Указанный тип ({0}) не является индексируемым"), searchParams.SortParam.Field)
+				End If
+			End If
+		Next
+
 		Return {""}
 	End Function
 

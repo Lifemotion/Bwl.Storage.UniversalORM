@@ -17,7 +17,13 @@
 		tdi.ID = Guid.NewGuid.ToString("B")
 		'stor.AddObj(tdi)
 		stor.AddObj(testData1)
-		stor.RemoveObj(testData1.ID)
+
+		Dim findCrit = {New FindCriteria("Cat", FindCondition.eqaul, "CAT1111111")}
+		Dim searchP As New SearchParams(findCrit)
+
+		Dim res = stor.FindObj(searchP)
+
+		'stor.RemoveObj(testData1.ID)
 		'stor.AddObjects({testData1, tdi})
 
 		Dim newData = stor.GetObj(testData1.ID)

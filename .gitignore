@@ -9,3 +9,5 @@ release
 dllOut
 GuiTest
 AdoDbGuiTest
+TESTDB*.FDB
+TestDataStor

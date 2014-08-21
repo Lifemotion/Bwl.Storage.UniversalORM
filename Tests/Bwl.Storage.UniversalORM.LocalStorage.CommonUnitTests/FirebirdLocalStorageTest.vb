@@ -21,8 +21,8 @@ Imports Bwl.Storage.UniversalORM.Firebird
 	<TestInitialize()>
 	Public Sub Init()
 		Dim conStrBld = New FbConnectionStringBuilder()
-		conStrBld.Database = "D:\CleverFlow\bwl.storage.universalorm\CommonUnitTests\data\TestDB_EMBEDDED.fdb"
-		'conStrBld.Database = "D:\CleverFlow\bwl.storage.universalorm\CommonUnitTests\data\TESTDB_DEFAULT.FDB"
+		conStrBld.Database = "D:\CleverFlow\bwl.storage.universalorm\Tests\Bwl.Storage.UniversalORM.LocalStorage.CommonUnitTests\data\TestDB_EMBEDDED.fdb"
+		'conStrBld.Database = "D:\CleverFlow\bwl.storage.universalorm\Tests\Bwl.Storage.UniversalORM.LocalStorage.CommonUnitTests\data\TESTDB_DEFAULT.FDB"
 		conStrBld.UserID = "sysdba"
 		conStrBld.Password = "masterkey"
 		'conStrBld.UserID = "123"
@@ -76,7 +76,7 @@ Imports Bwl.Storage.UniversalORM.Firebird
 	End Sub
 
 
-	<TestMethod()> Public Sub LocalStorageDB_RemoveAll()
+	<TestMethod()> Public Sub FirebirdLocalStorageDB_RemoveAll()
 
 		_localStorage.RemoveAllObj(GetType(TestData))
 		_localStorage.RemoveAllObj(GetType(TestDataInternal))
@@ -90,7 +90,7 @@ Imports Bwl.Storage.UniversalORM.Firebird
 		Assert.AreEqual(TestDataInternalCount.Count, 0)
 	End Sub
 
-	<TestMethod()> Public Sub LocalStorageDB_TestData_Add_FindById_GetObj()
+	<TestMethod()> Public Sub FirebirdLocalStorageDB_TestData_Add_FindById_GetObj()
 		Dim data = New TestData()
 		data.Cat = "111111"
 		data.Dog = "222222"
@@ -136,7 +136,7 @@ Imports Bwl.Storage.UniversalORM.Firebird
 
 	End Sub
 
-	<TestMethod()> Public Sub LocalStorageDB_TestDataInternal_Add_FindById_GetObj()
+	<TestMethod()> Public Sub FirebirdLocalStorageDB_TestDataInternal_Add_FindById_GetObj()
 		Dim data1 = New TestDataInternal
 		data1.First = "234234234234"
 		_localStorage.AddObj(data1)
@@ -163,7 +163,7 @@ Imports Bwl.Storage.UniversalORM.Firebird
 
 	End Sub
 
-	<TestMethod()> Public Sub LocalStorageDB_FindObjBetween()
+	<TestMethod()> Public Sub FirebirdLocalStorageDB_FindObjBetween()
 		Dim td1 = New TestData
 		td1.Cat = "td"
 		td1.Dog = 111
@@ -225,7 +225,7 @@ Imports Bwl.Storage.UniversalORM.Firebird
 		Assert.AreEqual(F2.Count, 2)
 	End Sub
 
-	<TestMethod()> Public Sub LocalStorageDB_FindBadObjById()
+	<TestMethod()> Public Sub FirebirdLocalStorageDB_FindBadObjById()
 		Dim sp = New SearchParams
 		sp.FindCriterias = {New FindCriteria("id", FindCondition.eqaul, "{11111-22222-3333-44444-5555555555}")}
 		Dim ids = _localStorage.FindObj(Of TestDataInternal)(sp)
@@ -233,7 +233,7 @@ Imports Bwl.Storage.UniversalORM.Firebird
 		Assert.AreEqual(ids.Count, 0)
 	End Sub
 
-	<TestMethod()> Public Sub LocalStorageDB_FindGoodObjById()
+	<TestMethod()> Public Sub FirebirdLocalStorageDB_FindGoodObjById()
 		_localStorage.RemoveObj(Of TestDataInternal)("{temp-id-123-456-789}")
 		Dim sp = New SearchParams
 		sp.FindCriterias = {New FindCriteria("id", FindCondition.eqaul, "{temp-id-123-456-789}")}
@@ -250,7 +250,7 @@ Imports Bwl.Storage.UniversalORM.Firebird
 		Assert.AreEqual(ids2.Count, 1)
 	End Sub
 
-	<TestMethod()> Public Sub LocalStorageDB_GetGoodObjById()
+	<TestMethod()> Public Sub FirebirdLocalStorageDB_GetGoodObjById()
 		_localStorage.RemoveObj(Of TestDataInternal)("{temp-id-123-456-789}")
 		Dim obj1 = _localStorage.GetObj(Of TestDataInternal)("{temp-id-123-456-789}")
 		Dim data = New TestDataInternal
@@ -264,17 +264,17 @@ Imports Bwl.Storage.UniversalORM.Firebird
 		Assert.AreEqual(obj2.ID, data.ID)
 	End Sub
 
-	<TestMethod()> Public Sub LocalStorageDB_GetBadObjById()
+	<TestMethod()> Public Sub FirebirdLocalStorageDB_GetBadObjById()
 		Dim obj = _localStorage.GetObj(Of TestDataInternal)("{E2F5E178-8809-46FA-ACBC-A9F6D45A44F3}")
 		Assert.AreEqual(obj, Nothing)
 	End Sub
 
-	<TestMethod()> Public Sub LocalStorageDB_ContainsBadObjById()
+	<TestMethod()> Public Sub FirebirdLocalStorageDB_ContainsBadObjById()
 		Dim contains = _localStorage.Contains(Of TestDataInternal)("{FE61FF34-CA73-4E8D-9515-5C8D47859B73}")
 		Assert.AreEqual(contains, False)
 	End Sub
 
-	<TestMethod()> Public Sub LocalStorageDB_ContainsGoodObjById()
+	<TestMethod()> Public Sub FirebirdLocalStorageDB_ContainsGoodObjById()
 		Dim data = New TestDataInternal
 		data.First = "2222"
 		data.Second = 2222
@@ -283,7 +283,7 @@ Imports Bwl.Storage.UniversalORM.Firebird
 		Assert.AreEqual(contains, True)
 	End Sub
 
-	<TestMethod()> Public Sub LocalStorageDB_ParamSort()
+	<TestMethod()> Public Sub FirebirdLocalStorageDB_ParamSort()
 		_localStorage.RemoveAllObj(GetType(TestData))
 		_localStorage.AddObj(_data1)
 		_localStorage.AddObj(_data2)
@@ -303,7 +303,7 @@ Imports Bwl.Storage.UniversalORM.Firebird
 		Assert.AreEqual(ids1(0), ids2(1))
 	End Sub
 
-	<TestMethod()> Public Sub LocalStorageDB_GetDataInfo()
+	<TestMethod()> Public Sub FirebirdLocalStorageDB_GetDataInfo()
 		Dim tempS = New ObjDataInfoGenerator()
 		Dim pp = tempS.GetObjDataInfo(_data1)
 		Dim f = pp.GetOneFileForWeb
@@ -312,7 +312,7 @@ Imports Bwl.Storage.UniversalORM.Firebird
 		Assert.AreEqual(_data1.ID, obttt.ID)
 	End Sub
 
-	<TestMethod()> Public Sub LocalStorageDB_SelectOptions()
+	<TestMethod()> Public Sub FirebirdLocalStorageDB_SelectOptions()
 		_localStorage.RemoveAllObj(GetType(TestData))
 		_localStorage.AddObj(_data1)
 		_localStorage.AddObj(_data2)
@@ -339,7 +339,7 @@ Imports Bwl.Storage.UniversalORM.Firebird
 		Assert.AreEqual(ids3.Count, 2)
 	End Sub
 
-	<TestMethod()> Public Sub LocalStorageDB_RemoveObj()
+	<TestMethod()> Public Sub FirebirdLocalStorageDB_RemoveObj()
 		Dim crit = {New FindCriteria("Timestamp", FindCondition.notEqual, DateTime.Now)}
 		Dim sp = New SearchParams(crit)
 		Dim ids1 = _localStorage.FindObj(Of TestData)(sp)

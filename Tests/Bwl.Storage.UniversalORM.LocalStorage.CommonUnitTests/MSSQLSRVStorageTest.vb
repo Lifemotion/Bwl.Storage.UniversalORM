@@ -69,15 +69,12 @@ Imports Bwl.Storage.UniversalORM.AdoDb
 	End Sub
 
 	<TestMethod()>
-	Public Sub Storage_AddObj()
+	Public Sub MSSQLSRVStorage_AddObj()
 		Threading.Thread.Sleep(1000)
 		_storageMSSQLSRV_TestData.RemoveAllObjects()
 		Dim count1 = _storageMSSQLSRV_TestData.FindObjCount(Nothing)
 		_storageMSSQLSRV_TestData.AddObj(_data1)
 		_storageMSSQLSRV_TestData.AddObj(_data2)
-		_storageMSSQLSRV_TestData.AddObj(_data4)
-		_storageMSSQLSRV_TestData.AddObj(_data5)
-		_storageMSSQLSRV_TestData.AddObj(_data6)
 		Dim count2 = _storageMSSQLSRV_TestData.FindObjCount(Nothing)
 
 		'Assert.AreEqual(Convert.ToInt32(count1), 0)
@@ -85,7 +82,7 @@ Imports Bwl.Storage.UniversalORM.AdoDb
 	End Sub
 
 	<TestMethod()>
-	Public Sub Storage_RemoveAll()
+	Public Sub MSSQLSRVStorage_RemoveAll()
 		Dim count1 = _storageMSSQLSRV_TestData.FindObjCount(Nothing)
 		_storageMSSQLSRV_TestData.RemoveAllObjects()
 		Dim count2 = _storageMSSQLSRV_TestData.FindObjCount(Nothing)
@@ -95,7 +92,7 @@ Imports Bwl.Storage.UniversalORM.AdoDb
 	End Sub
 
 	<TestMethod()>
-	Public Sub Storage_FindObj()
+	Public Sub MSSQLSRVStorage_FindObj()
 		_storageMSSQLSRV_TestData.RemoveAllObjects()
 		_storageMSSQLSRV_TestData.AddObj(_data1)
 		_storageMSSQLSRV_TestData.AddObj(_data2)
@@ -109,7 +106,7 @@ Imports Bwl.Storage.UniversalORM.AdoDb
 	End Sub
 
 	<TestMethod()>
-	Public Sub Storage_Contains()
+	Public Sub MSSQLSRVStorage_Contains()
 		_storageMSSQLSRV_TestData.RemoveAllObjects()
 		_storageMSSQLSRV_TestData.AddObj(_data1)
 		_storageMSSQLSRV_TestData.AddObj(_data2)
@@ -122,7 +119,7 @@ Imports Bwl.Storage.UniversalORM.AdoDb
 	End Sub
 
 	<TestMethod()>
-	Public Sub Storage_SearchParam()
+	Public Sub MSSQLSRVStorage_SearchParam()
 		_storageMSSQLSRV_TestData.RemoveAllObjects()
 		_storageMSSQLSRV_TestData.AddObj(_data1)
 		_storageMSSQLSRV_TestData.AddObj(_data2)
@@ -137,7 +134,7 @@ Imports Bwl.Storage.UniversalORM.AdoDb
 	End Sub
 
 	<TestMethod()>
-	Public Sub Storage_GetObj()
+	Public Sub MSSQLSRVStorage_GetObj()
 		_storageMSSQLSRV_TestData.RemoveAllObjects()
 		Dim obj1 = _storageMSSQLSRV_TestData.GetObj(_data3.ID)
 		_storageMSSQLSRV_TestData.AddObj(_data1)
@@ -146,6 +143,6 @@ Imports Bwl.Storage.UniversalORM.AdoDb
 		Dim obj2 = _storageMSSQLSRV_TestData.GetObj(_data3.ID)
 
 		Assert.AreEqual(obj1, Nothing)
-		Assert.AreEqual(obj2, _data3)
+		Assert.AreEqual(obj2.ID, _data3.ID)
 	End Sub
 End Class

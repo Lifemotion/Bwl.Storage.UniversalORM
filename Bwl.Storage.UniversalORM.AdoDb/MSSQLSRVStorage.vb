@@ -214,12 +214,17 @@ Public Class MSSQLSRVStorage
 		If vals IsNot Nothing AndAlso vals.Any Then
 			Dim jsonObj = vals(0)(0)
 			Dim typeName = vals(0)(1)
-			If typeName Is Nothing Then
+			If (typeName = "-") Or typeName Is Nothing Then
 				typeName = SupportedType.AssemblyQualifiedName
 			End If
+
 			If (jsonObj IsNot Nothing) Then
 				Dim json = jsonObj.ToString
-				res = CfJsonConverter.Deserialize(json, Type.GetType(typeName.ToString))
+				Try
+					res = CfJsonConverter.Deserialize(json, Type.GetType(typeName.ToString))
+				Catch exc As Exception
+					Dim polo = exc.Message
+				End Try
 			End If
 		End If
 		Return res
@@ -553,7 +558,8 @@ Public Class MSSQLSRVStorage
 	End Function
 
 	Private Sub Save(connStr As String, id As String, json As String, type As Type)
-		Dim sql = String.Format("INSERT INTO [dbo].[{0}] ([guid] ,[json], [type]) VALUES('{1}', '{2}', '{3}')", Name, id, json, type.AssemblyQualifiedName)
+		Dim rtype = IIf(type.Name = Name, "-", type.AssemblyQualifiedName)
+		Dim sql = String.Format("INSERT INTO [dbo].[{0}] ([guid] ,[json], [type]) VALUES('{1}', '{2}', '{3}')", Name, id, json, rtype)
 		MSSQLSRVUtils.ExecSQL(ConnectionString, sql)
 	End Sub
 

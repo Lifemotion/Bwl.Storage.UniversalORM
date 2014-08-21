@@ -15,3 +15,10 @@ Public Class TestDataInternal
 	<JsonIgnore>
 	Public Property SomeData As String
 End Class
+
+Public Class TestData2
+	Implements ObjBase
+	<Indexing> Public Property F1 As String = "qwert"
+	Public Property F2 As Integer = 111
+	Public Property ID As String = "ididididdi" Implements ObjBase.ID
+End Class

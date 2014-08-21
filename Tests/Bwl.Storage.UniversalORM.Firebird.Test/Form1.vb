@@ -129,7 +129,7 @@ Public Class Form1
 			'----------------------
 			Dim tmpStorage As New FBStorage(conStrBld, GetType(TestData), "TestDB")
 
-			Dim manager As FbStorageManager
+			Dim manager As FbStorageManager = Nothing
 			Try
 				manager = New FbStorageManager(conStrBld)
 			Catch ex As Exception

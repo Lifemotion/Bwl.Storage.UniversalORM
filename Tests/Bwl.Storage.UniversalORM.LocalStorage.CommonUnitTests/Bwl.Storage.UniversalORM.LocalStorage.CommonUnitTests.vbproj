@@ -35,6 +35,7 @@
     <OutputPath>bin\Release\</OutputPath>
     <DocumentationFile>CommonUnitTests.xml</DocumentationFile>
     <NoWarn>42016,41999,42017,42018,42019,42032,42036,42020,42021,42022</NoWarn>
+    <PlatformTarget>x86</PlatformTarget>
   </PropertyGroup>
   <PropertyGroup>
     <OptionExplicit>On</OptionExplicit>
@@ -50,7 +51,7 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="FirebirdSql.Data.FirebirdClient">
-      <HintPath>..\refs\FirebirdSql.Data.FirebirdClient.dll</HintPath>
+      <HintPath>..\..\refs\FirebirdSql.Data.FirebirdClient.dll</HintPath>
     </Reference>
     <Reference Include="Newtonsoft.Json, Version=4.5.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
@@ -128,27 +129,27 @@
     </None>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Bwl.Storage.UniversalORM.AdoDb\Bwl.Storage.UniversalORM.AdoDb.vbproj">
+    <ProjectReference Include="..\..\Bwl.Storage.UniversalORM.AdoDb\Bwl.Storage.UniversalORM.AdoDb.vbproj">
       <Project>{646dcfe6-8ea7-4afa-a142-395fa1031240}</Project>
       <Name>Bwl.Storage.UniversalORM.AdoDb</Name>
     </ProjectReference>
-    <ProjectReference Include="..\Bwl.Storage.UniversalORM.Blob\Bwl.Storage.UniversalORM.Blob.vbproj">
+    <ProjectReference Include="..\..\Bwl.Storage.UniversalORM.Blob\Bwl.Storage.UniversalORM.Blob.vbproj">
       <Project>{6c002239-1f5e-4dac-b249-ac1994f22e2c}</Project>
       <Name>Bwl.Storage.UniversalORM.Blob</Name>
     </ProjectReference>
-    <ProjectReference Include="..\Bwl.Storage.UniversalORM.Files\Bwl.Storage.UniversalORM.Files.vbproj">
+    <ProjectReference Include="..\..\Bwl.Storage.UniversalORM.Files\Bwl.Storage.UniversalORM.Files.vbproj">
       <Project>{c5ef603a-b36d-4fea-a710-85a84908c896}</Project>
       <Name>Bwl.Storage.UniversalORM.Files</Name>
     </ProjectReference>
-    <ProjectReference Include="..\Bwl.Storage.UniversalORM.Firebird\Bwl.Storage.UniversalORM.Firebird.vbproj">
+    <ProjectReference Include="..\..\Bwl.Storage.UniversalORM.Firebird\Bwl.Storage.UniversalORM.Firebird.vbproj">
       <Project>{b58e49c1-7fd7-4674-a1d4-282bc3c88f47}</Project>
       <Name>Bwl.Storage.UniversalORM.Firebird</Name>
     </ProjectReference>
-    <ProjectReference Include="..\Bwl.Storage.UniversalORM.LocalStorage\Bwl.Storage.UniversalORM.LocalStorage.vbproj">
+    <ProjectReference Include="..\..\Bwl.Storage.UniversalORM.LocalStorage\Bwl.Storage.UniversalORM.LocalStorage.vbproj">
       <Project>{a5b104b3-da24-4402-b2bb-9e8bdbaa5462}</Project>
       <Name>Bwl.Storage.UniversalORM.LocalStorage</Name>
     </ProjectReference>
-    <ProjectReference Include="..\Bwl.Storage.UniversalORM\Bwl.Storage.UniversalORM.vbproj">
+    <ProjectReference Include="..\..\Bwl.Storage.UniversalORM\Bwl.Storage.UniversalORM.vbproj">
       <Project>{cfd756ad-1cb6-4b12-a969-d18a434d1e72}</Project>
       <Name>Bwl.Storage.UniversalORM</Name>
     </ProjectReference>

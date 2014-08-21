@@ -158,6 +158,8 @@ Public Class FileObjStorage
 				MessageBox.Show(exc.Message)
 			End Try
 		Next
+
+		Return False
 	End Function
 
 	Private Function GetFileName(objId As String) As String

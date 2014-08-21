@@ -170,19 +170,23 @@ Public Class FileObjStorage
 		Return _folder + Utils.Sep + type.Name + "." + index + ".index"
 	End Function
 
+
 	Public Overrides Function FindObj(searchParams As SearchParams) As String()
 		'ДОДЕЛАТЬ
-		'НАДО В ФУНКЦИЮ ПЕРЕДАТь ТИП ИСКОМОГО ОБЪЕКТА
 		If searchParams Is Nothing Then Return FindAllObjs()
 
+		Dim result As New List(Of String)()
+		Dim tmpResult As New List(Of String)()
+		Dim listResults As New List(Of List(Of String))()
+
 		For Each crit In searchParams.FindCriterias
-			Dim result As New List(Of String)()
+			tmpResult.Clear()
 			Dim indexFileName = String.Empty
 			If searchParams.FindCriterias IsNot Nothing Then
 				Dim indexInfo = _indexingMembers.Find(Function(x) x.Name = crit.Field)
 				If indexInfo IsNot Nothing Then
-					'вместо "indexInfo.Type" впри передаче в функцию "GetIndexFileName" надо obj.getType
-					indexFileName = GetIndexFileName(indexInfo.Type, indexInfo.Name)
+
+					indexFileName = GetIndexFileName(Type.GetType(SupportedType.AssemblyQualifiedName), indexInfo.Name)
 					Dim fileReader = My.Computer.FileSystem.OpenTextFileReader(indexFileName)
 					Dim stringReader = String.Empty
 					While fileReader.Peek <> -1
@@ -209,14 +213,17 @@ Public Class FileObjStorage
 						End If
 					End While
 					fileReader.Close()
-
-					Return result.ToArray()
+					listResults.Add(tmpResult)
 				Else
 					MessageBox.Show(String.Format("Указанный тип ({0}) не является индексируемым"), searchParams.SortParam.Field)
 				End If
 			End If
 		Next
 
+		'Добавить разбор списка результатов listResults. Сделать сравнение элементов списков данного списка. 
+		' Если в каждом из подсписков есть id, то добавляем в результирующий список, если не во всех, то значит один из нескольких 
+		' критериев не поиска выпонился
+		Return result.ToArray()
 		Return {""}
 	End Function
 

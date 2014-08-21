@@ -108,6 +108,7 @@
     <Compile Include="TestData.vb" />
     <Compile Include="MSSQLSRVStorageTest.vb" />
     <Compile Include="TestData2.vb" />
+    <Compile Include="MSSQLSRVLocalStorageTest.vb" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="My Project\Resources.resx">

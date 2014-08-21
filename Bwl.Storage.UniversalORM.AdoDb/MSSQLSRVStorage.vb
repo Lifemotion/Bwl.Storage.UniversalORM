@@ -38,7 +38,10 @@ Public Class MSSQLSRVStorage
 	End Sub
 
 	Public Overrides Sub AddObjects(objects As ObjBase())
-		Throw New NotSupportedException
+		'Throw New NotSupportedException
+		For Each obj In objects
+			AddObj(obj)
+		Next
 
 		'CheckDB()
 		'Dim jsonList = New List(Of String)
@@ -141,7 +144,7 @@ Public Class MSSQLSRVStorage
 
 		'''' sorting
 		Dim sortModeStr = "ASC"
-		Dim sortField = "guid"
+		Dim sortField = "id"
 		Dim sortTableName = Name
 		If (searchParams IsNot Nothing) AndAlso (searchParams.SortParam IsNot Nothing) Then
 			If searchParams.SortParam.SortMode = SortMode.Descending Then
@@ -179,17 +182,17 @@ Public Class MSSQLSRVStorage
 			parameters = helper.Parameters.ToArray
 		End If
 
-		'Dim betweenSql = String.Empty
+		Dim betweenSql = String.Empty
 		Dim mainSelect = String.Empty
 		If (searchParams IsNot Nothing) AndAlso (searchParams.SelectOptions IsNot Nothing) AndAlso (searchParams.SelectOptions.SelectMode = SelectMode.Between) Then
-			mainSelect = String.Format("SELECT [{0}].[guid] FROM {1} OFFSET {2} ROWS FETCH NEXT {3} ROWS ONLY ", Name, fromSql, searchParams.SelectOptions.StartValue, searchParams.SelectOptions.EndValue - searchParams.SelectOptions.StartValue + 1)
-		Else
-			If (searchParams Is Nothing) Or ((searchParams IsNot Nothing) AndAlso (searchParams.SortParam Is Nothing)) Then
-				mainSelect = String.Format("SELECT {3} [{0}].[guid] FROM {1} {2}", Name, fromSql, whereSql, topSql)
-			ElseIf (searchParams.SortParam IsNot Nothing) Then
-
-				mainSelect = String.Format("Select {0} [{1}].[guid] FROM {2} {3} ORDER BY [{4}].[{5}] {6}", topSql, Name, fromSql, whereSql, sortTableName, sortField, sortModeStr)
-			End If
+			betweenSql = String.Format("OFFSET {2} ROWS FETCH NEXT {3} ROWS ONLY", Name, fromSql, searchParams.SelectOptions.StartValue, searchParams.SelectOptions.EndValue - searchParams.SelectOptions.StartValue + 1)
+		End If
+		mainSelect = String.Format("Select {0} [{1}].[guid] FROM {2} {3} ORDER BY [{4}].[{5}] {6} {7}", topSql, Name, fromSql, whereSql, sortTableName, sortField, sortModeStr, betweenSql)
+		If ((topSql <> "") And (searchParams IsNot Nothing AndAlso searchParams.SortParam Is Nothing)) Then
+			mainSelect = String.Format("Select {0} [{1}].[guid] FROM {2} {3}", topSql, Name, fromSql, whereSql)
+		End If
+		If (searchParams Is Nothing) Then 'Or ((searchParams IsNot Nothing) AndAlso (searchParams.SortParam Is Nothing)) Then
+			mainSelect = String.Format("SELECT {3} [{0}].[guid] FROM {1} {2}", Name, fromSql, whereSql, topSql)
 		End If
 
 		'''' main sql
@@ -445,7 +448,7 @@ Public Class MSSQLSRVStorage
 	End Function
 
 	Private Function GenerateFromSql(criterias As IEnumerable(Of FindCriteria), sort As SortParam) As String
-		Dim fromSQl As String = " " + Name + " "
+		Dim fromSQl As String = " [" + Name + "] "
 
 		Dim where = String.Empty
 		For Each index In _indexingMembers

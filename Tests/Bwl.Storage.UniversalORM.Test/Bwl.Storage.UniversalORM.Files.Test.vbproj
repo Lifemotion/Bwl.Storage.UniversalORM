@@ -4,11 +4,11 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{A85F3A0D-FBAD-417F-B1DA-5536A7E6AFF0}</ProjectGuid>
+    <ProjectGuid>{E6499D7D-0169-4812-AE68-68C6B7E58F77}</ProjectGuid>
     <OutputType>WinExe</OutputType>
-    <StartupObject>Bwl.Storage.UniversalORM.Blob.Test.My.MyApplication</StartupObject>
-    <RootNamespace>Bwl.Storage.UniversalORM.Blob.Test</RootNamespace>
-    <AssemblyName>Bwl.Storage.UniversalORM.Blob.Test</AssemblyName>
+    <StartupObject>Bwl.Storage.UniversalORM.Files.Test.My.MyApplication</StartupObject>
+    <RootNamespace>Bwl.Storage.UniversalORM.Files.Test</RootNamespace>
+    <AssemblyName>Bwl.Storage.UniversalORM.Files.Test</AssemblyName>
     <FileAlignment>512</FileAlignment>
     <MyType>WindowsForms</MyType>
     <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
@@ -20,8 +20,8 @@
     <DebugType>full</DebugType>
     <DefineDebug>true</DefineDebug>
     <DefineTrace>true</DefineTrace>
-    <OutputPath>..\BlobGuiTest\bin\</OutputPath>
-    <DocumentationFile>Bwl.Storage.UniversalORM.Blob.Test.xml</DocumentationFile>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DocumentationFile>Bwl.Storage.UniversalORM.Files.Test.xml</DocumentationFile>
     <NoWarn>42016,41999,42017,42018,42019,42032,42036,42020,42021,42022</NoWarn>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
@@ -30,8 +30,8 @@
     <DefineDebug>false</DefineDebug>
     <DefineTrace>true</DefineTrace>
     <Optimize>true</Optimize>
-    <OutputPath>..\BlobGuiTest\bin\</OutputPath>
-    <DocumentationFile>Bwl.Storage.UniversalORM.Blob.Test.xml</DocumentationFile>
+    <OutputPath>bin\Release\</OutputPath>
+    <DocumentationFile>Bwl.Storage.UniversalORM.Files.Test.xml</DocumentationFile>
     <NoWarn>42016,41999,42017,42018,42019,42032,42036,42020,42021,42022</NoWarn>
   </PropertyGroup>
   <PropertyGroup>
@@ -47,9 +47,8 @@
     <OptionInfer>On</OptionInfer>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Newtonsoft.Json, Version=4.5.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\refs\Newtonsoft.Json.dll</HintPath>
+    <Reference Include="Newtonsoft.Json">
+      <HintPath>..\..\refs\Newtonsoft.Json.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Data" />
@@ -63,6 +62,7 @@
   </ItemGroup>
   <ItemGroup>
     <Import Include="Bwl.Storage.UniversalORM" />
+    <Import Include="Bwl.Storage.UniversalORM.Files" />
     <Import Include="Microsoft.VisualBasic" />
     <Import Include="System" />
     <Import Include="System.Collections" />
@@ -124,11 +124,11 @@
     <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Bwl.Storage.UniversalORM.Blob\Bwl.Storage.UniversalORM.Blob.vbproj">
-      <Project>{6c002239-1f5e-4dac-b249-ac1994f22e2c}</Project>
-      <Name>Bwl.Storage.UniversalORM.Blob</Name>
+    <ProjectReference Include="..\..\Bwl.Storage.UniversalORM.Files\Bwl.Storage.UniversalORM.Files.vbproj">
+      <Project>{c5ef603a-b36d-4fea-a710-85a84908c896}</Project>
+      <Name>Bwl.Storage.UniversalORM.Files</Name>
     </ProjectReference>
-    <ProjectReference Include="..\Bwl.Storage.UniversalORM\Bwl.Storage.UniversalORM.vbproj">
+    <ProjectReference Include="..\..\Bwl.Storage.UniversalORM\Bwl.Storage.UniversalORM.vbproj">
       <Project>{cfd756ad-1cb6-4b12-a969-d18a434d1e72}</Project>
       <Name>Bwl.Storage.UniversalORM</Name>
     </ProjectReference>

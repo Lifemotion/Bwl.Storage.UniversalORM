@@ -1,7 +1,9 @@
 *.suo
 bin
 obj
-dll
+*Debug*
+*Release*
+TestResults
 debug-*
 release-*
 debug
@@ -11,3 +13,4 @@ GuiTest
 AdoDbGuiTest
 TESTDB*.FDB
 TestDataStor
+*.orig

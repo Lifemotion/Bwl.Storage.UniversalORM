@@ -36,7 +36,7 @@
     <DebugType>full</DebugType>
     <DefineDebug>true</DefineDebug>
     <DefineTrace>true</DefineTrace>
-    <OutputPath>..\dllOut\</OutputPath>
+    <OutputPath>..\UniversalOrm-Debug\</OutputPath>
     <DocumentationFile>Bwl.Storage.UniversalORM.Files.xml</DocumentationFile>
     <NoWarn>42017,42018,42019,42020,42021,42022,42032,42036</NoWarn>
     <WarningsAsErrors>41999,42016</WarningsAsErrors>
@@ -47,7 +47,7 @@
     <DefineDebug>false</DefineDebug>
     <DefineTrace>true</DefineTrace>
     <Optimize>true</Optimize>
-    <OutputPath>..\dllOut\</OutputPath>
+    <OutputPath>..\UniversalOrm-Release\</OutputPath>
     <DocumentationFile>Bwl.Storage.UniversalORM.Files.xml</DocumentationFile>
     <NoWarn>42017,42018,42019,42020,42021,42022,42032,42036</NoWarn>
     <WarningsAsErrors>41999,42016</WarningsAsErrors>

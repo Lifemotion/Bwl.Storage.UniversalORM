@@ -8,7 +8,7 @@
 		testData1.ID = Guid.NewGuid.ToString("B")
 		testData1.Int = New TestDataInternal
 		testData1.Int.First = "11111111111111"
-		testData1.Int.Second = "2222222"
+		testData1.Int.Second = "1111111"
 		testData1.Int.SomeData = "bad data"
 
 		Dim tdi = New TestData2()
@@ -18,11 +18,19 @@
 		'stor.AddObj(tdi)
 		stor.AddObj(testData1)
 
-		Dim findCrit = {New FindCriteria("Cat", FindCondition.eqaul, "CAT1111111")}
+		Dim findCrit = {New FindCriteria("Cat", FindCondition.eqaul, "CAT1111111"), New FindCriteria("Int.Second", FindCondition.eqaul, "1111111")}	'"2222222")}
 		Dim searchP As New SearchParams(findCrit)
 
+		Dim stopwatch As New Stopwatch()
+		Dim timesp As New TimeSpan()
+		stopwatch.Reset()
+		stopwatch.Start()
 		Dim res = stor.FindObj(searchP)
+		stopwatch.Stop()
+		timesp = stopwatch.Elapsed
+		Dim elapsedTime = String.Format("{0:00}:{1:00}:{2:00}.{3:000000}", timesp.Hours, timesp.Minutes, timesp.Seconds, timesp.Milliseconds * 1000)
 
+		MessageBox.Show(String.Format("Время выполнения: {0} Количество элементов: {1}", elapsedTime.ToString(), res.Length))
 		'stor.RemoveObj(testData1.ID)
 		'stor.AddObjects({testData1, tdi})
 

@@ -196,33 +196,53 @@ Public Class FileObjStorage
 
 							Select Case (crit.Condition)
 								Case FindCondition.eqaul
-									If (line(1) = crit.Value) Then result.Add(line(0))
+									If (line(1) = crit.Value) Then tmpResult.Add(line(0))
 								Case FindCondition.greater
-									If (line(1) > crit.Value) Then result.Add(line(0))
+									If (line(1) > crit.Value) Then tmpResult.Add(line(0))
 								Case FindCondition.greaterOrEqual
-									If (line(1) >= crit.Value) Then result.Add(line(0))
+									If (line(1) >= crit.Value) Then tmpResult.Add(line(0))
 								Case FindCondition.less
-									If (line(1) < crit.Value) Then result.Add(line(0))
+									If (line(1) < crit.Value) Then tmpResult.Add(line(0))
 								Case FindCondition.lessOrEqual
-									If (line(1) <= crit.Value) Then result.Add(line(0))
+									If (line(1) <= crit.Value) Then tmpResult.Add(line(0))
 								Case FindCondition.likeEqaul
-									If (line(1) = crit.Value) Then result.Add(line(0)) 'СДЕЛАТЬ LIKE
+									If (line(1) = crit.Value) Then tmpResult.Add(line(0)) 'СДЕЛАТЬ LIKE
 								Case FindCondition.notEqual
-									If (line(1) <> crit.Value) Then result.Add(line(0))
+									If (line(1) <> crit.Value) Then tmpResult.Add(line(0))
 							End Select
 						End If
 					End While
 					fileReader.Close()
-					listResults.Add(tmpResult)
+					listResults.Add(tmpResult.Select(Function(x) x.Clone().ToString()).ToList())
 				Else
 					MessageBox.Show(String.Format("Указанный тип ({0}) не является индексируемым"), searchParams.SortParam.Field)
 				End If
 			End If
 		Next
+		If listResults.Count = 1 Then
+			result = listResults(0)
+		ElseIf listResults.Count > 1 Then
+			Dim minres As List(Of String) = Nothing
+			For Each item In listResults
+				If (minres Is Nothing Or ((minres IsNot Nothing) AndAlso (minres.Count > item.Count))) Then
+					minres = item
+				End If
+			Next
 
-		'Добавить разбор списка результатов listResults. Сделать сравнение элементов списков данного списка. 
-		' Если в каждом из подсписков есть id, то добавляем в результирующий список, если не во всех, то значит один из нескольких 
-		' критериев не поиска выпонился
+			For Each id In minres
+				Dim exists As Boolean = True
+				For i = 0 To listResults.Count - 1
+					If ((listResults IsNot minres) AndAlso Not (listResults(i).Contains(id))) Then
+						exists = False
+						Exit For
+					End If
+				Next
+				If (exists) AndAlso Not result.Contains(id) Then
+					result.Add(id)
+				End If
+			Next
+		End If
+		Dim res = result
 		Return result.ToArray()
 		Return {""}
 	End Function

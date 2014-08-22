@@ -32,6 +32,8 @@ Project("{F184B08F-C81C-45F6-A57F-5ABD9991F28F}") = "Bwl.Storage.UniversalORM.Fi
 EndProject
 Project("{F184B08F-C81C-45F6-A57F-5ABD9991F28F}") = "Bwl.Storage.UniversalORM.BigDataTest", "Tests\Bwl.Storage.UniversalORM.BigDataTest\Bwl.Storage.UniversalORM.BigDataTest.vbproj", "{A737808F-3C2D-466A-9712-81FFAB6D4601}"
 EndProject
+Project("{F184B08F-C81C-45F6-A57F-5ABD9991F28F}") = "Bwl.Storage.UniversalORM.Files.UnitTest", "Tests\Bwl.Storage.UniversalORM.Files.UnitTest\Bwl.Storage.UniversalORM.Files.UnitTest.vbproj", "{6E8F3B44-D7BD-45F4-962E-4F4C06F34CDD}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -90,6 +92,10 @@ Global
 		{A737808F-3C2D-466A-9712-81FFAB6D4601}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{A737808F-3C2D-466A-9712-81FFAB6D4601}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{A737808F-3C2D-466A-9712-81FFAB6D4601}.Release|Any CPU.Build.0 = Release|Any CPU
+		{6E8F3B44-D7BD-45F4-962E-4F4C06F34CDD}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6E8F3B44-D7BD-45F4-962E-4F4C06F34CDD}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6E8F3B44-D7BD-45F4-962E-4F4C06F34CDD}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6E8F3B44-D7BD-45F4-962E-4F4C06F34CDD}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -102,5 +108,6 @@ Global
 		{E6499D7D-0169-4812-AE68-68C6B7E58F77} = {BFE8DDEA-A0B8-477C-979A-DE143B801176}
 		{4B5090D2-F045-43D5-939A-F83F45FC9EB1} = {BFE8DDEA-A0B8-477C-979A-DE143B801176}
 		{A737808F-3C2D-466A-9712-81FFAB6D4601} = {BFE8DDEA-A0B8-477C-979A-DE143B801176}
+		{6E8F3B44-D7BD-45F4-962E-4F4C06F34CDD} = {BFE8DDEA-A0B8-477C-979A-DE143B801176}
 	EndGlobalSection
 EndGlobal

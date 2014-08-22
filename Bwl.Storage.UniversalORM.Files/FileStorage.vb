@@ -1,6 +1,5 @@
 ﻿Imports System.Reflection
 Imports System.IO
-Imports System.Linq
 
 Public Class FileObjStorage
 	Inherits CommonObjStorage
@@ -173,14 +172,12 @@ Public Class FileObjStorage
 
 	Private Function SortDictionary(dictionary As Dictionary(Of String, String), sortParam As SortParam) As List(Of String)
 		Dim result As New List(Of String)
-		Dim sortedDictionary As New Dictionary(Of String, String)
-		sortedDictionary.Clear()
+		Dim sortedDictionary As IEnumerable(Of KeyValuePair(Of String, String))
 		If (sortParam.SortMode = SortMode.Ascending) Then
-			Dim sorted = From pair In dictionary Order By pair.Value Ascending
-			sortedDictionary = sorted.ToDictionary(Function(p) p.Key, Function(p) p.Value)
+			sortedDictionary = dictionary.OrderBy(Function(v) v.Value)
 		Else
 			Dim sorted = From pair In dictionary Order By pair.Value Descending
-			sortedDictionary = sorted.ToDictionary(Function(p) p.Key, Function(p) p.Value)
+			sortedDictionary = dictionary.OrderByDescending(Function(v) v.Value)
 		End If
 		For Each item In sortedDictionary
 			result.Add(item.Key)
@@ -200,7 +197,12 @@ Public Class FileObjStorage
 				stringReader = fileReader.ReadLine()
 				If stringReader <> String.Empty Then
 					Dim line = stringReader.Split(" "c)
-					dictionary.Add(line(0), line(1))
+					Dim value = String.Empty
+					For i = 1 To line.Count - 1
+						value += line(i)
+					Next
+
+					dictionary.Add(line(0), value)
 				End If
 			End While
 			fileReader.Close()
@@ -221,9 +223,13 @@ Public Class FileObjStorage
 				stringReader = fileReader.ReadLine()
 				If stringReader <> String.Empty Then
 					Dim line = stringReader.Split(" "c)
+					Dim value = String.Empty
+					For i = 1 To line.Count - 1
+						value += line(i)
+					Next
 					For Each item In list
 						If item.Contains(line(0)) Then
-							dictionary.Add(line(0), line(1))
+							dictionary.Add(line(0), value)
 						End If
 					Next
 				End If
@@ -256,22 +262,25 @@ Public Class FileObjStorage
 							stringReader = fileReader.ReadLine()
 							If stringReader <> String.Empty Then
 								Dim line = stringReader.Split(" "c)
-
+								Dim value = String.Empty
+								For i = 1 To line.Count - 1
+									value += line(i)
+								Next
 								Select Case (crit.Condition)
 									Case FindCondition.eqaul
-										If (line(1) = crit.Value) Then tmpResult.Add(line(0))
+										If (value = crit.Value) Then tmpResult.Add(line(0))
 									Case FindCondition.greater
-										If (line(1) > crit.Value) Then tmpResult.Add(line(0))
+										If (value > crit.Value) Then tmpResult.Add(line(0))
 									Case FindCondition.greaterOrEqual
-										If (line(1) >= crit.Value) Then tmpResult.Add(line(0))
+										If (value >= crit.Value) Then tmpResult.Add(line(0))
 									Case FindCondition.less
-										If (line(1) < crit.Value) Then tmpResult.Add(line(0))
+										If (value < crit.Value) Then tmpResult.Add(line(0))
 									Case FindCondition.lessOrEqual
-										If (line(1) <= crit.Value) Then tmpResult.Add(line(0))
+										If (value <= crit.Value) Then tmpResult.Add(line(0))
 									Case FindCondition.likeEqaul
 										Throw New NotSupportedException
 									Case FindCondition.notEqual
-										If (line(1) <> crit.Value) Then tmpResult.Add(line(0))
+										If (value <> crit.Value) Then tmpResult.Add(line(0))
 								End Select
 							End If
 						End While

@@ -1,5 +1,6 @@
 ﻿Imports System.Reflection
 Imports System.IO
+Imports System.Linq
 
 Public Class FileObjStorage
 	Inherits CommonObjStorage
@@ -170,65 +171,129 @@ Public Class FileObjStorage
 		Return _folder + Utils.Sep + type.Name + "." + index + ".index"
 	End Function
 
+	Private Function SortDictionary(dictionary As Dictionary(Of String, String), sortParam As SortParam) As List(Of String)
+		Dim result As New List(Of String)
+		Dim sortedDictionary As New Dictionary(Of String, String)
+		sortedDictionary.Clear()
+		If (sortParam.SortMode = SortMode.Ascending) Then
+			Dim sorted = From pair In dictionary Order By pair.Value Ascending
+			sortedDictionary = sorted.ToDictionary(Function(p) p.Key, Function(p) p.Value)
+		Else
+			Dim sorted = From pair In dictionary Order By pair.Value Descending
+			sortedDictionary = sorted.ToDictionary(Function(p) p.Key, Function(p) p.Value)
+		End If
+		For Each item In sortedDictionary
+			result.Add(item.Key)
+		Next
+		Return result
+	End Function
+
+	Private Function Sort(sortParam As SortParam) As List(Of String)
+		Dim result As New List(Of String)
+		Dim dictionary As New Dictionary(Of String, String)
+		Dim indexInfo = _indexingMembers.Find(Function(x) x.Name = sortParam.Field)
+		If indexInfo IsNot Nothing Then
+			Dim indexFileName = GetIndexFileName(Type.GetType(SupportedType.AssemblyQualifiedName), indexInfo.Name)
+			Dim fileReader = My.Computer.FileSystem.OpenTextFileReader(indexFileName)
+			Dim stringReader = String.Empty
+			While fileReader.Peek <> -1
+				stringReader = fileReader.ReadLine()
+				If stringReader <> String.Empty Then
+					Dim line = stringReader.Split(" "c)
+					dictionary.Add(line(0), line(1))
+				End If
+			End While
+			fileReader.Close()
+			result = SortDictionary(dictionary, sortParam)
+		End If
+		Return result
+	End Function
+
+	Private Function Sort(list As List(Of String), sortParam As SortParam) As List(Of String)
+		Dim result As New List(Of String)
+		Dim dictionary As New Dictionary(Of String, String)
+		Dim indexInfo = _indexingMembers.Find(Function(x) x.Name = sortParam.Field)
+		If indexInfo IsNot Nothing Then
+			Dim indexFileName = GetIndexFileName(Type.GetType(SupportedType.AssemblyQualifiedName), indexInfo.Name)
+			Dim fileReader = My.Computer.FileSystem.OpenTextFileReader(indexFileName)
+			Dim stringReader = String.Empty
+			While fileReader.Peek <> -1
+				stringReader = fileReader.ReadLine()
+				If stringReader <> String.Empty Then
+					Dim line = stringReader.Split(" "c)
+					For Each item In list
+						If item.Contains(line(0)) Then
+							dictionary.Add(line(0), line(1))
+						End If
+					Next
+				End If
+			End While
+			fileReader.Close()
+			result = SortDictionary(dictionary, sortParam)
+		End If
+		Return result
+	End Function
 
 	Public Overrides Function FindObj(searchParams As SearchParams) As String()
-		'ДОДЕЛАТЬ
 		If searchParams Is Nothing Then Return FindAllObjs()
 
 		Dim result As New List(Of String)()
 		Dim tmpResult As New List(Of String)()
 		Dim listResults As New List(Of List(Of String))()
 
-		For Each crit In searchParams.FindCriterias
-			tmpResult.Clear()
-			Dim indexFileName = String.Empty
-			If searchParams.FindCriterias IsNot Nothing Then
-				Dim indexInfo = _indexingMembers.Find(Function(x) x.Name = crit.Field)
-				If indexInfo IsNot Nothing Then
+		If searchParams.FindCriterias IsNot Nothing Then
+			For Each crit In searchParams.FindCriterias
+				tmpResult.Clear()
+				Dim indexFileName = String.Empty
+				If searchParams.FindCriterias IsNot Nothing Then
+					Dim indexInfo = _indexingMembers.Find(Function(x) x.Name = crit.Field)
+					If indexInfo IsNot Nothing Then
 
-					indexFileName = GetIndexFileName(Type.GetType(SupportedType.AssemblyQualifiedName), indexInfo.Name)
-					Dim fileReader = My.Computer.FileSystem.OpenTextFileReader(indexFileName)
-					Dim stringReader = String.Empty
-					While fileReader.Peek <> -1
-						stringReader = fileReader.ReadLine()
-						If stringReader <> String.Empty Then
-							Dim line = stringReader.Split(" "c)
+						indexFileName = GetIndexFileName(Type.GetType(SupportedType.AssemblyQualifiedName), indexInfo.Name)
+						Dim fileReader = My.Computer.FileSystem.OpenTextFileReader(indexFileName)
+						Dim stringReader = String.Empty
+						While fileReader.Peek <> -1
+							stringReader = fileReader.ReadLine()
+							If stringReader <> String.Empty Then
+								Dim line = stringReader.Split(" "c)
 
-							Select Case (crit.Condition)
-								Case FindCondition.eqaul
-									If (line(1) = crit.Value) Then tmpResult.Add(line(0))
-								Case FindCondition.greater
-									If (line(1) > crit.Value) Then tmpResult.Add(line(0))
-								Case FindCondition.greaterOrEqual
-									If (line(1) >= crit.Value) Then tmpResult.Add(line(0))
-								Case FindCondition.less
-									If (line(1) < crit.Value) Then tmpResult.Add(line(0))
-								Case FindCondition.lessOrEqual
-									If (line(1) <= crit.Value) Then tmpResult.Add(line(0))
-								Case FindCondition.likeEqaul
-									If (line(1) = crit.Value) Then tmpResult.Add(line(0)) 'СДЕЛАТЬ LIKE
-								Case FindCondition.notEqual
-									If (line(1) <> crit.Value) Then tmpResult.Add(line(0))
-							End Select
-						End If
-					End While
-					fileReader.Close()
-					listResults.Add(tmpResult.Select(Function(x) x.Clone().ToString()).ToList())
-				Else
-					MessageBox.Show(String.Format("Указанный тип ({0}) не является индексируемым"), searchParams.SortParam.Field)
+								Select Case (crit.Condition)
+									Case FindCondition.eqaul
+										If (line(1) = crit.Value) Then tmpResult.Add(line(0))
+									Case FindCondition.greater
+										If (line(1) > crit.Value) Then tmpResult.Add(line(0))
+									Case FindCondition.greaterOrEqual
+										If (line(1) >= crit.Value) Then tmpResult.Add(line(0))
+									Case FindCondition.less
+										If (line(1) < crit.Value) Then tmpResult.Add(line(0))
+									Case FindCondition.lessOrEqual
+										If (line(1) <= crit.Value) Then tmpResult.Add(line(0))
+									Case FindCondition.likeEqaul
+										Throw New NotSupportedException
+									Case FindCondition.notEqual
+										If (line(1) <> crit.Value) Then tmpResult.Add(line(0))
+								End Select
+							End If
+						End While
+						fileReader.Close()
+						listResults.Add(tmpResult.Select(Function(x) x.Clone().ToString()).ToList())
+					Else
+						MessageBox.Show(String.Format("Указанный тип ({0}) не является индексируемым"), searchParams.SortParam.Field)
+					End If
 				End If
-			End If
-		Next
+			Next
+		End If
 		If listResults.Count = 1 Then
 			result = listResults(0)
 		ElseIf listResults.Count > 1 Then
+			'находим список с минимальной длиной для сокращения перебора
 			Dim minres As List(Of String) = Nothing
 			For Each item In listResults
 				If (minres Is Nothing Or ((minres IsNot Nothing) AndAlso (minres.Count > item.Count))) Then
 					minres = item
 				End If
 			Next
-
+			'сравнение результатов поиска по каждому критерию
 			For Each id In minres
 				Dim exists As Boolean = True
 				For i = 0 To listResults.Count - 1
@@ -242,9 +307,35 @@ Public Class FileObjStorage
 				End If
 			Next
 		End If
-		Dim res = result
+
+		If searchParams.SortParam IsNot Nothing Then
+			If result.Count > 0 Then
+				result = Sort(result, searchParams.SortParam)
+			Else
+				result = Sort(searchParams.SortParam)
+			End If
+		End If
+
+		If searchParams.SelectOptions IsNot Nothing Then
+			If searchParams.SelectOptions.SelectMode = SelectMode.Top Then
+				'Top
+				If result.Count > 0 Then
+					result = result.GetRange(0, Convert.ToInt32(searchParams.SelectOptions.TopValue))
+				Else
+					result = FindAllObjs().ToList().GetRange(0, Convert.ToInt32(searchParams.SelectOptions.TopValue))
+				End If
+			Else
+				'Between
+				If result.Count > 0 Then
+					result = result.GetRange(Convert.ToInt32(searchParams.SelectOptions.StartValue),
+															 Convert.ToInt32(searchParams.SelectOptions.EndValue - Convert.ToInt32(searchParams.SelectOptions.StartValue) + 1))
+				Else
+					result = FindAllObjs().ToList().GetRange(Convert.ToInt32(searchParams.SelectOptions.StartValue),
+															 Convert.ToInt32(searchParams.SelectOptions.EndValue - Convert.ToInt32(searchParams.SelectOptions.StartValue) + 1))
+				End If
+			End If
+		End If
 		Return result.ToArray()
-		Return {""}
 	End Function
 
 	Public Overrides Function FindObjCount(searchParams As SearchParams) As Long

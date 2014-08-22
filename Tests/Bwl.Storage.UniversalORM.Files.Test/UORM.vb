@@ -8,18 +8,22 @@
 		testData1.ID = Guid.NewGuid.ToString("B")
 		testData1.Int = New TestDataInternal
 		testData1.Int.First = "11111111111111"
-		testData1.Int.Second = "1111111"
+		testData1.Int.Second = "1111111" '"2222222"
 		testData1.Int.SomeData = "bad data"
 
 		Dim tdi = New TestData2()
 		tdi.F1 = "tdi"
 		tdi.F2 = 391
 		tdi.ID = Guid.NewGuid.ToString("B")
-		'stor.AddObj(tdi)
+		stor.AddObj(tdi)
 		stor.AddObj(testData1)
+		Dim allobj = stor.FindObj(Nothing)
 
-		Dim findCrit = {New FindCriteria("Cat", FindCondition.eqaul, "CAT1111111"), New FindCriteria("Int.Second", FindCondition.eqaul, "1111111")}	'"2222222")}
-		Dim searchP As New SearchParams(findCrit)
+		Dim findCrit = {New FindCriteria("Cat", FindCondition.eqaul, "CAT1111111")}	', New FindCriteria("Int.Second", FindCondition.eqaul, "1111111")}	'"2222222")}
+		Dim sort = New SortParam("Int.Second", SortMode.Descending)
+		Dim selop = New SelectOptions(5, 10)
+		Dim searchP As New SearchParams(findCriteria:=findCrit, sortParam:=sort, selectOptions:=selop)
+
 
 		Dim stopwatch As New Stopwatch()
 		Dim timesp As New TimeSpan()

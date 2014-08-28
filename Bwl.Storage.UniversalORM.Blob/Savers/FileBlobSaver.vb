@@ -35,11 +35,19 @@ Public Class FileBlobSaver
 
 	Private Function GetPath(id As String, fullPath As Boolean, needCreate As Boolean)
 		Dim subDir = id
+		Dim root = _rootDir
 		If subDir.Length > 10 Then
-			subDir = id.Substring(0, 4)
+			subDir = id.Substring(1, 8)
+			Dim dir = Path.Combine(Path.Combine(root, subDir), id)
+			If Not Directory.Exists(dir) Then
+				subDir = id.Substring(0, 4)
+				dir = Path.Combine(Path.Combine(root, subDir), id)
+				If Not Directory.Exists(dir) Then
+					subDir = id.Substring(1, 3)
+				End If
+			End If
 		End If
 
-		Dim root = _rootDir
 		If (fullPath) Then
 			Dim dir = Path.Combine(Path.Combine(root, subDir), id)
 			If needCreate AndAlso (Not Directory.Exists(dir)) Then

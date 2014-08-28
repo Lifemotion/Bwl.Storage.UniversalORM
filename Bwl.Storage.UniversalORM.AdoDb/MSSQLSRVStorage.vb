@@ -5,21 +5,24 @@ Public Class MSSQLSRVStorage
 
 	Private _name As String
 	Private _dbName As String
+	Private _connectionStringBld As SqlConnectionStringBuilder
 
 	Public Sub New(connStringBld As SqlConnectionStringBuilder, type As Type, dbName As String)
 		MyBase.New(type)
 		_name = type.Name
 		_dbName = dbName
-		ConnectionStringBld = connStringBld
+
+		ConnectionStringBld = New SqlConnectionStringBuilder(connStringBld.ConnectionString)
+		_connectionStringBld.InitialCatalog = _dbName
 
 		CheckDB()
 	End Sub
+
 
 	Public Overrides Sub AddObj(obj As ObjBase)
 		CheckDB()
 		Dim json = CfJsonConverter.Serialize(obj)
 		Save(ConnectionString, obj.ID, json, obj.GetType)
-
 		For Each indexing In _indexingMembers
 			Dim indexTableName = GetIndexTableName(indexing)
 			Try
@@ -35,7 +38,10 @@ Public Class MSSQLSRVStorage
 	End Sub
 
 	Public Overrides Sub AddObjects(objects As ObjBase())
-		Throw New NotSupportedException
+		'Throw New NotSupportedException
+		For Each obj In objects
+			AddObj(obj)
+		Next
 
 		'CheckDB()
 		'Dim jsonList = New List(Of String)
@@ -138,7 +144,7 @@ Public Class MSSQLSRVStorage
 
 		'''' sorting
 		Dim sortModeStr = "ASC"
-		Dim sortField = "guid"
+		Dim sortField = "id"
 		Dim sortTableName = Name
 		If (searchParams IsNot Nothing) AndAlso (searchParams.SortParam IsNot Nothing) Then
 			If searchParams.SortParam.SortMode = SortMode.Descending Then
@@ -177,12 +183,19 @@ Public Class MSSQLSRVStorage
 		End If
 
 		Dim betweenSql = String.Empty
+		Dim mainSelect = String.Empty
 		If (searchParams IsNot Nothing) AndAlso (searchParams.SelectOptions IsNot Nothing) AndAlso (searchParams.SelectOptions.SelectMode = SelectMode.Between) Then
-			betweenSql = String.Format(" OFFSET {0} ROWS FETCH NEXT {1} ROWS ONLY ", searchParams.SelectOptions.StartValue, searchParams.SelectOptions.EndValue - searchParams.SelectOptions.StartValue + 1)
+			betweenSql = String.Format("OFFSET {2} ROWS FETCH NEXT {3} ROWS ONLY", Name, fromSql, searchParams.SelectOptions.StartValue, searchParams.SelectOptions.EndValue - searchParams.SelectOptions.StartValue + 1)
+		End If
+		mainSelect = String.Format("Select {0} [{1}].[guid] FROM {2} {3} ORDER BY [{4}].[{5}] {6} {7}", topSql, Name, fromSql, whereSql, sortTableName, sortField, sortModeStr, betweenSql)
+		If ((topSql <> "") And (searchParams IsNot Nothing AndAlso searchParams.SortParam Is Nothing)) Then
+			mainSelect = String.Format("Select {0} [{1}].[guid] FROM {2} {3}", topSql, Name, fromSql, whereSql)
+		End If
+		If (searchParams Is Nothing) Then 'Or ((searchParams IsNot Nothing) AndAlso (searchParams.SortParam Is Nothing)) Then
+			mainSelect = String.Format("SELECT {3} [{0}].[guid] FROM {1} {2}", Name, fromSql, whereSql, topSql)
 		End If
 
 		'''' main sql
-		Dim mainSelect = String.Format("Select {0} [{1}].[guid] FROM {2} {3} ORDER BY [{4}].[{5}] {6} {7}", topSql, Name, fromSql, whereSql, sortTableName, sortField, sortModeStr, betweenSql)
 
 		Dim list = MSSQLSRVUtils.GetObjectList(ConnectionString, mainSelect, parameters)
 		If (list IsNot Nothing AndAlso list.Any) Then
@@ -195,19 +208,23 @@ Public Class MSSQLSRVStorage
 
 	Public Overrides Function GetObj(id As String) As ObjBase
 		CheckDB()
-
 		Dim res As ObjBase = Nothing
 		Dim sql = String.Format("SELECT [json], [type] FROM [dbo].[{0}] WHERE [guid] = '{1}'", Name, id)
 		Dim vals = MSSQLSRVUtils.GetObjectList(ConnectionString, sql)
 		If vals IsNot Nothing AndAlso vals.Any Then
 			Dim jsonObj = vals(0)(0)
 			Dim typeName = vals(0)(1)
-			If typeName Is Nothing Then
+			If (typeName = "-") Or typeName Is Nothing Then
 				typeName = SupportedType.AssemblyQualifiedName
 			End If
+
 			If (jsonObj IsNot Nothing) Then
 				Dim json = jsonObj.ToString
-				res = CfJsonConverter.Deserialize(json, Type.GetType(typeName.ToString))
+				Try
+					res = CfJsonConverter.Deserialize(json, Type.GetType(typeName.ToString))
+				Catch exc As Exception
+					Dim polo = exc.Message
+				End Try
 			End If
 		End If
 		Return res
@@ -249,6 +266,13 @@ Public Class MSSQLSRVStorage
 	End Property
 
 	Public Property ConnectionStringBld As SqlConnectionStringBuilder
+		Get
+			Return _connectionStringBld
+		End Get
+		Set(value As SqlConnectionStringBuilder)
+			_connectionStringBld = value
+		End Set
+	End Property
 
 	Public Overrides Function GetObjects(Of T As ObjBase)(objIds As String(), Optional sortParam As SortParam = Nothing) As IEnumerable(Of T)
 		Return GetObjects(objIds, sortParam).Select(Function(o) CType(o, T))
@@ -429,7 +453,7 @@ Public Class MSSQLSRVStorage
 	End Function
 
 	Private Function GenerateFromSql(criterias As IEnumerable(Of FindCriteria), sort As SortParam) As String
-		Dim fromSQl As String = " " + Name + " "
+		Dim fromSQl As String = " [" + Name + "] "
 
 		Dim where = String.Empty
 		For Each index In _indexingMembers
@@ -534,7 +558,8 @@ Public Class MSSQLSRVStorage
 	End Function
 
 	Private Sub Save(connStr As String, id As String, json As String, type As Type)
-		Dim sql = String.Format("INSERT INTO [dbo].[{0}] ([guid] ,[json], [type]) VALUES('{1}', '{2}', '{3}')", Name, id, json, type.AssemblyQualifiedName)
+		Dim rtype = IIf(type.Name = Name, "-", type.AssemblyQualifiedName)
+		Dim sql = String.Format("INSERT INTO [dbo].[{0}] ([guid] ,[json], [type]) VALUES('{1}', '{2}', '{3}')", Name, id, json, rtype)
 		MSSQLSRVUtils.ExecSQL(ConnectionString, sql)
 	End Sub
 
@@ -547,5 +572,6 @@ Public Class MSSQLSRVStorage
 		CheckDB()
 		Dim sql = String.Format("DELETE FROM [dbo].[{0}]", Name)
 		MSSQLSRVUtils.ExecSQL(ConnectionString, sql)
+
 	End Sub
 End Class

@@ -5,11 +5,12 @@ Public Class Form1
 	Private Sub Form1_Load(sender As Object, e As EventArgs) Handles MyBase.Load
 		Dim conStrBld = New SqlConnectionStringBuilder()
 		conStrBld.InitialCatalog = "TestDB"
-		conStrBld.UserID = "sa"
-		conStrBld.Password = "123"
-		conStrBld.DataSource = "(local)"
+		conStrBld.UserID = "DrFenazepam-ПК\DrFenazepam" ' "sa"
+		conStrBld.Password = ""	'"123"
+		conStrBld.DataSource = "DRFENAZEPAM-ПК\SQLEXPRESS" '"(local)"
 		conStrBld.IntegratedSecurity = True
 		conStrBld.ConnectTimeout = 1
+
 		Dim manager = New MSSQLSRVStorageManager(conStrBld)
 		Dim storage As CommonObjStorage
 
@@ -31,23 +32,29 @@ Public Class Form1
 		testData2.Int.Second = "4444"
 		testData2.Int.SomeData = "bad data"
 
+		Dim testdata3 = New TestData2()
+		testdata3.F1 = "11111"
+		testdata3.F2 = 11111
+		testdata3.ID = Guid.NewGuid.ToString("B")
+
 		Try
 			storage = manager.CreateStorage(Of TestData)("TestDataStorage")
 			storage.AddObj(testData1)
 			storage.AddObj(testData2)
+			storage.AddObj(testdata3)
 
 			Dim sp = New SearchParams({New FindCriteria("Cat", FindCondition.likeEqaul, "%2"), New FindCriteria("Int.Second", FindCondition.eqaul, "4444")})
 
 			Dim cat2Id = storage.FindObj(sp)
 
 			Dim cat2 = storage.GetObj(cat2Id.First)
+			Dim gettdi = storage.GetObj(testdata3.ID)
+			'Dim newData = storage.GetObj(testData1.ID)
 
-			Dim newData = storage.GetObj(testData1.ID)
-
-			Dim allCats = storage.FindObj(Nothing)
-			For Each ff In allCats
-				storage.RemoveObj(ff)
-			Next
+			'Dim allCats = storage.FindObj(Nothing)
+			'For Each ff In allCats
+			'	storage.RemoveObj(ff)
+			'Next
 
 		Catch ex As Exception
 			Dim t = 0

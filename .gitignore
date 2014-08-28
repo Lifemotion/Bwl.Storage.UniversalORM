@@ -4,3 +4,13 @@ obj
 *Debug*
 *Release*
 TestResults
+debug-*
+release-*
+debug
+release
+dllOut
+GuiTest
+AdoDbGuiTest
+TESTDB*.FDB
+TestDataStor
+*.orig

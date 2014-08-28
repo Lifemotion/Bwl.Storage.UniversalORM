@@ -5,8 +5,8 @@
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <ProjectGuid>{4064529B-8AAB-4A64-9481-A08972C24AB1}</ProjectGuid>
     <OutputType>Library</OutputType>
-    <RootNamespace>Bwl.Storage.UniversalORM.LocalStorage.CommonUnitTests</RootNamespace>
-    <AssemblyName>Bwl.Storage.UniversalORM.LocalStorage.CommonUnitTests</AssemblyName>
+    <RootNamespace>CommonUnitTests</RootNamespace>
+    <AssemblyName>CommonUnitTests</AssemblyName>
     <FileAlignment>512</FileAlignment>
     <MyType>Windows</MyType>
     <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
@@ -23,7 +23,7 @@
     <DefineDebug>true</DefineDebug>
     <DefineTrace>true</DefineTrace>
     <OutputPath>bin\Debug\</OutputPath>
-    <DocumentationFile>Bwl.Storage.UniversalORM.LocalStorage.CommonUnitTests.xml</DocumentationFile>
+    <DocumentationFile>CommonUnitTests.xml</DocumentationFile>
     <NoWarn>42016,41999,42017,42018,42019,42032,42036,42020,42021,42022</NoWarn>
     <PlatformTarget>x86</PlatformTarget>
   </PropertyGroup>
@@ -33,7 +33,7 @@
     <DefineTrace>true</DefineTrace>
     <Optimize>true</Optimize>
     <OutputPath>bin\Release\</OutputPath>
-    <DocumentationFile>Bwl.Storage.UniversalORM.LocalStorage.CommonUnitTests.xml</DocumentationFile>
+    <DocumentationFile>CommonUnitTests.xml</DocumentationFile>
     <NoWarn>42016,41999,42017,42018,42019,42032,42036,42020,42021,42022</NoWarn>
     <PlatformTarget>x86</PlatformTarget>
   </PropertyGroup>
@@ -50,11 +50,12 @@
     <OptionInfer>On</OptionInfer>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Bwl.Framework">
-      <HintPath>.\Bwl.Framework.dll</HintPath>
+    <Reference Include="FirebirdSql.Data.FirebirdClient">
+      <HintPath>..\..\refs\FirebirdSql.Data.FirebirdClient.dll</HintPath>
     </Reference>
-    <Reference Include="Newtonsoft.Json">
-      <HintPath>..\..\refs\Newtonsoft.Json.dll</HintPath>
+    <Reference Include="Newtonsoft.Json, Version=4.5.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\BLOB\refs\Newtonsoft.Json.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Data" />
@@ -88,7 +89,7 @@
     <Import Include="Microsoft.VisualStudio.TestTools.UnitTesting" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="LocalStorageTest.vb" />
+    <Compile Include="FirebirdLocalStorageTest.vb" />
     <Compile Include="My Project\AssemblyInfo.vb" />
     <Compile Include="My Project\Application.Designer.vb">
       <AutoGen>True</AutoGen>
@@ -104,8 +105,10 @@
       <DependentUpon>Settings.settings</DependentUpon>
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
     </Compile>
-    <Compile Include="SqlSrvStorage.vb" />
     <Compile Include="TestData.vb" />
+    <Compile Include="MSSQLSRVStorageTest.vb" />
+    <Compile Include="TestData2.vb" />
+    <Compile Include="MSSQLSRVLocalStorageTest.vb" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="My Project\Resources.resx">
@@ -138,6 +141,10 @@
     <ProjectReference Include="..\..\Bwl.Storage.UniversalORM.Files\Bwl.Storage.UniversalORM.Files.vbproj">
       <Project>{c5ef603a-b36d-4fea-a710-85a84908c896}</Project>
       <Name>Bwl.Storage.UniversalORM.Files</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\Bwl.Storage.UniversalORM.Firebird\Bwl.Storage.UniversalORM.Firebird.vbproj">
+      <Project>{b58e49c1-7fd7-4674-a1d4-282bc3c88f47}</Project>
+      <Name>Bwl.Storage.UniversalORM.Firebird</Name>
     </ProjectReference>
     <ProjectReference Include="..\..\Bwl.Storage.UniversalORM.LocalStorage\Bwl.Storage.UniversalORM.LocalStorage.vbproj">
       <Project>{a5b104b3-da24-4402-b2bb-9e8bdbaa5462}</Project>

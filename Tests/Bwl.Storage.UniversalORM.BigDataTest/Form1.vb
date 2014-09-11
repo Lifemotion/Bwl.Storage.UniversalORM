@@ -43,7 +43,7 @@ Public Class FormBigDataTest
 		_conStrBuidMSSQLSRV.IntegratedSecurity = True
 		_conStrBuidMSSQLSRV.ConnectTimeout = 1
 		_managerMSSQLSRV = New MSSQLSRVStorageManager(_conStrBuidMSSQLSRV)
-		_managerMSSQLSRV.AddType(GetType(BigData), "BDNAME")
+		_managerMSSQLSRV.SetDbForType(GetType(BigData), "BDNAME")
 		_storageMSSQLSRV = _managerMSSQLSRV.CreateStorage(Of BigData)("BigData")
 		_stopWatch = New Stopwatch()
 		_timespan = New TimeSpan()

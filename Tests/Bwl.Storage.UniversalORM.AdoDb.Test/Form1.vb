@@ -1,18 +1,14 @@
 ﻿Imports System.Data.SqlClient
 
 Public Class Form1
+	Inherits Bwl.Framework.FormAppBase
+
 
 	Private Sub Form1_Load(sender As Object, e As EventArgs) Handles MyBase.Load
-		Dim conStrBld = New SqlConnectionStringBuilder()
-		conStrBld.InitialCatalog = "TestDB"
-		conStrBld.UserID = "DrFenazepam-ПК\DrFenazepam" ' "sa"
-		conStrBld.Password = ""	'"123"
-		conStrBld.DataSource = "DRFENAZEPAM-ПК\SQLEXPRESS" '"(local)"
-		conStrBld.IntegratedSecurity = True
-		conStrBld.ConnectTimeout = 1
+		Dim localSettings = New LocalSettings(AppBase.RootStorage)
 
-		Dim manager = New MSSQLSRVStorageManager(conStrBld)
-		Dim storage As CommonObjStorage
+		Dim manager = New MSSQLSRVStorageManager(localSettings.SqlConnectionStringBuilder)
+		Dim storage As IObjStorage
 
 		Dim testData1 = New TestData
 		testData1.Cat = "CAT1111111"
@@ -20,7 +16,7 @@ Public Class Form1
 		testData1.ID = Guid.NewGuid.ToString("B")
 		testData1.Int = New TestDataInternal
 		testData1.Int.First = "11111111111111"
-		testData1.Int.Second = "2222222"
+		testData1.Int.Second = 2222222
 		testData1.Int.SomeData = "bad data"
 
 		Dim testData2 = New TestData
@@ -29,7 +25,7 @@ Public Class Form1
 		testData2.ID = Guid.NewGuid.ToString("B")
 		testData2.Int = New TestDataInternal
 		testData2.Int.First = "11111111111111"
-		testData2.Int.Second = "4444"
+		testData2.Int.Second = 4444
 		testData2.Int.SomeData = "bad data"
 
 		Dim testdata3 = New TestData2()

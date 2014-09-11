@@ -16,8 +16,8 @@ Public Class Form1
 		Dim fileSaverDir = Path.Combine(Application.StartupPath, "FileData")
 
 		Dim storageManager = New AdoDb.MSSQLSRVStorageManager(conStrBld)
-		storageManager.AddType(GetType(TestData), "TD1")
-		storageManager.AddType(GetType(TestDataInternal), "TD2")
+		storageManager.SetDbForType(GetType(TestData), "TD1")
+		storageManager.SetDbForType(GetType(TestDataInternal), "TD2")
 		'Dim storageManager = New Files.FileStorageManager(fileSaverDir)
 
 		Dim blobSaverDir = Path.Combine(Application.StartupPath, "BlobData")

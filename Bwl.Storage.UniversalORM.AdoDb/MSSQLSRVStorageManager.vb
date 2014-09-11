@@ -4,25 +4,20 @@ Imports System.Data
 Public Class MSSQLSRVStorageManager
 	Implements IObjStorageManager
 
-	Private Shared _createMainTableSQL As String = My.Resources.CreateMainTableSQL
-	Private _connStringBld As SqlConnectionStringBuilder
-	Private _dbName As String
-	Private _defaultDB As String = "DefaultDB"
-	Private _dictDB As Dictionary(Of String, String)
+	Private ReadOnly _connStringBld As SqlConnectionStringBuilder
+	Private ReadOnly _defaultDB As String
+	Private ReadOnly _dictDB As Dictionary(Of String, String)
 
 	Public Sub New(connStringBld As SqlConnectionStringBuilder)
 		_connStringBld = connStringBld
-		_dbName = _connStringBld.InitialCatalog
+		_defaultDB = _connStringBld.InitialCatalog
 		_dictDB = New Dictionary(Of String, String)()
 	End Sub
 
-	Public Property ConnectionStringBuilder As SqlConnectionStringBuilder
+	Public ReadOnly Property ConnectionStringBuilder As SqlConnectionStringBuilder
 		Get
 			Return _connStringBld
 		End Get
-		Set(value As SqlConnectionStringBuilder)
-			_connStringBld = value
-		End Set
 	End Property
 
 	Public Function CreateStorage(Of T As ObjBase)(name As String) As IObjStorage Implements IObjStorageManager.CreateStorage
@@ -30,25 +25,31 @@ Public Class MSSQLSRVStorageManager
 	End Function
 
 	Public Function CreateStorage(name As String, type As Type) As IObjStorage Implements IObjStorageManager.CreateStorage
-		'Dim tableName = String.Format("{0}_main", name)
-		_dbName = GetDB(type)
-		'ConnectionStringBuilder.InitialCatalog = _dbName
-		Return New MSSQLSRVStorage(ConnectionStringBuilder, type, _dbName)
+		Dim dbName = GetDB(type)
+		Return New MSSQLSRVStorage(ConnectionStringBuilder, type, dbName)
 	End Function
 
-	Public Sub AddType(t As Type, nameDB As String)
-		_dictDB.Add(t.ToString(), nameDB)
-	End Sub
+	Public Function SetDbForType(t As Type, nameDB As String) As Boolean
+		Dim res = True
+		If t IsNot Nothing AndAlso Not String.IsNullOrEmpty(nameDB) Then
+			SyncLock (_dictDB)
+				_dictDB(t.ToString()) = nameDB
+			End SyncLock
+		Else
+			res = False
+		End If
+		Return res
+	End Function
 
 	Private Function GetDB(t As Type) As String
-		Try
-			Dim db = _dictDB.Item(t.ToString)
-			If db IsNot Nothing Then
-				Return db
-			End If
-		Catch exc As Exception
-			Return _defaultDB
-		End Try
-		Return _defaultDB
+		Dim dbName = _defaultDB
+		If t IsNot Nothing Then
+			SyncLock (_dictDB)
+				If _dictDB.ContainsKey(t.ToString) Then
+					dbName = _dictDB(t.ToString)
+				End If
+			End SyncLock
+		End If
+		Return dbName
 	End Function
 End Class

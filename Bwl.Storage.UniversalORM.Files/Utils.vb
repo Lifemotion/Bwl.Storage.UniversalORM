@@ -16,13 +16,17 @@ Public Class Utils
 		Dim res = False
 		SyncLock (path)
 			Try
-				If Not IO.Directory.Exists(path) Then IO.Directory.CreateDirectory(path)
+				If Not IO.Directory.Exists(path) Then
+					IO.Directory.CreateDirectory(path)
+				End If
 				IO.File.WriteAllText(path + _sep + "testfile.fsm", "testfile")
 				res = True
 			Catch ex1 As Exception
 				Thread.Sleep(100)
 				Try
-					If Not IO.Directory.Exists(path) Then IO.Directory.CreateDirectory(path)
+					If Not IO.Directory.Exists(path) Then
+						IO.Directory.CreateDirectory(path)
+					End If
 					IO.File.WriteAllText(path + _sep + "testfile.fsm", "testfile")
 					res = True
 				Catch ex2 As Exception

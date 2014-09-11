@@ -31,8 +31,8 @@ Imports Bwl.Storage.UniversalORM.AdoDb
 		_conStrBuidMSSQLSRV.IntegratedSecurity = True
 		_conStrBuidMSSQLSRV.ConnectTimeout = 1
 		_managerMSSQLSRV = New MSSQLSRVStorageManager(_conStrBuidMSSQLSRV)
-		_managerMSSQLSRV.AddType(GetType(TestData), "UnitTestData")
-		_managerMSSQLSRV.AddType(GetType(TestData2), "UnitTestData2")
+		_managerMSSQLSRV.SetDbForType(GetType(TestData), "UnitTestData")
+		_managerMSSQLSRV.SetDbForType(GetType(TestData2), "UnitTestData2")
 		_storageMSSQLSRV_TestData = _managerMSSQLSRV.CreateStorage(Of TestData)("")
 		_storageMSSQLSRV_TestData2 = _managerMSSQLSRV.CreateStorage(Of TestData2)("")
 		_storageMSSQLSRV_TestDataInternal = _managerMSSQLSRV.CreateStorage(Of TestDataInternal)("")

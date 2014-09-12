@@ -10,9 +10,7 @@ Imports Bwl.Storage.UniversalORM.AdoDb
 <TestClass()> Public Class MSSQLSRVStorageTest
 	Private _conStrBuidMSSQLSRV As SqlConnectionStringBuilder
 	Private _managerMSSQLSRV As MSSQLSRVStorageManager
-	Private _storageMSSQLSRV_TestData As MSSQLSRVStorage
-	Private _storageMSSQLSRV_TestData2 As MSSQLSRVStorage
-	Private _storageMSSQLSRV_TestDataInternal As MSSQLSRVStorage
+	Private _storageMSSQLSRV As MSSQLSRVStorage
 
 	Private _data1 As TestData
 	Private _data2 As TestData
@@ -33,9 +31,8 @@ Imports Bwl.Storage.UniversalORM.AdoDb
 		_managerMSSQLSRV = New MSSQLSRVStorageManager(_conStrBuidMSSQLSRV)
 		_managerMSSQLSRV.SetDbForType(GetType(TestData), "UnitTestData")
 		_managerMSSQLSRV.SetDbForType(GetType(TestData2), "UnitTestData2")
-		_storageMSSQLSRV_TestData = _managerMSSQLSRV.CreateStorage(Of TestData)("")
-		_storageMSSQLSRV_TestData2 = _managerMSSQLSRV.CreateStorage(Of TestData2)("")
-		_storageMSSQLSRV_TestDataInternal = _managerMSSQLSRV.CreateStorage(Of TestDataInternal)("")
+		_storageMSSQLSRV = _managerMSSQLSRV.CreateStorage(Of TestData)("")
+
 
 		_data1 = New TestData
 		_data1.Cat = "cat11"
@@ -71,11 +68,11 @@ Imports Bwl.Storage.UniversalORM.AdoDb
 	<TestMethod()>
 	Public Sub MSSQLSRVStorage_AddObj()
 		Threading.Thread.Sleep(1000)
-		_storageMSSQLSRV_TestData.RemoveAllObjects()
-		Dim count1 = _storageMSSQLSRV_TestData.FindObjCount(Nothing)
-		_storageMSSQLSRV_TestData.AddObj(_data1)
-		_storageMSSQLSRV_TestData.AddObj(_data2)
-		Dim count2 = _storageMSSQLSRV_TestData.FindObjCount(Nothing)
+		_storageMSSQLSRV.RemoveAllObjects()
+		Dim count1 = _storageMSSQLSRV.FindObjCount(Nothing)
+		_storageMSSQLSRV.AddObj(_data1)
+		_storageMSSQLSRV.AddObj(_data2)
+		Dim count2 = _storageMSSQLSRV.FindObjCount(Nothing)
 
 		'Assert.AreEqual(Convert.ToInt32(count1), 0)
 		Assert.AreEqual(Convert.ToInt32(count2), 2)
@@ -83,9 +80,9 @@ Imports Bwl.Storage.UniversalORM.AdoDb
 
 	<TestMethod()>
 	Public Sub MSSQLSRVStorage_RemoveAll()
-		Dim count1 = _storageMSSQLSRV_TestData.FindObjCount(Nothing)
-		_storageMSSQLSRV_TestData.RemoveAllObjects()
-		Dim count2 = _storageMSSQLSRV_TestData.FindObjCount(Nothing)
+		Dim count1 = _storageMSSQLSRV.FindObjCount(Nothing)
+		_storageMSSQLSRV.RemoveAllObjects()
+		Dim count2 = _storageMSSQLSRV.FindObjCount(Nothing)
 
 		Assert.AreNotEqual(Convert.ToInt32(count1), 0)
 		Assert.AreEqual(Convert.ToInt32(count2), 0)
@@ -93,13 +90,13 @@ Imports Bwl.Storage.UniversalORM.AdoDb
 
 	<TestMethod()>
 	Public Sub MSSQLSRVStorage_FindObj()
-		_storageMSSQLSRV_TestData.RemoveAllObjects()
-		_storageMSSQLSRV_TestData.AddObj(_data1)
-		_storageMSSQLSRV_TestData.AddObj(_data2)
-		Dim count1 = _storageMSSQLSRV_TestData.FindObjCount(Nothing)
+		_storageMSSQLSRV.RemoveAllObjects()
+		_storageMSSQLSRV.AddObj(_data1)
+		_storageMSSQLSRV.AddObj(_data2)
+		Dim count1 = _storageMSSQLSRV.FindObjCount(Nothing)
 		Dim sp As New SearchParams()
 		sp.SelectOptions = New SelectOptions(1)
-		Dim objfind = _storageMSSQLSRV_TestData.FindObj(sp)(0).Split(" "c)(0)
+		Dim objfind = _storageMSSQLSRV.FindObj(sp)(0).Split(" "c)(0)
 
 		Assert.AreEqual(Convert.ToInt32(count1), 2)
 		Assert.AreEqual(_data1.ID, objfind)
@@ -107,12 +104,12 @@ Imports Bwl.Storage.UniversalORM.AdoDb
 
 	<TestMethod()>
 	Public Sub MSSQLSRVStorage_Contains()
-		_storageMSSQLSRV_TestData.RemoveAllObjects()
-		_storageMSSQLSRV_TestData.AddObj(_data1)
-		_storageMSSQLSRV_TestData.AddObj(_data2)
-		_storageMSSQLSRV_TestData.AddObj(_data3)
-		Dim res1 = _storageMSSQLSRV_TestData.Contains(_data3.ID)
-		Dim res2 = _storageMSSQLSRV_TestData.Contains(_data4.ID)
+		_storageMSSQLSRV.RemoveAllObjects()
+		_storageMSSQLSRV.AddObj(_data1)
+		_storageMSSQLSRV.AddObj(_data2)
+		_storageMSSQLSRV.AddObj(_data3)
+		Dim res1 = _storageMSSQLSRV.Contains(_data3.ID)
+		Dim res2 = _storageMSSQLSRV.Contains(_data4.ID)
 
 		Assert.AreEqual(res1, True)
 		Assert.AreEqual(res2, False)
@@ -120,27 +117,27 @@ Imports Bwl.Storage.UniversalORM.AdoDb
 
 	<TestMethod()>
 	Public Sub MSSQLSRVStorage_SearchParam()
-		_storageMSSQLSRV_TestData.RemoveAllObjects()
-		_storageMSSQLSRV_TestData.AddObj(_data1)
-		_storageMSSQLSRV_TestData.AddObj(_data2)
-		_storageMSSQLSRV_TestData.AddObj(_data3)
+		_storageMSSQLSRV.RemoveAllObjects()
+		_storageMSSQLSRV.AddObj(_data1)
+		_storageMSSQLSRV.AddObj(_data2)
+		_storageMSSQLSRV.AddObj(_data3)
 		Dim crit = {New FindCriteria("Cat", FindCondition.likeEqaul, "cat")}
 		Dim sp = New SearchParams(crit)
 		Dim selectOpt = New SelectOptions(10)
 		sp = New SearchParams(selectOptions:=selectOpt)
-		Dim res1 = _storageMSSQLSRV_TestData.FindObj(sp)
+		Dim res1 = _storageMSSQLSRV.FindObj(sp)
 
 		Assert.AreEqual(res1.Length, 3)
 	End Sub
 
 	<TestMethod()>
 	Public Sub MSSQLSRVStorage_GetObj()
-		_storageMSSQLSRV_TestData.RemoveAllObjects()
-		Dim obj1 = _storageMSSQLSRV_TestData.GetObj(_data3.ID)
-		_storageMSSQLSRV_TestData.AddObj(_data1)
-		_storageMSSQLSRV_TestData.AddObj(_data2)
-		_storageMSSQLSRV_TestData.AddObj(_data3)
-		Dim obj2 = _storageMSSQLSRV_TestData.GetObj(_data3.ID)
+		_storageMSSQLSRV.RemoveAllObjects()
+		Dim obj1 = _storageMSSQLSRV.GetObj(_data3.ID)
+		_storageMSSQLSRV.AddObj(_data1)
+		_storageMSSQLSRV.AddObj(_data2)
+		_storageMSSQLSRV.AddObj(_data3)
+		Dim obj2 = _storageMSSQLSRV.GetObj(_data3.ID)
 
 		Assert.AreEqual(obj1, Nothing)
 		Assert.AreEqual(obj2.ID, _data3.ID)

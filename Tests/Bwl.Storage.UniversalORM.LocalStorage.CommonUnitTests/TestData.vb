@@ -1,5 +1,4 @@
 ﻿Imports Newtonsoft.Json
-Imports Bwl.Storage.UniversalORM.Blob
 Imports Bwl.Storage.UniversalORM
 Imports System.Drawing
 
@@ -12,7 +11,7 @@ Public Class TestData
 	Public Property Dog As Integer
 
 	<Indexing>
-	Public Property Timestamp As DateTime
+	Public Property Timestamp As DateTime = DateTime.Now
 
 	<Indexing> <BlobContainer>
 	Public Property Int As New TestDataInternal

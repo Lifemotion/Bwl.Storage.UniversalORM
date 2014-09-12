@@ -6,9 +6,11 @@ Imports Bwl.Storage.UniversalORM
 Imports System.Drawing
 Imports Bwl.Storage.UniversalORM.LocalStorage
 Imports Bwl.Storage.UniversalORM.AdoDb
+Imports Bwl.Framework
 
 <TestClass()> Public Class MSSQLSRVLocalStorageTest
 
+	Private ReadOnly _app As New AppBase(True)
 	Private _localStorage As ILocalStorage
 	Private _data1 As TestData
 	Private _data2 As TestData
@@ -19,22 +21,14 @@ Imports Bwl.Storage.UniversalORM.AdoDb
 
 	<TestInitialize()>
 	Public Sub Init()
-		Dim conStrBld = New SqlConnectionStringBuilder()
-		conStrBld.InitialCatalog = "BigData1"
-		conStrBld.UserID = "DrFenazepam-ПК\DrFenazepam"	'"sa"
-		conStrBld.Password = ""	'"123"
-		conStrBld.DataSource = "DRFENAZEPAM-ПК\SQLEXPRESS" '"(local)"
-		conStrBld.IntegratedSecurity = True
-		conStrBld.ConnectTimeout = 1
-
-
+		Dim settings = New LocalSettingsSqlSrv(_app.RootStorage)
+		Dim conStrBld = settings.SqlConnectionStringBuilder
 
 		Dim fileSaverDir = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "FileData")
 
 		Dim storageManager = New MSSQLSRVStorageManager(conStrBld)
 		'storageManager.AddType(GetType(TestData), "MSSQLSRVLocalStorageUnitTest")
 		Dim blobSaverDir = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "BlobData")
-
 		Dim blobFileSaver = New Blob.FileBlobSaver(blobSaverDir)
 
 		_localStorage = New Bwl.Storage.UniversalORM.LocalStorage.LocalStorage(storageManager, blobFileSaver)
@@ -70,9 +64,7 @@ Imports Bwl.Storage.UniversalORM.AdoDb
 		_data6.Image = New Bitmap(30, 47)
 	End Sub
 
-
 	<TestMethod()> Public Sub MSSQLSRVLocalStorageDB_RemoveAll()
-
 		_localStorage.RemoveAllObj(GetType(TestData))
 		_localStorage.RemoveAllObj(GetType(TestDataInternal))
 

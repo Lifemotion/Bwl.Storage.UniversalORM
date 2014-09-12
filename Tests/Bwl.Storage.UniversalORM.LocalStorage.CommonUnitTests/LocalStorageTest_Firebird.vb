@@ -8,7 +8,7 @@ Imports Bwl.Storage.UniversalORM.LocalStorage
 Imports FirebirdSql.Data.FirebirdClient
 Imports Bwl.Storage.UniversalORM.Firebird
 
-<TestClass()> Public Class FirebirdLocalStorageTest
+<TestClass()> Public Class LocalStorageTest_Firebird
 
 	Private _localStorage As ILocalStorage
 	Private _data1 As TestData

@@ -92,8 +92,8 @@
     <Import Include="Microsoft.VisualStudio.TestTools.UnitTesting" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="FileStorageTest.vb" />
-    <Compile Include="FirebirdLocalStorageTest.vb" />
+    <Compile Include="LocalStorageTest_File.vb" />
+    <Compile Include="LocalStorageTest_Firebird.vb" />
     <Compile Include="LocalSettingsSqlSrv.vb" />
     <Compile Include="LocalStorageBaseTest.vb" />
     <Compile Include="My Project\AssemblyInfo.vb" />

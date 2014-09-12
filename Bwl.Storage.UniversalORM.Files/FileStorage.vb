@@ -301,7 +301,7 @@ Public Class FileObjStorage
 						End Try
 						listResults.Add(tmpResult)
 					Else
-						MessageBox.Show(String.Format("Указанный тип ({0}) не является индексируемым"), searchParams.SortParam.Field)
+						Throw New Exception(String.Format("Указанный тип ({0}) не является индексируемым", searchParams.SortParam.Field))
 					End If
 				End If
 			Next

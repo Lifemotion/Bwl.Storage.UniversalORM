@@ -38,7 +38,12 @@ Public Class FileObjStorage
 			If IO.File.Exists(file) Then Throw New Exception("Object Already Exists with this ID")
 			Dim oi = New ObjInfo
 			oi.Obj = CfJsonConverter.Serialize(obj)
-			oi.ObjType = obj.GetType
+
+			Dim rtype = obj.GetType
+			If obj.GetType.AssemblyQualifiedName = SupportedType.AssemblyQualifiedName Then
+				rtype = Nothing
+			End If
+			oi.ObjType = rtype
 			Dim str = CfJsonConverter.Serialize(oi)
 			IO.File.WriteAllText(file, str, Utils.Enc)
 
@@ -377,6 +382,9 @@ Public Class FileObjStorage
 				If IO.File.Exists(file) Then
 					Dim str = IO.File.ReadAllText(file, Utils.Enc)
 					Dim oi = CType(CfJsonConverter.Deserialize(str, GetType(ObjInfo)), ObjInfo)
+					If oi.ObjType = Nothing Then
+						oi.ObjType = SupportedType
+					End If
 					obj = CType(CfJsonConverter.Deserialize(oi.Obj, oi.ObjType), ObjBase)
 				End If
 			Catch ex As Exception

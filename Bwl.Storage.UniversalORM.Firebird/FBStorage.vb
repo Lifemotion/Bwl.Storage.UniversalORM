@@ -27,13 +27,9 @@ Public Class FBStorage
 	Public Overrides Sub AddObj(obj As ObjBase)
 		CheckDB()
 		Dim json = CfJsonConverter.Serialize(obj)
-		'Dim fromEncodind = System.Text.Encoding.UTF8
-		'Dim encoding = System.Text.Encoding.GetEncoding(1251)
-		'Dim djson = fromEncodind.GetString(encoding.GetBytes(json))
 		Save(ConnectionString, obj.ID, json, obj.GetType)
 
 		For Each indexing In _indexingMembers
-			'Dim indexTableName = GetIndexTableName(indexing)
 			Dim indexTableName = GetIndexName(indexing).Replace(".", "_")
 			Try
 				Dim indexValue = ReflectionTools.GetMemberValue(indexing.Name, obj)
@@ -51,7 +47,6 @@ Public Class FBStorage
 		For Each obj In objects
 			AddObj(obj)
 		Next
-		'Throw New NotSupportedException
 	End Sub
 
 	Public Overrides Function FindObjCount(searchParams As SearchParams) As Long
@@ -93,9 +88,6 @@ Public Class FBStorage
 		If (searchParams IsNot Nothing) Then
 			sort = searchParams.SortParam
 		End If
-
-		'''' from + where
-		'Dim fromSql = GenerateFromSql(crit, sort)
 
 		'''' where
 		Dim whereSql = String.Empty
@@ -168,8 +160,7 @@ Public Class FBStorage
 		Dim betweenSql = String.Empty
 		Dim mainSelect = String.Empty
 		If (searchParams IsNot Nothing) AndAlso (searchParams.SelectOptions IsNot Nothing) AndAlso (searchParams.SelectOptions.SelectMode = SelectMode.Between) Then
-			'SELECT FIRST 10 SKIP 20 column1, column2, column3 FROM foo
-			mainSelect = String.Format("SELECT FIRST {1} SKIP {2} GUID FROM {0}", Name, searchParams.SelectOptions.EndValue - searchParams.SelectOptions.StartValue, searchParams.SelectOptions.StartValue)
+			mainSelect = String.Format("SELECT FIRST {1} SKIP {2} GUID FROM {0}", Name, searchParams.SelectOptions.EndValue - searchParams.SelectOptions.StartValue + 1, searchParams.SelectOptions.StartValue)
 			'betweenSql
 		Else
 
@@ -198,9 +189,11 @@ Public Class FBStorage
 		If vals IsNot Nothing AndAlso vals.Any Then
 			Dim jsonObj = vals(0)(0)
 			Dim typeName = vals(0)(1)
-			If typeName Is Nothing Then
+
+			If (typeName = "-") Or String.IsNullOrWhiteSpace(typeName) Then
 				typeName = SupportedType.AssemblyQualifiedName
 			End If
+
 			If (jsonObj IsNot Nothing) Then
 				Dim json = jsonObj.ToString
 				res = CfJsonConverter.Deserialize(json, Type.GetType(typeName.ToString))
@@ -284,9 +277,10 @@ Public Class FBStorage
 			If (ValuesObjList IsNot Nothing) Then
 				Dim tmpList = ValuesObjList.Select(Function(j)
 													   Dim typeName = j(1)
-													   If typeName Is Nothing Then
+													   If (typeName = "-") Or String.IsNullOrWhiteSpace(typeName) Then
 														   typeName = SupportedType.AssemblyQualifiedName
 													   End If
+
 													   Return CType(CfJsonConverter.Deserialize(j(0).ToString, Type.GetType(typeName)), ObjBase)
 												   End Function)
 				resList.AddRange(tmpList)
@@ -377,7 +371,6 @@ Public Class FBStorage
 
 			ListQuery.Execute()
 		End If
-		'FbUtils.ExecSQL(ConnectionString, sql)
 		Return indexing.Name
 	End Function
 

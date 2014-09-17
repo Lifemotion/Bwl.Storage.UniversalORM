@@ -4,13 +4,11 @@ Imports System.Data
 Public Class FbStorageManager
 	Implements IObjStorageManager
 
-	Private Shared _createMainTableSQL As String = My.Resources.CreateMainTableSQL
 	Private _connStringBld As FbConnectionStringBuilder
 	Private _dbName As String
 
 	Public Sub New(connStringBld As FbConnectionStringBuilder)
 		_connStringBld = connStringBld
-		'_dbName = _connStringBld.InitialCatalog
 		_dbName = connStringBld.Database
 	End Sub
 
@@ -28,7 +26,6 @@ Public Class FbStorageManager
 	End Function
 
 	Public Function CreateStorage(name As String, type As Type) As IObjStorage Implements IObjStorageManager.CreateStorage
-		'Dim tableName = String.Format("{0}_main", name)
 		Return New FBStorage(ConnectionStringBuilder, type, _dbName)
 	End Function
 End Class

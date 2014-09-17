@@ -1,7 +1,7 @@
 ﻿Imports System.Data.SqlClient
 Imports Bwl.Framework
 
-Public Class LocalSettingsSqlSrv
+Public Class LocalSettings_SqlSrv
 	Private ReadOnly _settings As SettingsStorage
 	Private ReadOnly _connStrBld As SqlConnectionStringBuilder
 
@@ -13,7 +13,7 @@ Public Class LocalSettingsSqlSrv
 		'  их надо изменять в конфиг файле
 		'!!!!!!!!!!!!!!!!!!!!!
 
-		Dim dbStorage = _settings.CreateChildStorage("DB")
+		Dim dbStorage = _settings.CreateChildStorage("DB_SQLSRV")
 
 		Dim userSetting = dbStorage.CreateStringSetting("DBUserSetting", "sa")
 		Dim passSetting = dbStorage.CreateStringSetting("DBPassSetting", "123")

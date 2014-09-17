@@ -23,14 +23,14 @@ Public MustInherit Class LocalStorageBaseTest
 	Private _dataInt1 As TestDataInternal
 	Private _dataInt2 As TestDataInternal
 
-	<TestInitialize()>
-	Public Sub Init()
+	'<TestInitialize()>
+	Public Sub New()
 
 		_localStorage = CreateLocalStorage()
 
 		_data1 = New TestData
 		_data1.Cat = "happycat"
-		_data1.ID = "111"
+		_data1.ID = Guid.NewGuid.ToString("B")
 		_data1.Image = New Bitmap(100, 100)
 
 		'чтобы было отличие во времени создания
@@ -38,7 +38,7 @@ Public MustInherit Class LocalStorageBaseTest
 
 		_data2 = New TestData
 		_data2.Cat = "cat22"
-		_data2.ID = "222"
+		_data2.ID = Guid.NewGuid.ToString("B")
 		_data2.Image = New Bitmap(30, 47)
 
 		'чтобы было отличие во времени создания
@@ -46,7 +46,7 @@ Public MustInherit Class LocalStorageBaseTest
 
 		_data3 = New TestData
 		_data3.Cat = "happycat"
-		_data3.ID = "333"
+		_data3.ID = Guid.NewGuid.ToString("B")
 		_data3.Image = New Bitmap(67, 80)
 
 		'чтобы было отличие во времени создания
@@ -54,7 +54,7 @@ Public MustInherit Class LocalStorageBaseTest
 
 		_data4 = New TestData
 		_data4.Cat = "cat44"
-		_data4.ID = "444"
+		_data4.ID = Guid.NewGuid.ToString("B")
 		_data4.Image = New Bitmap(36, 33)
 
 		'чтобы было отличие во времени создания
@@ -62,7 +62,7 @@ Public MustInherit Class LocalStorageBaseTest
 
 		_data5 = New TestData
 		_data5.Cat = "cat55"
-		_data5.ID = "555"
+		_data5.ID = Guid.NewGuid.ToString("B")
 		_data5.Image = New Bitmap(100, 100)
 
 		'чтобы было отличие во времени создания
@@ -70,7 +70,7 @@ Public MustInherit Class LocalStorageBaseTest
 
 		_data6 = New TestData
 		_data6.Cat = "happycat"
-		_data6.ID = "666"
+		_data6.ID = Guid.NewGuid.ToString("B")
 		_data6.Image = New Bitmap(30, 47)
 
 		'чтобы было отличие во времени создания
@@ -96,7 +96,8 @@ Public MustInherit Class LocalStorageBaseTest
 		Return True
 	End Function
 
-	Protected Sub RemoveAll()
+	<TestMethod()>
+	Public Sub RemoveAll()
 		_localStorage.RemoveAllObj(GetType(TestData))
 		Dim p1 = _localStorage.FindObjCount(GetType(TestData), Nothing)
 		Assert.AreEqual(p1, 0L)
@@ -128,7 +129,8 @@ Public MustInherit Class LocalStorageBaseTest
 		Assert.AreEqual(p5, 0L)
 	End Sub
 
-	Protected Sub AddObj()
+	<TestMethod()>
+	Public Sub AddObj()
 		_localStorage.RemoveAllObj(GetType(TestData))
 		Dim p1 = _localStorage.FindObjCount(GetType(TestData), Nothing)
 		_localStorage.AddObj(_data1)
@@ -142,7 +144,8 @@ Public MustInherit Class LocalStorageBaseTest
 		Assert.AreEqual(p3, 3L)
 	End Sub
 
-	Protected Sub RemoveObj()
+	<TestMethod()>
+	Public Sub RemoveObj()
 		_localStorage.RemoveAllObj(GetType(TestData))
 		Dim p1 = _localStorage.FindObjCount(GetType(TestData), Nothing)
 		_localStorage.AddObj(_data1)
@@ -155,7 +158,8 @@ Public MustInherit Class LocalStorageBaseTest
 		Assert.AreEqual(p3, 0L)
 	End Sub
 
-	Protected Sub GetObj()
+	<TestMethod()>
+	Public Sub GetObj()
 		_localStorage.RemoveAllObj(GetType(TestData))
 		_localStorage.AddObj(_data1)
 		_localStorage.AddObj(_data2)
@@ -170,7 +174,8 @@ Public MustInherit Class LocalStorageBaseTest
 		Assert.AreEqual(p3.ID, _data3.ID)
 	End Sub
 
-	Protected Sub GetObjects()
+	<TestMethod()>
+	Public Sub GetObjects()
 		_localStorage.RemoveAllObj(GetType(TestData))
 		_localStorage.AddObj(_data1)
 		_localStorage.AddObj(_data2)
@@ -179,12 +184,15 @@ Public MustInherit Class LocalStorageBaseTest
 		Dim ids = New String() {_data1.ID, _data2.ID, _data3.ID}
 		Dim p1 = _localStorage.GetObjects(Of TestData)(ids)
 		Assert.AreEqual(p1.Count, 3)
-		Assert.AreEqual(p1(0).ID, _data1.ID)
-		Assert.AreEqual(p1(1).ID, _data2.ID)
-		Assert.AreEqual(p1(2).ID, _data3.ID)
+
+		Dim idsNew = p1.Select(Function(val) val.ID)
+		Assert.AreEqual(idsNew.Contains(_data1.ID), True)
+		Assert.AreEqual(idsNew.Contains(_data2.ID), True)
+		Assert.AreEqual(idsNew.Contains(_data3.ID), True)
 	End Sub
 
-	Protected Sub FindObj_Criteria()
+	<TestMethod()>
+	Public Sub FindObj_Criteria()
 		_localStorage.RemoveAllObj(GetType(TestData))
 		_localStorage.AddObj(_data1)
 		_localStorage.AddObj(_data2)
@@ -198,18 +206,20 @@ Public MustInherit Class LocalStorageBaseTest
 		Assert.AreEqual(p1.Count, 3)
 	End Sub
 
-	Protected Sub FindObj_SelectOption()
+	<TestMethod()>
+	Public Sub FindObj_SelectOption()
 		_localStorage.RemoveAllObj(GetType(TestData))
 		_localStorage.AddObj(_data2)
 		_localStorage.AddObj(_data4)
 		_localStorage.AddObj(_data5)
 
 		Dim so = New SelectOptions(2)
-		Dim sp = New SearchParams(selectOptions:=so)
+		Dim sort = New SortParam("Timestamp", SortMode.Ascending)
+		Dim sp = New SearchParams(selectOptions:=so, sortParam:=sort)
 		Dim p1 = _localStorage.FindObj(Of TestData)(sp)
 
 		so = New SelectOptions(1, 2)
-		sp = New SearchParams(selectOptions:=so)
+		sp = New SearchParams(selectOptions:=so, sortParam:=sort)
 		Dim p2 = _localStorage.FindObj(Of TestData)(sp)
 
 		Assert.AreEqual(p1.Count, 2)
@@ -220,7 +230,8 @@ Public MustInherit Class LocalStorageBaseTest
 		Assert.AreEqual(p2(1), _data5.ID)
 	End Sub
 
-	Protected Sub FindObj_timestamp_1()
+	<TestMethod()>
+	Public Sub FindObj_timestamp_1()
 		_localStorage.RemoveAllObj(GetType(TestData))
 		_localStorage.AddObj(_data1)
 
@@ -236,7 +247,8 @@ Public MustInherit Class LocalStorageBaseTest
 		Assert.AreEqual(p1.First, _data2.ID)
 	End Sub
 
-	Protected Sub FindObj_timestamp_2()
+	<TestMethod()>
+	Public Sub FindObj_timestamp_2()
 		_localStorage.RemoveAllObj(GetType(TestData))
 		_localStorage.AddObj(_data1)
 		Dim dt = DateTime.Now
@@ -248,7 +260,8 @@ Public MustInherit Class LocalStorageBaseTest
 		Assert.AreEqual(p1.Count, 2)
 	End Sub
 
-	Protected Sub FindObj_timestamp_3()
+	<TestMethod()>
+	Public Sub FindObj_timestamp_3()
 		_localStorage.RemoveAllObj(GetType(TestData))
 		_localStorage.AddObj(_data1)
 
@@ -262,7 +275,8 @@ Public MustInherit Class LocalStorageBaseTest
 		Assert.AreEqual(p1.Count, 0)
 	End Sub
 
-	Protected Sub FindObj_timestamp_4()
+	<TestMethod()>
+	Public Sub FindObj_timestamp_4()
 		_localStorage.RemoveAllObj(GetType(TestData))
 		_localStorage.AddObj(_data1)
 
@@ -276,7 +290,8 @@ Public MustInherit Class LocalStorageBaseTest
 		Assert.AreEqual(p1.Count, 2)
 	End Sub
 
-	Protected Sub FindObj_timestamp_and_string()
+	<TestMethod()>
+	Public Sub FindObj_timestamp_and_string()
 		_localStorage.RemoveAllObj(GetType(TestData))
 		_localStorage.AddObj(_data1)
 
@@ -295,7 +310,8 @@ Public MustInherit Class LocalStorageBaseTest
 		Assert.AreEqual(p1.First, _data2.ID)
 	End Sub
 
-	Protected Sub FindObj_SortParam()
+	<TestMethod()>
+	Public Sub FindObj_SortParam()
 		_localStorage.RemoveAllObj(GetType(TestData))
 
 		_data1.Timestamp = DateTime.MinValue
@@ -319,8 +335,6 @@ Public MustInherit Class LocalStorageBaseTest
 		Dim p3 = _localStorage.FindObj(Of TestData)(sp)
 
 		Assert.AreEqual(p1.Count, 2)
-		Assert.AreEqual(p1(0), _data1.ID)
-		Assert.AreEqual(p1(1), _data2.ID)
 
 		Assert.AreEqual(p2(0), _data1.ID)
 		Assert.AreEqual(p2(1), _data2.ID)
@@ -329,7 +343,8 @@ Public MustInherit Class LocalStorageBaseTest
 		Assert.AreEqual(p3(1), _data2.ID)
 	End Sub
 
-	Protected Sub Contains()
+	<TestMethod()>
+	Public Sub Contains()
 		_localStorage.RemoveAllObj(GetType(TestData))
 		Dim p1 = _localStorage.Contains(Of TestData)(_data1.ID)
 		_localStorage.AddObj(_data1)
@@ -339,7 +354,8 @@ Public MustInherit Class LocalStorageBaseTest
 		Assert.AreEqual(p2, True)
 	End Sub
 
-	Protected Sub FindObjBetween()
+	<TestMethod()>
+	Public Sub FindObjBetween()
 		Dim td1 = New TestData
 		td1.Cat = "td"
 		td1.Dog = 111
@@ -407,7 +423,8 @@ Public MustInherit Class LocalStorageBaseTest
 		Assert.AreEqual(3, F2.Count)
 	End Sub
 
-	Protected Sub TestData_Add_GetObj()
+	<TestMethod()>
+	Public Sub TestData_Add_GetObj()
 		_localStorage.RemoveAllObj(GetType(TestData))
 
 		Dim data = New TestData()
@@ -446,14 +463,16 @@ Public MustInherit Class LocalStorageBaseTest
 		Assert.AreEqual(obWithoutBlob.Int.Second, data.Int.Second)
 	End Sub
 
-	Protected Sub GetBadObjById()
+	<TestMethod()>
+	Public Sub GetBadObjById()
 		_localStorage.RemoveAllObj(GetType(TestData))
 		Dim id = Guid.NewGuid.ToString("B")
 		Dim obj = _localStorage.GetObj(Of TestData)(id)
 		Assert.AreEqual(obj, Nothing)
 	End Sub
 
-	Protected Sub FindByBadField()
+	<TestMethod()>
+	Public Sub FindByBadField()
 		_localStorage.RemoveAllObj(GetType(TestData))
 		Dim sp = New SearchParams
 		sp.FindCriterias = {New FindCriteria("Fffiieiwefjolijef", FindCondition.eqaul, "edfsdf")}
@@ -467,7 +486,8 @@ Public MustInherit Class LocalStorageBaseTest
 		Assert.AreNotEqual(exc, Nothing)
 	End Sub
 
-	Protected Sub ContainsBadObjById()
+	<TestMethod()>
+	Public Sub ContainsBadObjById()
 		_localStorage.RemoveAllObj(GetType(TestData))
 		Dim contains = _localStorage.Contains(Of TestData)("{FE61FF34-CA73-4E8D-9515-5C8D47859B73}")
 		Assert.AreEqual(contains, False)

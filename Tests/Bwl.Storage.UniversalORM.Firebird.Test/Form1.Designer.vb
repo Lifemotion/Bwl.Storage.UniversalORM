@@ -1,6 +1,6 @@
 ﻿<Global.Microsoft.VisualBasic.CompilerServices.DesignerGenerated()> _
 Partial Class Form1
-    Inherits System.Windows.Forms.Form
+	Inherits Bwl.Framework.FormAppBase
 
     'Форма переопределяет dispose для очистки списка компонентов.
     <System.Diagnostics.DebuggerNonUserCode()> _

@@ -38,7 +38,6 @@ Public Class FbUtils
 			End If
 			res = cmd.ExecuteScalar()
 			cmd.Dispose()
-			'"TESTDATA                       "
 		Catch ex As Exception
 			Throw New Exception(String.Format("FbUtils.ExecSQLScalar({0}, {1}) - {2})", connString, sql, ex.Message))
 		Finally
@@ -60,20 +59,16 @@ Public Class FbUtils
 			Threading.Thread.Sleep(2000)
 			If (Not FbUtils.CheckConnection(connStringBld.ConnectionString)) Then
 				Dim conStrBld2 = New FbConnectionStringBuilder
-				'conStrBld2.IntegratedSecurity = connStringBld.IntegratedSecurity
 				conStrBld2.ConnectionTimeout = connStringBld.ConnectionTimeout
 				conStrBld2.ServerType = connStringBld.ServerType
 				conStrBld2.UserID = connStringBld.UserID
 				conStrBld2.Password = connStringBld.Password
-				'conStrBld2.DataSource = connStringBld.DataSource
 				conStrBld2.Dialect = connStringBld.Dialect
 				conStrBld2.Database = connStringBld.Database
 				conStrBld2.ClientLibrary = connStringBld.ClientLibrary
-				'conStrBld2.Charset = connStringBld.Charset
 				Dim sql = String.Format("CREATE DATABASE [{0}]", dbName)
 				FbUtils.ExecSQL(conStrBld2.ConnectionString, sql)
 				Threading.Thread.Sleep(2000)
-				'connStringBld.InitialCatalog = dbName
 			End If
 		End If
 	End Sub
@@ -84,11 +79,7 @@ Public Class FbUtils
 
 	Public Shared Function TableExists(connString As String, tableName As String) As Boolean
 		Dim res = False
-		'Dim sql = String.Format("SELECT count('{0}'))", tableName)
 		Dim sql = String.Format("SELECT rdb$relation_name FROM rdb$relations WHERE (RDB$SYSTEM_FLAG = 0) AND (RDB$RELATION_TYPE = 0) AND rdb$relation_name = '{0}'", tableName.ToUpper())
-		'	rdb$relation_name = '{0}' , tableName
-		'If (Not DBNull.Value.Equals(FbUtils.ExecSQLScalar(connString, sql))) Then
-
 		If FbUtils.ExecSQLScalar(connString, sql) IsNot Nothing Then
 			res = True
 		End If

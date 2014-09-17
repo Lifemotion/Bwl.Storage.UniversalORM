@@ -214,7 +214,8 @@ Public Class MSSQLSRVStorage
 		If vals IsNot Nothing AndAlso vals.Any Then
 			Dim jsonObj = vals(0)(0)
 			Dim typeName = vals(0)(1)
-			If (typeName = "-") Or typeName Is Nothing Then
+
+			If (typeName = "-") Or String.IsNullOrWhiteSpace(typeName) Then
 				typeName = SupportedType.AssemblyQualifiedName
 			End If
 
@@ -343,14 +344,26 @@ Public Class MSSQLSRVStorage
 
 			Dim ValuesObjList = MSSQLSRVUtils.GetObjectList(ConnectionString, sql)
 			If (ValuesObjList IsNot Nothing) Then
-				Dim tmpList = ValuesObjList.Select(Function(j)
-													   Dim typeName = j(1)
-													   If typeName Is Nothing Then
-														   typeName = SupportedType.AssemblyQualifiedName
-													   End If
-													   Return CType(CfJsonConverter.Deserialize(j(0).ToString, Type.GetType(typeName)), ObjBase)
-												   End Function)
-				resList.AddRange(tmpList)
+				Dim tmpList = ValuesObjList.Select(
+					Function(val)
+						Dim jsonObj = val(0)
+						Dim typeName = val(1)
+						If (typeName = "-") Or String.IsNullOrWhiteSpace(typeName) Then
+							typeName = SupportedType.AssemblyQualifiedName
+						End If
+
+						Dim res As ObjBase = Nothing
+						If (jsonObj IsNot Nothing) Then
+							Dim json = jsonObj.ToString
+							Try
+								res = CfJsonConverter.Deserialize(json, Type.GetType(typeName.ToString))
+							Catch exc As Exception
+								Dim polo = exc.Message
+							End Try
+						End If
+						Return res
+					End Function)
+				resList.AddRange(tmpList.ToArray)
 			End If
 		End If
 		Return resList

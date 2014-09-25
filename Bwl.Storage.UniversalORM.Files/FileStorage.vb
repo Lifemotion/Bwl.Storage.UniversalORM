@@ -47,7 +47,10 @@ Public Class FileObjStorage
 			Dim str = CfJsonConverter.Serialize(oi)
 			IO.File.WriteAllText(file, str, Utils.Enc)
 
-			CreateIndex(obj)
+			Dim res = CreateIndex(obj)
+			If Not String.IsNullOrWhiteSpace(res) Then
+				Throw New Exception("Ошибка создания индекса: " + res)
+			End If
 
 			'For Each indexing In _indexingMembers
 			'	Try
@@ -101,7 +104,8 @@ Public Class FileObjStorage
 		End If
 	End Sub
 
-	Private Function CreateIndex(obj As ObjBase) As Boolean
+	Private Function CreateIndex(obj As ObjBase) As String
+		Dim res = String.Empty
 		For Each indexing In _indexingMembers
 			Try
 				Dim indexValue = ReflectionTools.GetMemberValue(indexing.Name, obj)
@@ -125,11 +129,11 @@ Public Class FileObjStorage
 				If Not existsID Then
 					IO.File.AppendAllText(path, value)
 				End If
-			Catch
-				Return False
+			Catch ex As Exception
+				res = ex.ToString
 			End Try
 		Next
-		Return True
+		Return res
 	End Function
 
 	Private Function DeleteIndex(obj As ObjBase) As Boolean

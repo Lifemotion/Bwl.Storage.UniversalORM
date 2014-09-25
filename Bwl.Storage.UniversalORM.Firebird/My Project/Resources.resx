@@ -129,69 +129,21 @@
   <data name="AddStringColumn" xml:space="preserve">
     <value>ALTER TABLE {0} ADD "{1}" varchar({2})  </value>
   </data>
-  <data name="CreateBigIntIndexTableSQL" xml:space="preserve">
-    <value>CREATE TABLE {0}(
-	guid char(38) NOT NULL,
-	val bigint NOT NULL,
- CONSTRAINT PK_{0} PRIMARY KEY CLUSTERED 
-(
-	guid 
-)
-CREATE INDEX IX_{0} ON {0}
-(
-	val 
-)</value>
-  </data>
-  <data name="CreateFloatIndexTableSQL" xml:space="preserve">
-    <value>CREATE TABLE {0}
-(
-    guid varchar(38) NOT NULL UNIQUE,
-    val float NOT NULL,
-    CONSTRAINT PK_{0} PRIMARY KEY (guid)
-)
-CREATE INDEX IX_{0} ON {0} (val ascending)</value>
-  </data>
   <data name="CreateIndexSQL" xml:space="preserve">
     <value>CREATE ASCENDING INDEX "IX_{1}" ON {0}
 (
     "{1}"
 )</value>
   </data>
-  <data name="CreateIntIndexTableSQL" xml:space="preserve">
-    <value>CREATE TABLE {0}
-(
-    guid varchar(38) NOT NULL,
-    value int NOT NULL,
-    CONSTRAINT PK_{0} PRIMARY KEY 
-    (
-        guid  ASC
-    )
-)
-CREATE INDEX IX_{0} ON {0}
-(
-    value ASC
-)</value>
-  </data>
   <data name="CreateMainTableSQL" xml:space="preserve">
     <value>CREATE TABLE {0}
 (
     guid varchar(38) NOT NULL,
-    type varchar(4096) ,
-    json varchar(4096),                                                                                CONSTRAINT PK_{0} PRIMARY KEY
+    type varchar(5000) ,
+    json BLOB SUB_TYPE 1,                                                                                CONSTRAINT PK_{0} PRIMARY KEY
 (
     guid
 )
-)</value>
-  </data>
-  <data name="CreateStringTableSQL" xml:space="preserve">
-    <value>CREATE TABLE {0}
-(
-	guid char(38) NOT NULL,
-	val varchar({2}) NOT NULL,
-	 CONSTRAINT PK_{0} PRIMARY KEY
-	(
-		guid
-	)
 )</value>
   </data>
   <data name="UpdateIndexSQL" xml:space="preserve">

@@ -16,6 +16,8 @@ Public Class TestData
 	<Indexing> <BlobContainer>
 	Public Property Int As New TestDataInternal
 
+	Public Property BigData As Byte()
+
 	Public Property ID As String Implements ObjBase.ID
 
 	<Blob> <JsonIgnore>

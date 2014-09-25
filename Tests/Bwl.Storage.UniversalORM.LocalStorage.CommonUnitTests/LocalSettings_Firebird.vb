@@ -46,7 +46,7 @@ Public Class LocalSettings_Firebird
 		_connStrBld_service.Password = passSetting.Value
 		_connStrBld_service.Dialect = dialectSetting.Value
 		_connStrBld_service.ConnectionTimeout = dbTimeout.Value
-		_connStrBld_service.ClientLibrary = clientDllPathSetting.Value
+		'_connStrBld_service.ClientLibrary = clientDllPathSetting.Value
 	End Sub
 
 	Public ReadOnly Property ConnectionStringBuilder_Service As FbConnectionStringBuilder

@@ -17,7 +17,7 @@ Public Class FbUtils
 			cmd.ExecuteNonQuery()
 			cmd.Dispose()
 		Catch ex As Exception
-			Throw New Exception(String.Format("FbUtils.ExecSQL({0}, {1}) - {2})", connString, sql, ex.Message))
+			Throw New Exception(String.Format("FbUtils.ExecSQL({0}, {1}) - {2})", connString, ex.Message, sql))
 		Finally
 			con.Close()
 			con.Dispose()

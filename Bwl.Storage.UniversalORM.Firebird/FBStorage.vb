@@ -301,15 +301,12 @@ Public Class FBStorage
 		Return res
 	End Function
 
-
 	Private Sub CheckDB()
 		FbUtils.CreateDB(ConnectionStringBld, _dbName)
 		CreateMainTable(ConnectionString, Name)
 	End Sub
 
-
 	Private Shared Sub CreateMainTable(connString As String, tableName As String)
-
 		If (Not FbUtils.TableExists(connString, tableName)) Then
 			Threading.Thread.Sleep(1000)
 			If (Not FbUtils.TableExists(connString, tableName)) Then
@@ -441,8 +438,10 @@ Public Class FBStorage
 	End Function
 
 	Private Sub Save(connStr As String, id As String, json As String, type As Type)
-		Dim sql = String.Format("INSERT INTO {0}(GUID ,JSON, TYPE) VALUES('{1}', '{2}', '{3}')", Name, id, json, type.AssemblyQualifiedName)
-		FbUtils.ExecSQL(ConnectionString, sql)
+		Dim rtype = IIf(type.AssemblyQualifiedName = SupportedType.AssemblyQualifiedName, "-", type.AssemblyQualifiedName)
+		Dim parameters = {New FbParameter("@p1", id), New FbParameter("@p2", json), New FbParameter("@p3", rtype)}
+		Dim sql = String.Format("INSERT INTO {0}(GUID ,JSON, TYPE) VALUES(@p1, @p2, @p3)", Name)
+		FbUtils.ExecSQL(ConnectionString, sql, parameters)
 	End Sub
 
 	Private Sub Update(connStr As String, id As String, json As String)

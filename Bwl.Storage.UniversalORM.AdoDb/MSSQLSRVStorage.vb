@@ -501,9 +501,16 @@ Public Class MSSQLSRVStorage
 
 	Private Sub Save(connStr As String, id As String, json As String, type As Type)
 		Dim rtype = IIf(type.AssemblyQualifiedName = SupportedType.AssemblyQualifiedName, "-", type.AssemblyQualifiedName)
-		Dim sql = String.Format("INSERT INTO [dbo].[{0}] ([guid] ,[json], [type]) VALUES('{1}', '{2}', '{3}')", Name, id, json, rtype)
-		MSSQLSRVUtils.ExecSQL(ConnectionString, sql)
+		Dim parameters = {New SqlParameter("@p1", id), New SqlParameter("@p2", json), New SqlParameter("@p3", rtype)}
+		Dim sql = String.Format("INSERT INTO [dbo].[{0}] ([guid] ,[json], [type]) VALUES(@p1, @p2, @p3)", Name)
+		MSSQLSRVUtils.ExecSQL(ConnectionString, sql, parameters)
 	End Sub
+
+	'Private Sub Save_old(connStr As String, id As String, json As String, type As Type)
+	'	Dim rtype = IIf(type.AssemblyQualifiedName = SupportedType.AssemblyQualifiedName, "-", type.AssemblyQualifiedName)
+	'	Dim sql = String.Format("INSERT INTO [dbo].[{0}] ([guid] ,[json], [type]) VALUES('{1}', '{2}', '{3}')", Name, id, json, rtype)
+	'	MSSQLSRVUtils.ExecSQL(ConnectionString, sql)
+	'End Sub
 
 	Private Sub Update(connStr As String, id As String, json As String)
 		Dim sql = String.Format("UPDATE [{0}] SET [json] = @p1 WHERE [guid] = @p2", Name)

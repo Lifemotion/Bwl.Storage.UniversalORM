@@ -145,6 +145,86 @@ Public MustInherit Class LocalStorageBaseTest
 	End Sub
 
 	<TestMethod()>
+	Public Sub BigData_100KB()
+		_localStorage.RemoveAllObj(GetType(TestData))
+
+		Dim p1 = _localStorage.FindObjCount(GetType(TestData), Nothing)
+
+		Dim d1 = New TestData
+		d1.Cat = "happycat"
+		d1.ID = Guid.NewGuid.ToString("B")
+		d1.Image = New Bitmap(100, 100)
+		ReDim d1.BigData(100000)
+		d1.BigData(268) = 44
+		d1.BigData(43453) = 58
+
+		_localStorage.AddObj(d1)
+		Dim p2 = _localStorage.FindObjCount(GetType(TestData), Nothing)
+
+		Dim d2 = _localStorage.GetObj(Of TestData)(d1.ID)
+
+		Assert.AreEqual(p1, 0L)
+		Assert.AreEqual(p2, 1L)
+
+		Assert.AreEqual(d1.ID, d2.ID)
+		Assert.AreEqual(d1.Cat, d2.Cat)
+		Assert.AreEqual(d1.Image.Width, d2.Image.Width)
+		Assert.AreEqual(d1.Image.Height, d2.Image.Height)
+		Assert.AreEqual(d1.BigData.Length, d2.BigData.Length)
+
+		Assert.AreEqual(d1.BigData(100), d2.BigData(100))
+		Assert.AreEqual(d1.BigData(268), d2.BigData(268))
+		Assert.AreEqual(d1.BigData(43453), d2.BigData(43453))
+	End Sub
+
+	<TestMethod()>
+	Public Sub BigData_10MB_inCycle_10()
+		For index = 1 To 10
+			BigData_10MB()
+		Next
+	End Sub
+
+	<TestMethod()>
+	Public Sub BigData_10MB()
+		_localStorage.RemoveAllObj(GetType(TestData))
+
+		Dim p1 = _localStorage.FindObjCount(GetType(TestData), Nothing)
+
+		Dim d1 = New TestData
+		d1.Cat = "happycat"
+		d1.ID = Guid.NewGuid.ToString("B")
+		d1.Image = New Bitmap(100, 100)
+		ReDim d1.BigData(10000000)
+		d1.BigData(268) = 44
+		d1.BigData(43453) = 58
+		d1.BigData(143453) = 62
+		d1.BigData(543453) = 155
+		d1.BigData(1043453) = 210
+
+		_localStorage.AddObj(d1)
+		Dim p2 = _localStorage.FindObjCount(GetType(TestData), Nothing)
+
+		Dim d2 = _localStorage.GetObj(Of TestData)(d1.ID)
+
+		'Assert.AreEqual(p1, 0L)
+		'Assert.AreEqual(p2, 1L)
+
+		Assert.AreEqual(d1.ID, d2.ID)
+		Assert.AreEqual(d1.Cat, d2.Cat)
+		Assert.AreEqual(d1.Image.Width, d2.Image.Width)
+		Assert.AreEqual(d1.Image.Height, d2.Image.Height)
+		Assert.AreEqual(d1.BigData.Length, d2.BigData.Length)
+
+		Assert.AreEqual(d1.BigData(100), d2.BigData(100))
+		Assert.AreEqual(d1.BigData(268), d2.BigData(268))
+		Assert.AreEqual(d1.BigData(43453), d2.BigData(43453))
+		Assert.AreEqual(d1.BigData(143453), d2.BigData(143453))
+		Assert.AreEqual(d1.BigData(543453), d2.BigData(543453))
+		Assert.AreEqual(d1.BigData(1043453), d2.BigData(1043453))
+
+	End Sub
+
+	<TestMethod()>
 	Public Sub RemoveObj()
 		_localStorage.RemoveAllObj(GetType(TestData))
 		Dim p1 = _localStorage.FindObjCount(GetType(TestData), Nothing)
@@ -506,4 +586,118 @@ Public MustInherit Class LocalStorageBaseTest
 		Dim obttt = CType(ob_ttt, TestData)
 		Assert.AreEqual(_data1.ID, obttt.ID)
 	End Sub
+
+
+
+
+#Region "10KB_2Thread"
+
+	Private _exc_10kb_2thread_1 As Exception
+	Private _exc_10kb_2thread_2 As Exception
+	Private _sema1 As Semaphore
+	Private _sema2 As Semaphore
+
+	Private _localStorage1 As ILocalStorage
+	Private _localStorage2 As ILocalStorage
+
+	<TestMethod()>
+	Public Sub BigData_100KB_2Thread()
+
+		_localStorage1 = CreateLocalStorage()
+		_localStorage2 = CreateLocalStorage()
+
+		_localStorage1.RemoveAllObj(GetType(TestData))
+		_localStorage2.RemoveAllObj(GetType(TestData))
+
+		_exc_10kb_2thread_1 = Nothing
+		_exc_10kb_2thread_2 = Nothing
+		_sema1 = New Semaphore(0, 1)
+		_sema2 = New Semaphore(0, 1)
+
+		Dim t1 = New Thread(AddressOf f1_100KB_1)
+		Dim t2 = New Thread(AddressOf f1_100KB_2)
+
+		t1.Start()
+		t2.Start()
+
+		_sema1.WaitOne()
+		_sema2.WaitOne()
+
+		Assert.AreEqual(_exc_10kb_2thread_1, Nothing)
+		Assert.AreEqual(_exc_10kb_2thread_2, Nothing)
+	End Sub
+
+	Private Sub f1_100KB_1()
+		Try
+			For index = 1 To 10
+				Dim p1 = _localStorage1.FindObjCount(GetType(TestData), Nothing)
+
+				Dim d1 = New TestData
+				d1.Cat = "happycat"
+				d1.ID = Guid.NewGuid.ToString("B")
+				d1.Image = New Bitmap(100, 100)
+				ReDim d1.BigData(1000000)
+				d1.BigData(268) = 44
+
+				_localStorage1.AddObj(d1)
+				Dim p2 = _localStorage1.FindObjCount(GetType(TestData), Nothing)
+
+				Dim d2 = _localStorage1.GetObj(Of TestData)(d1.ID)
+
+				Assert.AreEqual(d1.ID, d2.ID)
+				Assert.AreEqual(d1.Cat, d2.Cat)
+				Assert.AreEqual(d1.Image.Width, d2.Image.Width)
+				Assert.AreEqual(d1.Image.Height, d2.Image.Height)
+				Assert.AreEqual(d1.BigData.Length, d2.BigData.Length)
+
+				Assert.AreEqual(d1.BigData(100), d2.BigData(100))
+				Assert.AreEqual(d1.BigData(268), d2.BigData(268))
+			Next
+		Catch ex As Exception
+			_exc_10kb_2thread_1 = ex
+		End Try
+		_sema1.Release()
+	End Sub
+
+	Private Sub f1_100KB_2()
+		Try
+			For index = 1 To 10
+
+
+				Dim p1 = _localStorage2.FindObjCount(GetType(TestData), Nothing)
+
+				Dim d1 = New TestData
+				d1.Cat = "happycat"
+				d1.ID = Guid.NewGuid.ToString("B")
+				d1.Image = New Bitmap(100, 100)
+				ReDim d1.BigData(1000000)
+				d1.BigData(268) = 44
+
+				_localStorage2.AddObj(d1)
+				Dim p2 = _localStorage2.FindObjCount(GetType(TestData), Nothing)
+
+				Dim d2 = _localStorage2.GetObj(Of TestData)(d1.ID)
+
+
+				Assert.AreEqual(d1.ID, d2.ID)
+				Assert.AreEqual(d1.Cat, d2.Cat)
+				Assert.AreEqual(d1.Image.Width, d2.Image.Width)
+				Assert.AreEqual(d1.Image.Height, d2.Image.Height)
+				Assert.AreEqual(d1.BigData.Length, d2.BigData.Length)
+
+				Assert.AreEqual(d1.BigData(100), d2.BigData(100))
+				Assert.AreEqual(d1.BigData(268), d2.BigData(268))
+			Next
+		Catch ex As Exception
+			_exc_10kb_2thread_2 = ex
+		End Try
+		_sema2.Release()
+	End Sub
+
+#End Region
+
+
+
+
+
 End Class

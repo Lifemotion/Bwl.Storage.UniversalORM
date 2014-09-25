@@ -178,15 +178,18 @@ Public MustInherit Class LocalStorageBaseTest
 	End Sub
 
 	<TestMethod()>
-	Public Sub BigData_10MB_inCycle_10()
+	Public Sub BigData_inCycle_10()
+		_localStorage.RemoveAllObj(GetType(TestData))
 		For index = 1 To 10
-			BigData_10MB()
+			BigData_10MB(False, False)
 		Next
 	End Sub
 
 	<TestMethod()>
-	Public Sub BigData_10MB()
-		_localStorage.RemoveAllObj(GetType(TestData))
+	Public Sub BigData_10MB(Optional needRemove As Boolean = True, Optional needControlObjCount As Boolean = True)
+		If needRemove Then
+			_localStorage.RemoveAllObj(GetType(TestData))
+		End If
 
 		Dim p1 = _localStorage.FindObjCount(GetType(TestData), Nothing)
 
@@ -206,8 +209,10 @@ Public MustInherit Class LocalStorageBaseTest
 
 		Dim d2 = _localStorage.GetObj(Of TestData)(d1.ID)
 
-		'Assert.AreEqual(p1, 0L)
-		'Assert.AreEqual(p2, 1L)
+		If needControlObjCount Then
+			Assert.AreEqual(p1, 0L)
+			Assert.AreEqual(p2, 1L)
+		End If
 
 		Assert.AreEqual(d1.ID, d2.ID)
 		Assert.AreEqual(d1.Cat, d2.Cat)
@@ -592,16 +597,21 @@ Public MustInherit Class LocalStorageBaseTest
 
 #Region "10KB_2Thread"
 
+	' для файлового хранилища этот тест может не выполняться, т.к.
+	' в нем не организовано одновременное обращение к харнилищу (блокировки и прочее)
+
+
 	Private _exc_10kb_2thread_1 As Exception
 	Private _exc_10kb_2thread_2 As Exception
 	Private _sema1 As Semaphore
 	Private _sema2 As Semaphore
+	Private _nBytes As Integer = 1000000
 
 	Private _localStorage1 As ILocalStorage
 	Private _localStorage2 As ILocalStorage
 
 	<TestMethod()>
-	Public Sub BigData_100KB_2Thread()
+	Public Sub BigData_N_Bytes_2Thread()
 
 		_localStorage1 = CreateLocalStorage()
 		_localStorage2 = CreateLocalStorage()
@@ -609,13 +619,15 @@ Public MustInherit Class LocalStorageBaseTest
 		_localStorage1.RemoveAllObj(GetType(TestData))
 		_localStorage2.RemoveAllObj(GetType(TestData))
 
+		Thread.Sleep(1000)
+
 		_exc_10kb_2thread_1 = Nothing
 		_exc_10kb_2thread_2 = Nothing
 		_sema1 = New Semaphore(0, 1)
 		_sema2 = New Semaphore(0, 1)
 
-		Dim t1 = New Thread(AddressOf f1_100KB_1)
-		Dim t2 = New Thread(AddressOf f1_100KB_2)
+		Dim t1 = New Thread(AddressOf f1_N_Bytes_1)
+		Dim t2 = New Thread(AddressOf f1_N_Bytes_2)
 
 		t1.Start()
 		t2.Start()
@@ -627,7 +639,7 @@ Public MustInherit Class LocalStorageBaseTest
 		Assert.AreEqual(_exc_10kb_2thread_2, Nothing)
 	End Sub
 
-	Private Sub f1_100KB_1()
+	Private Sub f1_N_Bytes_1()
 		Try
 			For index = 1 To 10
 				Dim p1 = _localStorage1.FindObjCount(GetType(TestData), Nothing)
@@ -636,7 +648,7 @@ Public MustInherit Class LocalStorageBaseTest
 				d1.Cat = "happycat"
 				d1.ID = Guid.NewGuid.ToString("B")
 				d1.Image = New Bitmap(100, 100)
-				ReDim d1.BigData(1000000)
+				ReDim d1.BigData(_nBytes)
 				d1.BigData(268) = 44
 
 				_localStorage1.AddObj(d1)
@@ -659,7 +671,7 @@ Public MustInherit Class LocalStorageBaseTest
 		_sema1.Release()
 	End Sub
 
-	Private Sub f1_100KB_2()
+	Private Sub f1_N_Bytes_2()
 		Try
 			For index = 1 To 10
 
@@ -670,7 +682,7 @@ Public MustInherit Class LocalStorageBaseTest
 				d1.Cat = "happycat"
 				d1.ID = Guid.NewGuid.ToString("B")
 				d1.Image = New Bitmap(100, 100)
-				ReDim d1.BigData(1000000)
+				ReDim d1.BigData(_nBytes)
 				d1.BigData(268) = 44
 
 				_localStorage2.AddObj(d1)

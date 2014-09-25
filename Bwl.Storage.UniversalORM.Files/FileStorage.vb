@@ -114,7 +114,12 @@ Public Class FileObjStorage
 				End If
 
 				Dim path = GetIndexFileName(obj.GetType, indexing.Name)
-				Dim value = obj.ID + " " + indexValue.ToString + vbCrLf
+				Dim indValStr = String.Empty
+				If indexValue IsNot Nothing Then
+					indValStr = indexValue.ToString
+				End If
+
+				Dim value = obj.ID + " " + indValStr + vbCrLf
 
 				Dim existsID As Boolean = False
 				If File.Exists(path) Then

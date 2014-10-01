@@ -51,7 +51,7 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="Bwl.Framework">
-      <HintPath>..\..\refs\Bwl.Framework.dll</HintPath>
+      <HintPath>..\refs\Bwl.Framework.dll</HintPath>
     </Reference>
     <Reference Include="FirebirdSql.Data.FirebirdClient">
       <HintPath>..\..\refs\FirebirdSql.Data.FirebirdClient.dll</HintPath>

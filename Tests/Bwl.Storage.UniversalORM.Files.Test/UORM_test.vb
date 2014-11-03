@@ -1,7 +1,7 @@
-﻿Public Class UORM
-    Private manager As New FileStorageManager(Application.StartupPath + "\..\data")
+﻿Public Class UORM_test
+	Private manager As New FileStorageManager(Application.StartupPath + "\..\data")
 	Private stor As FileObjStorage = manager.CreateStorage("TestDataStor", GetType(TestData))
-    Private Sub Button1_Click(sender As Object, e As EventArgs) Handles Button1.Click
+	Private Sub Button1_Click(sender As Object, e As EventArgs) Handles Button1.Click
 		Dim testData1 = New TestData
 		testData1.Cat = "CAT1111111"
 		testData1.Dog = 22222222
@@ -45,5 +45,5 @@
 		'      For Each ff In f
 		'	stor.RemoveObj(ff)
 		'      Next
-    End Sub
+	End Sub
 End Class

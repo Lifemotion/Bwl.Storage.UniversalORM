@@ -3,10 +3,28 @@
 
 	Private _folder As String
 
+	Private ReadOnly _storages As New List(Of FileObjStorage)()
+
+	Private _useUndexing As Boolean = False
+
 	Public Sub New(folder As String)
 		_folder = folder
 		Utils.TestFolderFsm(_folder)
 	End Sub
+
+	Public Property UseIndexing As Boolean
+		Get
+			Return _useUndexing
+		End Get
+		Set(value As Boolean)
+			_useUndexing = value
+			SyncLock (_storages)
+				For Each st In _storages
+					st.UseIndexing = _useUndexing
+				Next
+			End SyncLock
+		End Set
+	End Property
 
 	Public Property FileStorageDir As String
 		Get
@@ -23,6 +41,13 @@
 		If Utils.TestFolderFsm(path) Then
 			stor = New FileObjStorage(path, type)
 		End If
+
+		stor.UseIndexing = _useUndexing
+
+		SyncLock (_storages)
+			_storages.Add(stor)
+		End SyncLock
+
 		Return stor
 	End Function
 

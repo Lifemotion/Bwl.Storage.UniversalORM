@@ -123,6 +123,9 @@ Public MustInherit Class LocalStorageBaseTest
 		Dim p4 = _localStorage.FindObjCount(GetType(TestDataInternal), Nothing)
 		Assert.AreEqual(p4, 0L)
 
+		Dim p6 = _localStorage.FindObj(Of TestData)()
+		Assert.AreEqual(p6.Length, 3)
+
 		_localStorage.RemoveAllObj(GetType(TestData))
 
 		Dim p5 = _localStorage.FindObjCount(GetType(TestData), Nothing)

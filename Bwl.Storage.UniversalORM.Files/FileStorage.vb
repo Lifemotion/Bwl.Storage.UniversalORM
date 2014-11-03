@@ -5,6 +5,7 @@ Public Class FileObjStorage
 	Inherits CommonObjStorage
 
 	Private _folder As String
+	Private _useUndexing As Boolean = False
 
 	Friend Sub New(folder As String, type As Type)
 		MyBase.New(type)
@@ -22,6 +23,15 @@ Public Class FileObjStorage
 	'	If Not IO.Directory.Exists(path) Then IO.Directory.CreateDirectory(path)
 	'	Return path
 	'End Function
+
+	Public Property UseIndexing As Boolean
+		Get
+			Return _useUndexing
+		End Get
+		Set(value As Boolean)
+			_useUndexing = value
+		End Set
+	End Property
 
 	Public Property StorageDir As String
 		Get
@@ -47,10 +57,7 @@ Public Class FileObjStorage
 			Dim str = CfJsonConverter.Serialize(oi)
 			IO.File.WriteAllText(file, str, Utils.Enc)
 
-			Dim res = CreateIndex(obj)
-			If Not String.IsNullOrWhiteSpace(res) Then
-				Throw New Exception("Ошибка создания индекса: " + res)
-			End If
+			CreateIndex(obj)
 
 			'For Each indexing In _indexingMembers
 			'	Try
@@ -104,10 +111,10 @@ Public Class FileObjStorage
 		End If
 	End Sub
 
-	Private Function CreateIndex(obj As ObjBase) As String
-		Dim res = String.Empty
-		For Each indexing In _indexingMembers
-			Try
+	Private Sub CreateIndex(obj As ObjBase)
+		If UseIndexing Then
+			Dim res = String.Empty
+			For Each indexing In _indexingMembers
 				Dim indexValue = ReflectionTools.GetMemberValue(indexing.Name, obj)
 				If indexing.Type = GetType(DateTime) Then
 					indexValue = CType(indexValue, DateTime).Ticks
@@ -134,17 +141,14 @@ Public Class FileObjStorage
 				If Not existsID Then
 					IO.File.AppendAllText(path, value)
 				End If
-			Catch ex As Exception
-				res = ex.ToString
-			End Try
-		Next
-		Return res
-	End Function
+			Next
+		End If
+	End Sub
 
-	Private Function DeleteIndex(obj As ObjBase) As Boolean
-		Dim lst As New List(Of ObjBase)()
-		For Each Indexing In _indexingMembers
-			Try
+	Private Sub DeleteIndex(obj As ObjBase)
+		If UseIndexing Then
+			Dim lst As New List(Of ObjBase)()
+			For Each Indexing In _indexingMembers
 				Dim path = GetIndexFileName(obj.GetType, Indexing.Name)
 
 				Dim fileReader = My.Computer.FileSystem.OpenTextFileReader(path)
@@ -172,13 +176,9 @@ Public Class FileObjStorage
 						Next
 					End If
 				End If
-			Catch exc As Exception
-				MessageBox.Show(exc.Message)
-			End Try
-		Next
-
-		Return False
-	End Function
+			Next
+		End If
+	End Sub
 
 	Private Function GetFileName(objId As String) As String
 		Return _folder + Utils.Sep + objId + ".obj.json"
@@ -245,6 +245,15 @@ Public Class FileObjStorage
 
 	Public Overrides Function FindObj(searchParams As SearchParams) As String()
 		Dim result As New List(Of String)
+		If Not UseIndexing Then
+			'If searchParams IsNot Nothing Then
+			'	Throw New Exception("FileStorage: searchParams not null при отключенном индексировании")
+			'Else
+			result.AddRange(FindAllObjs())
+			Return result.ToArray
+			'End If
+		End If
+
 		If searchParams Is Nothing OrElse searchParams.FindCriterias Is Nothing Then
 			result.AddRange(FindAllObjs())
 		Else

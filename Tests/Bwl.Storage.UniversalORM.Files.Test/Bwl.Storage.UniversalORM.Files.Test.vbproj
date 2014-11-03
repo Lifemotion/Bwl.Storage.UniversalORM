@@ -77,11 +77,11 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="TestData.vb" />
-    <Compile Include="UORM.vb">
+    <Compile Include="UORM_test.vb">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="UORM.Designer.vb">
-      <DependentUpon>UORM.vb</DependentUpon>
+    <Compile Include="UORM_test.Designer.vb">
+      <DependentUpon>UORM_test.vb</DependentUpon>
       <SubType>Form</SubType>
     </Compile>
     <Compile Include="My Project\AssemblyInfo.vb" />
@@ -107,8 +107,8 @@
       <CustomToolNamespace>My.Resources</CustomToolNamespace>
       <SubType>Designer</SubType>
     </EmbeddedResource>
-    <EmbeddedResource Include="UORM.resx">
-      <DependentUpon>UORM.vb</DependentUpon>
+    <EmbeddedResource Include="UORM_test.resx">
+      <DependentUpon>UORM_test.vb</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>

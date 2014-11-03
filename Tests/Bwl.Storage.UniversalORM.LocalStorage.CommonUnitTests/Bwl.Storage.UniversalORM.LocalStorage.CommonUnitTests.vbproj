@@ -93,7 +93,8 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="LocalSettings_Firebird.vb" />
-    <Compile Include="LocalStorageTest_File.vb" />
+    <Compile Include="LocalStorageTest_File_WithIndexing.vb" />
+    <Compile Include="LocalStorageTest_File_WithoutIndexing.vb" />
     <Compile Include="LocalStorageTest_Firebird_Embed.vb" />
     <Compile Include="LocalStorageTest_Firebird_Service.vb" />
     <Compile Include="LocalSettings_SqlSrv.vb" />

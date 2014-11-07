@@ -85,9 +85,16 @@ Public Class FileObjStorage
 		If Utils.TestFolderFsm(_folder) Then
 			Dim fileMain = GetFileName(id)
 			If Not IO.File.Exists(fileMain) Then Throw New Exception("Object Not Exists with this ID")
-			Dim oldobj = GetObj(id)
+
+			Try
+				Dim oldobj = GetObj(id)
+				DeleteIndex(oldobj)
+			Catch ex As Exception
+
+			End Try
+
 			IO.File.Delete(fileMain)
-			DeleteIndex(oldobj)
+
 			'For Each indexing In _indexingMembers
 			'	Try
 			'		Dim path = GetIndexPath(indexing.Name, MD5.GetHash(id))
@@ -399,11 +406,15 @@ Public Class FileObjStorage
 			Try
 				If IO.File.Exists(file) Then
 					Dim str = IO.File.ReadAllText(file, Utils.Enc)
-					Dim oi = CType(CfJsonConverter.Deserialize(str, GetType(ObjInfo)), ObjInfo)
-					If oi.ObjType = Nothing Then
-						oi.ObjType = SupportedType
+					If String.IsNullOrWhiteSpace(str) Then
+						IO.File.Delete(file)
+					Else
+						Dim oi = CType(CfJsonConverter.Deserialize(str, GetType(ObjInfo)), ObjInfo)
+						If oi.ObjType = Nothing Then
+							oi.ObjType = SupportedType
+						End If
+						obj = CType(CfJsonConverter.Deserialize(oi.Obj, oi.ObjType), ObjBase)
 					End If
-					obj = CType(CfJsonConverter.Deserialize(oi.Obj, oi.ObjType), ObjBase)
 				End If
 			Catch ex As Exception
 				Dim err = "Err FileStorage.GetObj _ file: " + file + vbCrLf + ex.ToString

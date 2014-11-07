@@ -41,7 +41,7 @@ Public Class MSSQLSRVStorageManager
 		Return res
 	End Function
 
-	Private Function GetDB(t As Type) As String
+	Public Function GetDB(t As Type) As String
 		Dim dbName = _defaultDB
 		If t IsNot Nothing Then
 			SyncLock (_dictDB)

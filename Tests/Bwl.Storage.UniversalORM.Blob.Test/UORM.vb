@@ -17,6 +17,21 @@ Public Class UORM
 		testData.Data.Bitmap = New Bitmap(1000, 1000)
 		testData.Data.VeryBigData = {0, 1, 2, 3, 4, 5, 65, 44, 2, 3, 6, 34, 77, 24, 78, 35, 57, 78}
 
+		testData.List = New List(Of ObjContainer2)
+
+		
+
+		Dim testData2 = New SomeData
+		testData2.Data = New BigData
+		testData2.Data.BigText1 = "2222"
+		testData2.Data.Bitmap = New Bitmap(12, 13)
+		testData2.Data.VeryBigData = {5, 6, 7, 8, 9, 0, 4, 3, 0}
+
+
+		Dim objCont = New ObjContainer2
+		objCont.Obj = testData2
+		testData.List.Add(objCont)
+
 		Dim id = Guid.NewGuid.ToString
 		Dim json = CfJsonConverter.Serialize(testData)
 		blobStorage.SaveBlobs(testData, id)

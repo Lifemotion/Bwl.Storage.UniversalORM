@@ -19,9 +19,10 @@ Public Class BitmapBinarySaver
 			Dim bmp = CType(blob, Bitmap)
 			Dim stream = New MemoryStream
 			bmp.Save(stream, System.Drawing.Imaging.ImageFormat.Jpeg)
-			Dim bytes(stream.Length - 1) As Byte
+			Dim len = Convert.ToInt32(stream.Length)
+			Dim bytes(len - 1) As Byte
 			stream.Position = 0
-			stream.Read(bytes, 0, stream.Length)
+			stream.Read(bytes, 0, len)
 			stream.Dispose()
 			Return bytes
 		End If

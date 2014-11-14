@@ -18,4 +18,7 @@ Public Class SomeData
 
 	<BlobContainer>
 	Public Property Data As BigData
+
+	<BlobContainer>
+	Public Property List As List(Of ObjContainer2)
 End Class

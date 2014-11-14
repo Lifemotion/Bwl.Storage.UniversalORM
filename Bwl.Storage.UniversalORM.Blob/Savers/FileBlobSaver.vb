@@ -33,7 +33,7 @@ Public Class FileBlobSaver
 		Return ObjBlobInfo
 	End Function
 
-	Private Function GetPath(id As String, fullPath As Boolean, needCreate As Boolean)
+	Private Function GetPath(id As String, fullPath As Boolean, needCreate As Boolean) As String
 		Dim subDir = id
 		Dim root = _rootDir
 		If subDir.Length > 10 Then

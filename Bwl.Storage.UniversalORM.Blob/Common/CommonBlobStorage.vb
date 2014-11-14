@@ -5,7 +5,7 @@ Public Class CommonBlobStorage
 
 	Private ReadOnly _blobStreamSavers As New List(Of IBlobBinarySaver)()
 	Private ReadOnly _blobSavers As New List(Of IBlobSaver)()
-	Private ReadOnly _typesInfo As New Dictionary(Of Type, String())()
+	'Private ReadOnly _typesInfo As New Dictionary(Of Type, String())()
 
 	Public Sub New()
 		AddStreamSaver(New BitmapBinarySaver)
@@ -20,7 +20,7 @@ Public Class CommonBlobStorage
 		End SyncLock
 	End Sub
 
-	Public Sub RemoveSaver(saver As IBlobBinarySaver)
+	Public Sub RemoveSaver(saver As IBlobSaver)
 		SyncLock (_blobSavers)
 			If (saver IsNot Nothing) AndAlso (_blobSavers.Contains(saver)) Then
 				_blobSavers.Remove(saver)
@@ -56,18 +56,14 @@ Public Class CommonBlobStorage
 		End Get
 	End Property
 
-	Private Function AnalyzeType(parentObject As Object) As String()
+	Private Function AnalyzeObj(parentObject As Object) As Dictionary(Of String, Object)
 		Dim type = parentObject.GetType
 
-		Dim typeInfo() As String
-		SyncLock (_typesInfo)
-			If (_typesInfo.ContainsKey(type)) Then
-				typeInfo = _typesInfo(type)
-			Else
-				typeInfo = ReflectionTools.GetBLOBMemberNames(type)
-				_typesInfo.Add(type, typeInfo)
-			End If
-		End SyncLock
+		Dim typeInfo As Dictionary(Of String, Object)
+		'SyncLock (_typesInfo)
+		typeInfo = ReflectionTools.GetBLOBMemberNames(type, parentObject)
+		'_typesInfo.Add(type, typeInfo)
+		'End SyncLock
 
 		Return typeInfo
 	End Function
@@ -80,15 +76,15 @@ Public Class CommonBlobStorage
 	''' <returns></returns>
 	''' <remarks></remarks>
 	Public Function LoadBlobs(parentObject As Object, parentId As String) As Boolean Implements IBlobStorage.LoadBlobs
-		Try
-			If (parentObject IsNot Nothing) Then
-				Dim objBlobInfo = Load(parentId)
-				SetBlobsValue(objBlobInfo, parentObject)
-				Return True
-			End If
-		Catch ex As Exception
+		'Try
+		If (parentObject IsNot Nothing) Then
+			Dim objBlobInfo = Load(parentId)
+			SetBlobsValue(objBlobInfo, parentObject)
+			Return True
+		End If
+		'Catch ex As Exception
 
-		End Try
+		'End Try
 		Return False
 	End Function
 
@@ -139,14 +135,14 @@ Public Class CommonBlobStorage
 
 	Private Function SaveToStream(parentObject As Object, parentId As String) As ObjBlobInfo
 		SyncLock (_blobStreamSavers)
-			Dim typeInfo = AnalyzeType(parentObject)
+			Dim objInfo = AnalyzeObj(parentObject)
 			Dim objBlobInfo = New ObjBlobInfo
 			objBlobInfo.ParentObjId = parentId
 			objBlobInfo.BlobsInfo = New List(Of BlobInfo)
 
-			For Each fieldInfo In typeInfo
+			For Each pair In objInfo
 				Try
-					Dim blobValue = ReflectionTools.GetMemberValue(fieldInfo, parentObject)
+					Dim blobValue = pair.Value
 					If (blobValue IsNot Nothing) Then
 						Dim blobType = blobValue.GetType
 						Dim streamSaver = _blobStreamSavers.FirstOrDefault(Function(s) s.SupportedTypes.Contains(blobType))
@@ -154,7 +150,7 @@ Public Class CommonBlobStorage
 						If (streamSaver IsNot Nothing) Then
 							Dim blobInfo = New BlobInfo
 							blobInfo.BlobId = Guid.NewGuid.ToString
-							blobInfo.FieldName = fieldInfo
+							blobInfo.FieldName = pair.Key
 							blobInfo.FieldType = blobType
 							blobInfo.Data = streamSaver.ToBinary(blobValue)
 							objBlobInfo.BlobsInfo.Add(blobInfo)

@@ -15,20 +15,22 @@ Public Class LocalSettings_Firebird
 		'  их надо изменять в конфиг файле
 		'!!!!!!!!!!!!!!!!!!!!!
 
+        Dim pathSep = IO.Path.PathSeparator
+
 		Dim dbStorage = _settings.CreateChildStorage("DB_FB")
 
 		Dim userSetting = dbStorage.CreateStringSetting("DBUserSetting", "sysdba")
 		Dim passSetting = dbStorage.CreateStringSetting("DBPassSetting", "masterkey")
 		Dim dialectSetting = dbStorage.CreateIntegerSetting("DialectSetting", 3)
 
-		Dim DBPathDef_embed = IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "..\data\TestDB_EMBEDDED.fdb")
+        Dim DBPathDef_embed = IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory, ".." + pathSep + "data" + pathSep + "TestDB_EMBEDDED.fdb")
 		Dim databaseSetting_embed = dbStorage.CreateStringSetting("DatabaseSetting_Embed", DBPathDef_embed)
 
-		Dim DBPathDef_service = IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "..\data\TestDB_service.fdb")
+        Dim DBPathDef_service = IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory, ".." + pathSep + "data" + pathSep + "TestDB_service.fdb")
 		Dim databaseSetting_service = dbStorage.CreateStringSetting("DatabaseSetting_Service", DBPathDef_service)
 
 		Dim dbTimeout = dbStorage.CreateIntegerSetting("dbTimeout", 1)
-		Dim clientDllPathDef = IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "fbe32\fbembed.dll")
+        Dim clientDllPathDef = IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "fbe32" + pathSep + "fbembed.dll")
 		Dim clientDllPathSetting = dbStorage.CreateStringSetting("clientDllPathSetting", clientDllPathDef)
 
 		_connStrBld_embed = New FbConnectionStringBuilder()

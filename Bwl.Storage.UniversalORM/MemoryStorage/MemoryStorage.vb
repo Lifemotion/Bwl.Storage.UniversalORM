@@ -61,4 +61,8 @@ Public Class MemoryStorage
 	Public Overrides Function FindObjCount(searchParams As SearchParams) As Long
 		Return _objects.Count
 	End Function
+
+	Public Overrides Function GetSomeFieldDistinct(fieldName As String) As IEnumerable(Of String)
+		Return Nothing
+	End Function
 End Class

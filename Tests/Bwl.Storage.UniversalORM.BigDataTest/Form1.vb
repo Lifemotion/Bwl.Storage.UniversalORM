@@ -37,9 +37,9 @@ Public Class FormBigDataTest
 	Private Sub InitMSSQLSRV()
 		_conStrBuidMSSQLSRV = New SqlConnectionStringBuilder()
 		_conStrBuidMSSQLSRV.InitialCatalog = "BigData1"
-		_conStrBuidMSSQLSRV.UserID = "DrFenazepam-ПК\DrFenazepam" '"sa"
+		_conStrBuidMSSQLSRV.UserID = "sa"
 		_conStrBuidMSSQLSRV.Password = "" '"123"
-		_conStrBuidMSSQLSRV.DataSource = "DRFENAZEPAM-ПК\SQLEXPRESS" '"(local)"
+		_conStrBuidMSSQLSRV.DataSource = ".\SQLEXPRESS"
 		_conStrBuidMSSQLSRV.IntegratedSecurity = True
 		_conStrBuidMSSQLSRV.ConnectTimeout = 1
 		_managerMSSQLSRV = New MSSQLSRVStorageManager(_conStrBuidMSSQLSRV)

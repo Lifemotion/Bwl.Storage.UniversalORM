@@ -148,6 +148,21 @@ Public MustInherit Class LocalStorageBaseTest
 	End Sub
 
 	<TestMethod()>
+	Public Sub GetSomeFieldDistinct()
+		_localStorage.RemoveAllObj(GetType(TestData))
+
+		_localStorage.AddObj(_data1)
+		_localStorage.AddObj(_data2)
+
+		Dim distinctValues = _localStorage.GetSomeFieldDistinct("Cat", GetType(TestData))
+
+		Assert.IsNotNull(distinctValues)
+		Assert.AreEqual(distinctValues.Count, 2)
+		Assert.AreEqual(distinctValues.Contains(_data1.Cat), True)
+		Assert.AreEqual(distinctValues.Contains(_data2.Cat), True)
+	End Sub
+
+	<TestMethod()>
 	Public Sub BigData_100KB()
 		_localStorage.RemoveAllObj(GetType(TestData))
 

@@ -43,6 +43,21 @@ Public Class MSSQLSRVStorage
 		Next
 	End Sub
 
+	Public Overrides Function GetSomeFieldDistinct(fieldName As String) As IEnumerable(Of String)
+		Dim res = New List(Of String)
+		CheckDB()
+		For Each indexing In _indexingMembers
+			If indexing.Name.ToLower = fieldName.ToLower Then
+				Dim indexTableName = GetIndexTableName(indexing)
+				Dim query = "SELECT DISTINCT [value] FROM " + indexTableName
+				Dim values = MSSQLSRVUtils.GetObjectList(_connectionStringBld.ConnectionString, query)
+				If values IsNot Nothing AndAlso values.Any Then
+					res.AddRange(values.Select(Function(v) v.First.ToString))
+				End If
+			End If
+		Next
+		Return res
+	End Function
 
 	Public Overrides Function FindObjCount(searchParams As SearchParams) As Long
 		Dim res As Long = 0

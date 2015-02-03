@@ -42,6 +42,10 @@ Public Class FileObjStorage
 		End Set
 	End Property
 
+	Public Overrides Function GetSomeFieldDistinct(fieldName As String) As IEnumerable(Of String)
+		Return Nothing
+	End Function
+
 	Public Overrides Sub AddObj(obj As ObjBase)
 		If Utils.TestFolderFsm(_folder) AndAlso obj IsNot Nothing Then
 			Dim file = GetFileName(obj.ID)

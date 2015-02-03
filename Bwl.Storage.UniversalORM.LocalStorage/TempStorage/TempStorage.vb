@@ -54,6 +54,10 @@ Public Class TempStorage
 		Return obj
 	End Function
 
+	Public Overrides Function GetSomeFieldDistinct(fieldName As String) As IEnumerable(Of String)
+		Return Nothing
+	End Function
+
 	Public Overrides Sub RemoveObj(id As String)
 
 	End Sub

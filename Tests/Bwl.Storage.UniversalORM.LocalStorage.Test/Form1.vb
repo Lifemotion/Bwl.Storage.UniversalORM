@@ -6,9 +6,9 @@ Public Class Form1
 	Private Sub Form1_Load(sender As Object, e As EventArgs) Handles MyBase.Load
 		Dim conStrBld = New SqlConnectionStringBuilder()
 		conStrBld.InitialCatalog = "TestDB1"
-		conStrBld.UserID = "DrFenazepam-ПК\DrFenazepam"	'"sa"
+		conStrBld.UserID = "sa"
 		conStrBld.Password = ""	'"123"
-		conStrBld.DataSource = "DRFENAZEPAM-ПК\SQLEXPRESS" ' "(local)"
+		conStrBld.DataSource = ".\SQLEXPRESS"
 		conStrBld.IntegratedSecurity = True
 
 		conStrBld.ConnectTimeout = 1

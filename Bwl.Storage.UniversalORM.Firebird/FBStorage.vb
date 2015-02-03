@@ -30,18 +30,34 @@ Public Class FBStorage
 		Save(ConnectionString, obj.ID, json, obj.GetType)
 
 		For Each indexing In _indexingMembers
-			Dim indexTableName = GetIndexName(indexing).Replace(".", "_")
+			Dim indexName = GetIndexName(indexing)
 			Try
 				Dim indexValue = ReflectionTools.GetMemberValue(indexing.Name, obj)
 				If (TypeOf (indexValue) Is DateTime) Then
 					indexValue = CType(indexValue, DateTime).Ticks
 				End If
-				SaveIndex(Name, indexTableName, obj.ID, indexValue)
+				SaveIndex(Name, indexName, obj.ID, indexValue)
 			Catch ex As Exception
 				Throw New Exception(ex.Message)
 			End Try
 		Next
 	End Sub
+
+	Public Overrides Function GetSomeFieldDistinct(fieldName As String) As IEnumerable(Of String)
+		Dim res = New List(Of String)
+		CheckDB()
+		For Each indexing In _indexingMembers
+			If indexing.Name.ToLower = fieldName.ToLower Then
+				Dim indexName = GetIndexName(indexing)
+				Dim query = "SELECT DISTINCT " + indexName + " FROM " + _name
+				Dim values = FbUtils.GetObjectList(_ConnectionStringBld.ConnectionString, query)
+				If values IsNot Nothing AndAlso values.Any Then
+					res.AddRange(values.Select(Function(v) v.First.ToString))
+				End If
+			End If
+		Next
+		Return res
+	End Function
 
 	Public Overrides Sub AddObjects(objects As ObjBase())
 		For Each obj In objects
@@ -61,23 +77,23 @@ Public Class FBStorage
 			End If
 		End If
 
-		'''' sorting
-		Dim sortModeStr = "ASC"
-		Dim sortField = "guid"
-		Dim sortTableName = Name
-		If (searchParams IsNot Nothing) AndAlso (searchParams.SortParam IsNot Nothing) Then
-			If searchParams.SortParam.SortMode = SortMode.Descending Then
-				sortModeStr = "DESC"
-			End If
+		' '''' sorting
+		'Dim sortModeStr = "ASC"
+		'Dim sortField = "guid"
+		'Dim sortColName = Name
+		'If (searchParams IsNot Nothing) AndAlso (searchParams.SortParam IsNot Nothing) Then
+		'	If searchParams.SortParam.SortMode = SortMode.Descending Then
+		'		sortModeStr = "DESC"
+		'	End If
 
-			Dim indexInfo = _indexingMembers.FirstOrDefault(Function(indInf) indInf.Name = searchParams.SortParam.Field)
-			If (indexInfo IsNot Nothing) Then
-				sortField = "value"
-				sortTableName = GetIndexName(indexInfo)
-			Else
-				Throw New Exception("FBStorage.FindObj _ BadSortParam _ index " + searchParams.SortParam.Field + " not found.")
-			End If
-		End If
+		'	Dim indexInfo = _indexingMembers.FirstOrDefault(Function(indInf) indInf.Name = searchParams.SortParam.Field)
+		'	If (indexInfo IsNot Nothing) Then
+		'		sortField = "value"
+		'		sortColName = GetIndexName(indexInfo)
+		'	Else
+		'		Throw New Exception("FBStorage.FindObj _ BadSortParam _ index " + searchParams.SortParam.Field + " not found.")
+		'	End If
+		'End If
 
 		Dim crit As IEnumerable(Of FindCriteria) = Nothing
 		If (searchParams IsNot Nothing) Then
@@ -218,13 +234,13 @@ Public Class FBStorage
 		Update(ConnectionString, obj.ID, json)
 
 		For Each indexing In _indexingMembers
-			Dim indexTableName = GetIndexName(indexing).Replace(".", "_")
+			Dim indexName = GetIndexName(indexing)
 			Try
 				Dim indexValue = ReflectionTools.GetMemberValue(indexing.Name, obj)
 				If (TypeOf (indexValue) Is DateTime) Then
 					indexValue = CType(indexValue, DateTime).Ticks
 				End If
-				UpdateIndex(indexTableName, obj.ID, indexValue)
+				UpdateIndex(indexName, obj.ID, indexValue)
 			Catch ex As Exception
 				Throw New Exception("Ошибка обновления объекта в базе данных: " + ex.Message)
 			End Try
@@ -256,7 +272,7 @@ Public Class FBStorage
 
 			Dim indexInfo = _indexingMembers.FirstOrDefault(Function(indInf) indInf.Name = sortParam.Field)
 			If (indexInfo IsNot Nothing) Then
-				sortFieldName = GetIndexName(indexInfo).ToUpper
+				sortFieldName = GetIndexName(indexInfo)
 				sortField = ", " + sortFieldName
 			Else
 				Throw New Exception("FBtorage.GetObjects _ BadSortParam _ index " + indexInfo.Name + " not found.")
@@ -327,8 +343,7 @@ Public Class FBStorage
 	End Sub
 
 	Private Function GetIndexName(indexing As IndexInfo) As String
-		Dim indexName = String.Empty
-		indexName = indexing.Name.Replace(".", "_").ToUpper()
+		Dim indexName = indexing.Name.Replace(".", "_").ToUpper()
 
 		Dim t = indexing.Type
 
@@ -368,7 +383,7 @@ Public Class FBStorage
 
 			ListQuery.Execute()
 		End If
-		Return indexing.Name
+		Return indexName
 	End Function
 
 	Private Function GenerateWhereSql(criterias As IEnumerable(Of FindCriteria), sort As SortParam) As SqlHelper
@@ -391,25 +406,25 @@ Public Class FBStorage
 				Else
 					Dim ind = _indexingMembers.FirstOrDefault(Function(f) f.Name = crit.Field)
 					If (ind IsNot Nothing) Then
-						Dim indexTableName = GetIndexName(ind).Replace(".", "_").ToUpper
+						Dim indexName = GetIndexName(ind)
 						Dim str = String.Empty
 						Dim pName = "@p" + i.ToString
 						Const quote As String = """"
 						Select Case crit.Condition
 							Case FindCondition.eqaul
-								str = String.Format(" ({0} = {1}) ", quote + indexTableName + quote, pName)
+								str = String.Format(" ({0} = {1}) ", quote + indexName + quote, pName)
 							Case FindCondition.greater
-								str = String.Format(" ({0} > {1}) ", quote + indexTableName + quote, pName)
+								str = String.Format(" ({0} > {1}) ", quote + indexName + quote, pName)
 							Case FindCondition.less
-								str = String.Format(" ({0} < {1}) ", quote + indexTableName + quote, pName)
+								str = String.Format(" ({0} < {1}) ", quote + indexName + quote, pName)
 							Case FindCondition.notEqual
-								str = String.Format(" ({0} <> {1}) ", quote + indexTableName + quote, pName)
+								str = String.Format(" ({0} <> {1}) ", quote + indexName + quote, pName)
 							Case FindCondition.likeEqaul
-								str = String.Format(" ({0} LIKE {1}) ", quote + indexTableName + quote, pName)
+								str = String.Format(" ({0} LIKE {1}) ", quote + indexName + quote, pName)
 							Case FindCondition.greaterOrEqual
-								str = String.Format(" ({0} >= {1}) ", quote + indexTableName + quote, pName)
+								str = String.Format(" ({0} >= {1}) ", quote + indexName + quote, pName)
 							Case FindCondition.lessOrEqual
-								str = String.Format(" ({0} <= {1}) ", quote + indexTableName + quote, pName)
+								str = String.Format(" ({0} <= {1}) ", quote + indexName + quote, pName)
 						End Select
 
 						If (String.IsNullOrEmpty(where)) Then

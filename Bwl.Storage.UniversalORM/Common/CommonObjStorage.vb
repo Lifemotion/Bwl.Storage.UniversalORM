@@ -42,4 +42,7 @@
 	Public MustOverride Sub RemoveAllObjects() Implements IObjStorage.RemoveAllObjects
 
 	Public MustOverride Function FindObjCount(searchParams As SearchParams) As Long Implements IObjStorage.FindObjCount
+
+	Public MustOverride Function GetSomeFieldDistinct(fieldName As String) As IEnumerable(Of String) Implements IObjStorage.GetSomeFieldDistinct
+
 End Class

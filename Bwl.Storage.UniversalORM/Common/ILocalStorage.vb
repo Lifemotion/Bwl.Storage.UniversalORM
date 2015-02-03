@@ -24,4 +24,6 @@
 
 	Function Contains(id As String, type As Type) As Boolean
 	Function Contains(Of T As ObjBase)(id As String) As Boolean
+
+	Function GetSomeFieldDistinct(fieldName As String, type As Type) As IEnumerable(Of String)
 End Interface

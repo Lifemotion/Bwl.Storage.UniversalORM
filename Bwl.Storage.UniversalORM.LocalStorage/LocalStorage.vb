@@ -1,5 +1,4 @@
 ﻿Imports System.IO
-Imports Bwl.Storage.UniversalORM.AdoDb
 Imports Bwl.Storage.UniversalORM
 Imports Bwl.Storage.UniversalORM.Blob
 
@@ -208,4 +207,13 @@ Public Class LocalStorage
 			storage.RemoveAllObjects()
 		End If
 	End Sub
+
+	Public Function GetSomeFieldDistinct(fieldName As String, type As Type) As IEnumerable(Of String) Implements ILocalStorage.GetSomeFieldDistinct
+		Dim res As List(Of String) = Nothing
+		Dim storage = GetStorage(type)
+		If storage IsNot Nothing Then
+			res = storage.GetSomeFieldDistinct(fieldName)
+		End If
+		Return res
+	End Function
 End Class

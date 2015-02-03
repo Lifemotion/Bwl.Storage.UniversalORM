@@ -13,7 +13,7 @@ Public Class LocalSettings
 		Dim userSetting = dbStorage.CreateStringSetting("DBUserSetting", "sa")
 		Dim passSetting = dbStorage.CreateStringSetting("DBPassSetting", "123")
 
-		Dim dsSetting = dbStorage.CreateStringSetting("DBDataSourceSetting", "(local)")
+		Dim dsSetting = dbStorage.CreateStringSetting("DBDataSourceSetting", ".\SQLEXPRESS")
 		Dim dbNameSetting = dbStorage.CreateStringSetting("DBNameSetting", "ORMTestDB")
 		Dim dbIntegratedSeqSetting = dbStorage.CreateBooleanSetting("dbIntegratedSeqSetting", False)
 		Dim dbTimeout = dbStorage.CreateIntegerSetting("dbTimeout", 1)

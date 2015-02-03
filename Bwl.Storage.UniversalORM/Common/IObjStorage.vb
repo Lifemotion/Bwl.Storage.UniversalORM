@@ -19,4 +19,6 @@
 	ReadOnly Property SupportedType As Type
 
 	Function Contains(id As String) As Boolean
+
+	Function GetSomeFieldDistinct(fieldName As String) As IEnumerable(Of String)
 End Interface

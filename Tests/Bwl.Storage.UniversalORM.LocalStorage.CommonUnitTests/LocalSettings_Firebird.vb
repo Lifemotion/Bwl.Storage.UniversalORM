@@ -36,35 +36,35 @@ Public Class LocalSettings_Firebird
 		_connStrBld_embed = New FbConnectionStringBuilder()
 		_connStrBld_embed.Database = databaseSetting_embed.Value
 		_connStrBld_embed.ServerType = FbServerType.Embedded
-		_connStrBld_embed.UserID = userSetting.Value
-		_connStrBld_embed.Password = passSetting.Value
-		_connStrBld_embed.Dialect = dialectSetting.Value
-		_connStrBld_embed.ConnectionTimeout = dbTimeout.Value
-		_connStrBld_embed.ClientLibrary = clientDllPathSetting.Value
-	End Sub
+        _connStrBld_embed.UserID = userSetting.Value
+        _connStrBld_embed.Password = passSetting.Value
+        _connStrBld_embed.Dialect = dialectSetting.Value
+        _connStrBld_embed.ConnectionTimeout = dbTimeout.Value
+        _connStrBld_embed.ClientLibrary = clientDllPathSetting.Value
+    End Sub
 
-	Private Sub CreateFbServiceBld()
-		Dim dbStorage_service = _settings.CreateChildStorage("DB_FB_service")
+    Private Sub CreateFbServiceBld()
+        Dim dbStorage_service = _settings.CreateChildStorage("DB_FB_service")
 
-		Dim userSetting = dbStorage_service.CreateStringSetting("DBUserSetting", "sysdba")
-		Dim passSetting = dbStorage_service.CreateStringSetting("DBPassSetting", "masterkey")
-		Dim dialectSetting = dbStorage_service.CreateIntegerSetting("DialectSetting", 3)
+        Dim userSetting = dbStorage_service.CreateStringSetting("DBUserSetting", "sysdba")
+        Dim passSetting = dbStorage_service.CreateStringSetting("DBPassSetting", "masterkey")
+        Dim dialectSetting = dbStorage_service.CreateIntegerSetting("DialectSetting", 3)
 
-		Dim dataSourceSetting = dbStorage_service.CreateStringSetting("DataSourceSetting", "localhost")
+        Dim dataSourceSetting = dbStorage_service.CreateStringSetting("DataSourceSetting", "localhost")
 
-		Dim DBPathDef_service = IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "..\data\TestDB_service.fdb")
-		Dim databaseSetting_service = dbStorage_service.CreateStringSetting("DatabaseSetting_Service", DBPathDef_service)
+        Dim DBPathDef_service = IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "..\data\TestDB_service.fdb")
+        Dim databaseSetting_service = dbStorage_service.CreateStringSetting("DatabaseSetting_Service", DBPathDef_service)
 
-		Dim dbTimeout = dbStorage_service.CreateIntegerSetting("dbTimeout", 1)
+        Dim dbTimeout = dbStorage_service.CreateIntegerSetting("dbTimeout", 1)
 
-		_connStrBld_service = New FbConnectionStringBuilder()
-		_connStrBld_service.Database = databaseSetting_service.Value
-		_connStrBld_service.UserID = userSetting.Value
-		_connStrBld_service.Password = passSetting.Value
-		_connStrBld_service.Dialect = dialectSetting.Value
-		_connStrBld_service.ConnectionTimeout = dbTimeout.Value
-		_connStrBld_service.DataSource = dataSourceSetting.Value
-	End Sub
+        _connStrBld_service = New FbConnectionStringBuilder()
+        _connStrBld_service.Database = databaseSetting_service.Value
+        _connStrBld_service.UserID = userSetting.Value
+        _connStrBld_service.Password = passSetting.Value
+        _connStrBld_service.Dialect = dialectSetting.Value
+        _connStrBld_service.ConnectionTimeout = dbTimeout.Value
+        _connStrBld_service.DataSource = dataSourceSetting.Value
+    End Sub
 
 	Public ReadOnly Property ConnectionStringBuilder_Service As FbConnectionStringBuilder
 		Get

@@ -25,349 +25,354 @@ Public Class MSSQLSRVStorage
 		Save(ConnectionString, obj.ID, json, obj.GetType)
 		For Each indexing In _indexingMembers
 			Dim indexTableName = GetIndexTableName(indexing)
-			Try
-				Dim indexValue = ReflectionTools.GetMemberValue(indexing.Name, obj)
-				If (TypeOf (indexValue) Is DateTime) Then
-					indexValue = CType(indexValue, DateTime).Ticks
-				End If
-				SaveIndex(indexTableName, obj.ID, indexValue)
-			Catch ex As Exception
-				'...
-			End Try
-		Next
-	End Sub
+            Dim indexValue = ReflectionTools.GetMemberValue(indexing.Name, obj)
+            If (TypeOf (indexValue) Is DateTime) Then
+                indexValue = CType(indexValue, DateTime).Ticks
+            End If
+            AddOrUpdateIndex(indexTableName, obj.ID, indexValue)
+        Next
+    End Sub
 
-	Public Overrides Sub AddObjects(objects As ObjBase())
-		For Each obj In objects
-			AddObj(obj)
-		Next
-	End Sub
+    Public Overrides Sub AddObjects(objects As ObjBase())
+        For Each obj In objects
+            AddObj(obj)
+        Next
+    End Sub
 
-	Public Overrides Function GetSomeFieldDistinct(fieldName As String) As IEnumerable(Of String)
-		Dim res = New List(Of String)
-		CheckDB()
-		For Each indexing In _indexingMembers
-			If indexing.Name.ToLower = fieldName.ToLower Then
-				Dim indexTableName = GetIndexTableName(indexing)
-				Dim query = "SELECT DISTINCT [value] FROM " + indexTableName
-				Dim values = MSSQLSRVUtils.GetObjectList(_connectionStringBld.ConnectionString, query)
-				If values IsNot Nothing AndAlso values.Any Then
-					res.AddRange(values.Select(Function(v) v.First.ToString))
-				End If
-			End If
-		Next
-		Return res
-	End Function
+    Public Overrides Function GetSomeFieldDistinct(fieldName As String) As IEnumerable(Of String)
+        Dim res = New List(Of String)
+        CheckDB()
+        For Each indexing In _indexingMembers
+            If indexing.Name.ToLower = fieldName.ToLower Then
+                Dim indexTableName = GetIndexTableName(indexing)
+                Dim query = "SELECT DISTINCT [value] FROM " + indexTableName
+                Dim values = MSSQLSRVUtils.GetObjectList(_connectionStringBld.ConnectionString, query)
+                If values IsNot Nothing AndAlso values.Any Then
+                    res.AddRange(values.Select(Function(v) v.First.ToString))
+                End If
+            End If
+        Next
+        Return res
+    End Function
 
-	Public Overrides Function FindObjCount(searchParams As SearchParams) As Long
-		Dim res As Long = 0
-		CheckDB()
+    Public Overrides Function FindObjCount(searchParams As SearchParams) As Long
+        Dim res As Long = 0
+        CheckDB()
 
-		'''' TOP
-		Dim topSql = String.Empty
-		If (searchParams IsNot Nothing) AndAlso (searchParams.SelectOptions IsNot Nothing) Then
-			If searchParams.SelectOptions.TopValue > 0 Then
-				topSql = " TOP " + searchParams.SelectOptions.TopValue.ToString + " "
-			End If
-		End If
+        '''' TOP
+        Dim topSql = String.Empty
+        If (searchParams IsNot Nothing) AndAlso (searchParams.SelectOptions IsNot Nothing) Then
+            If searchParams.SelectOptions.TopValue > 0 Then
+                topSql = " TOP " + searchParams.SelectOptions.TopValue.ToString + " "
+            End If
+        End If
 
-		'''' sorting
-		Dim sortModeStr = "ASC"
-		Dim sortField = "guid"
-		Dim sortTableName = Name
-		If (searchParams IsNot Nothing) AndAlso (searchParams.SortParam IsNot Nothing) Then
-			If searchParams.SortParam.SortMode = SortMode.Descending Then
-				sortModeStr = "DESC"
-			End If
+        '''' sorting
+        Dim sortModeStr = "ASC"
+        Dim sortField = "guid"
+        Dim sortTableName = Name
+        If (searchParams IsNot Nothing) AndAlso (searchParams.SortParam IsNot Nothing) Then
+            If searchParams.SortParam.SortMode = SortMode.Descending Then
+                sortModeStr = "DESC"
+            End If
 
-			Dim indexInfo = _indexingMembers.FirstOrDefault(Function(indInf) indInf.Name = searchParams.SortParam.Field)
-			If (indexInfo IsNot Nothing) Then
-				sortField = "value"
-				sortTableName = GetIndexTableName(indexInfo)
-			Else
-				Throw New Exception("MSSQLSRVStorage.FindObj _ BadSortParam _ index " + searchParams.SortParam.Field + " not found.")
-			End If
-		End If
+            Dim indexInfo = _indexingMembers.FirstOrDefault(Function(indInf) indInf.Name = searchParams.SortParam.Field)
+            If (indexInfo IsNot Nothing) Then
+                sortField = "value"
+                sortTableName = GetIndexTableName(indexInfo)
+            Else
+                Throw New Exception("MSSQLSRVStorage.FindObj _ BadSortParam _ index " + searchParams.SortParam.Field + " not found.")
+            End If
+        End If
 
-		Dim crit As IEnumerable(Of FindCriteria) = Nothing
-		If (searchParams IsNot Nothing) Then
-			crit = searchParams.FindCriterias
-		End If
+        Dim crit As IEnumerable(Of FindCriteria) = Nothing
+        If (searchParams IsNot Nothing) Then
+            crit = searchParams.FindCriterias
+        End If
 
-		Dim sort As SortParam = Nothing
-		If (searchParams IsNot Nothing) Then
-			sort = searchParams.SortParam
-		End If
+        Dim sort As SortParam = Nothing
+        If (searchParams IsNot Nothing) Then
+            sort = searchParams.SortParam
+        End If
 
-		'''' from + where
-		Dim fromSql = GenerateFromSql(crit, sort)
+        '''' from + where
+        Dim fromSql = GenerateFromSql(crit, sort)
 
-		'''' where
-		Dim whereSql = String.Empty
-		Dim parameters As SqlParameter() = Nothing
-		Dim helper = GenerateWhereSql(crit, sort)
-		If helper IsNot Nothing Then
-			whereSql = helper.SQL
-			parameters = helper.Parameters.ToArray
-		End If
+        '''' where
+        Dim whereSql = String.Empty
+        Dim parameters As SqlParameter() = Nothing
+        Dim helper = GenerateWhereSql(crit, sort)
+        If helper IsNot Nothing Then
+            whereSql = helper.SQL
+            parameters = helper.Parameters.ToArray
+        End If
 
-		'''' main sql
-		Dim mainSelect = String.Format("Select count(*) from (select {4} [{1}].[guid] FROM {2} {3}) a ", topSql, Name, fromSql, whereSql, topSql)
-		Dim count = MSSQLSRVUtils.ExecSQLScalar(ConnectionString, mainSelect, parameters)
-		If count IsNot Nothing Then
-			res = Convert.ToInt64(count)
-		End If
-		Return res
-	End Function
+        '''' main sql
+        Dim mainSelect = String.Format("Select count(*) from (select {4} [{1}].[guid] FROM {2} {3}) a ", topSql, Name, fromSql, whereSql, topSql)
+        Dim count = MSSQLSRVUtils.ExecSQLScalar(ConnectionString, mainSelect, parameters)
+        If count IsNot Nothing Then
+            res = Convert.ToInt64(count)
+        End If
+        Return res
+    End Function
 
-	Public Overrides Function FindObj(searchParams As SearchParams) As String()
-		CheckDB()
+    Public Overrides Function FindObj(searchParams As SearchParams) As String()
+        CheckDB()
 
-		'''' TOP
-		Dim topSql = String.Empty
-		If (searchParams IsNot Nothing) AndAlso (searchParams.SelectOptions IsNot Nothing) AndAlso (searchParams.SelectOptions.SelectMode = SelectMode.Top) Then
-			If searchParams.SelectOptions.TopValue > 0 Then
-				topSql = " TOP " + searchParams.SelectOptions.TopValue.ToString + " "
-			End If
-		End If
+        '''' TOP
+        Dim topSql = String.Empty
+        If (searchParams IsNot Nothing) AndAlso (searchParams.SelectOptions IsNot Nothing) AndAlso (searchParams.SelectOptions.SelectMode = SelectMode.Top) Then
+            If searchParams.SelectOptions.TopValue > 0 Then
+                topSql = " TOP " + searchParams.SelectOptions.TopValue.ToString + " "
+            End If
+        End If
 
-		'''' sorting
-		Dim sortModeStr = "ASC"
-		Dim sortField = "id"
-		Dim sortTableName = Name
-		If (searchParams IsNot Nothing) AndAlso (searchParams.SortParam IsNot Nothing) Then
-			If searchParams.SortParam.SortMode = SortMode.Descending Then
-				sortModeStr = "DESC"
-			End If
+        '''' sorting
+        Dim sortModeStr = "ASC"
+        Dim sortField = "id"
+        Dim sortTableName = Name
+        If (searchParams IsNot Nothing) AndAlso (searchParams.SortParam IsNot Nothing) Then
+            If searchParams.SortParam.SortMode = SortMode.Descending Then
+                sortModeStr = "DESC"
+            End If
 
-			Dim indexInfo = _indexingMembers.FirstOrDefault(Function(indInf) indInf.Name = searchParams.SortParam.Field)
-			If (indexInfo IsNot Nothing) Then
-				sortField = "value"
-				sortTableName = GetIndexTableName(indexInfo)
-			Else
-				Throw New Exception("MSSQLSRVStorage.FindObj _ BadSortParam _ index " + indexInfo.Name + " not found.")
-			End If
-		End If
+            Dim indexInfo = _indexingMembers.FirstOrDefault(Function(indInf) indInf.Name = searchParams.SortParam.Field)
+            If (indexInfo IsNot Nothing) Then
+                sortField = "value"
+                sortTableName = GetIndexTableName(indexInfo)
+            Else
+                Throw New Exception("MSSQLSRVStorage.FindObj _ BadSortParam _ index " + indexInfo.Name + " not found.")
+            End If
+        End If
 
-		Dim crit As IEnumerable(Of FindCriteria) = Nothing
-		If (searchParams IsNot Nothing) Then
-			crit = searchParams.FindCriterias
-		End If
+        Dim crit As IEnumerable(Of FindCriteria) = Nothing
+        If (searchParams IsNot Nothing) Then
+            crit = searchParams.FindCriterias
+        End If
 
-		Dim sort As SortParam = Nothing
-		If (searchParams IsNot Nothing) Then
-			sort = searchParams.SortParam
-		End If
+        Dim sort As SortParam = Nothing
+        If (searchParams IsNot Nothing) Then
+            sort = searchParams.SortParam
+        End If
 
-		'''' from + where
-		Dim fromSql = GenerateFromSql(crit, sort)
+        '''' from + where
+        Dim fromSql = GenerateFromSql(crit, sort)
 
-		'''' where
-		Dim whereSql = String.Empty
-		Dim parameters As SqlParameter() = Nothing
-		Dim helper = GenerateWhereSql(crit, sort)
-		If helper IsNot Nothing Then
-			whereSql = helper.SQL
-			parameters = helper.Parameters.ToArray
-		End If
+        '''' where
+        Dim whereSql = String.Empty
+        Dim parameters As SqlParameter() = Nothing
+        Dim helper = GenerateWhereSql(crit, sort)
+        If helper IsNot Nothing Then
+            whereSql = helper.SQL
+            parameters = helper.Parameters.ToArray
+        End If
 
-		Dim betweenSql = String.Empty
-		Dim mainSelect = String.Empty
-		If (searchParams IsNot Nothing) AndAlso (searchParams.SelectOptions IsNot Nothing) AndAlso (searchParams.SelectOptions.SelectMode = SelectMode.Between) Then
-			betweenSql = String.Format("OFFSET {2} ROWS FETCH NEXT {3} ROWS ONLY", Name, fromSql, searchParams.SelectOptions.StartValue, searchParams.SelectOptions.EndValue - searchParams.SelectOptions.StartValue + 1)
-		End If
-		mainSelect = String.Format("Select {0} [{1}].[guid] FROM {2} {3} ORDER BY [{4}].[{5}] {6} {7}", topSql, Name, fromSql, whereSql, sortTableName, sortField, sortModeStr, betweenSql)
-		If ((topSql <> "") And (searchParams IsNot Nothing AndAlso searchParams.SortParam Is Nothing)) Then
-			mainSelect = String.Format("Select {0} [{1}].[guid] FROM {2} {3}", topSql, Name, fromSql, whereSql)
-		End If
-		If (searchParams Is Nothing) Then 'Or ((searchParams IsNot Nothing) AndAlso (searchParams.SortParam Is Nothing)) Then
-			mainSelect = String.Format("SELECT {3} [{0}].[guid] FROM {1} {2}", Name, fromSql, whereSql, topSql)
-		End If
+        Dim betweenSql = String.Empty
+        Dim mainSelect = String.Empty
+        If (searchParams IsNot Nothing) AndAlso (searchParams.SelectOptions IsNot Nothing) AndAlso (searchParams.SelectOptions.SelectMode = SelectMode.Between) Then
+            betweenSql = String.Format("OFFSET {2} ROWS FETCH NEXT {3} ROWS ONLY", Name, fromSql, searchParams.SelectOptions.StartValue, searchParams.SelectOptions.EndValue - searchParams.SelectOptions.StartValue + 1)
+        End If
+        mainSelect = String.Format("Select {0} [{1}].[guid] FROM {2} {3} ORDER BY [{4}].[{5}] {6} {7}", topSql, Name, fromSql, whereSql, sortTableName, sortField, sortModeStr, betweenSql)
+        If ((topSql <> "") And (searchParams IsNot Nothing AndAlso searchParams.SortParam Is Nothing)) Then
+            mainSelect = String.Format("Select {0} [{1}].[guid] FROM {2} {3}", topSql, Name, fromSql, whereSql)
+        End If
+        If (searchParams Is Nothing) Then 'Or ((searchParams IsNot Nothing) AndAlso (searchParams.SortParam Is Nothing)) Then
+            mainSelect = String.Format("SELECT {3} [{0}].[guid] FROM {1} {2}", Name, fromSql, whereSql, topSql)
+        End If
 
-		'''' main sql
+        '''' main sql
 
-		Dim list = MSSQLSRVUtils.GetObjectList(ConnectionString, mainSelect, parameters)
-		If (list IsNot Nothing AndAlso list.Any) Then
-			Dim resList = list.Select(Function(d) d(0).ToString)
-			Return resList.ToArray
-		Else
-			Return {}
-		End If
-	End Function
+        Dim list = MSSQLSRVUtils.GetObjectList(ConnectionString, mainSelect, parameters)
+        If (list IsNot Nothing AndAlso list.Any) Then
+            Dim resList = list.Select(Function(d) d(0).ToString)
+            Return resList.ToArray
+        Else
+            Return {}
+        End If
+    End Function
 
-	Public Overrides Function GetObj(id As String) As ObjBase
-		CheckDB()
-		Dim res As ObjBase = Nothing
-		Dim sql = String.Format("SELECT [json], [type] FROM [dbo].[{0}] WHERE [guid] = '{1}'", Name, id)
-		Dim vals = MSSQLSRVUtils.GetObjectList(ConnectionString, sql)
-		If vals IsNot Nothing AndAlso vals.Any Then
-			Dim jsonObj = vals(0)(0)
-			Dim typeName = vals(0)(1)
+    Public Overrides Function GetObj(id As String) As ObjBase
+        CheckDB()
+        Dim res As ObjBase = Nothing
+        Dim sql = String.Format("SELECT [json], [type] FROM [dbo].[{0}] WHERE [guid] = '{1}'", Name, id)
+        Dim vals = MSSQLSRVUtils.GetObjectList(ConnectionString, sql)
+        If vals IsNot Nothing AndAlso vals.Any Then
+            Dim jsonObj = vals(0)(0)
+            Dim typeName = vals(0)(1)
 
-			If (typeName = "-") Or String.IsNullOrWhiteSpace(typeName) Then
-				typeName = SupportedType.AssemblyQualifiedName
-			End If
+            If (typeName = "-") Or String.IsNullOrWhiteSpace(typeName) Then
+                typeName = SupportedType.AssemblyQualifiedName
+            End If
 
-			If (jsonObj IsNot Nothing) Then
-				Dim json = jsonObj.ToString
-				Try
-					res = CfJsonConverter.Deserialize(json, Type.GetType(typeName.ToString))
-				Catch exc As Exception
-					Dim polo = exc.Message
-				End Try
-			End If
-		End If
-		Return res
-	End Function
+            If (jsonObj IsNot Nothing) Then
+                Dim json = jsonObj.ToString
+                Try
+                    res = CfJsonConverter.Deserialize(json, Type.GetType(typeName.ToString))
+                Catch exc As Exception
+                    Dim polo = exc.Message
+                End Try
+            End If
+        End If
+        Return res
+    End Function
 
-	Public Overloads Overrides Function GetObj(Of T As ObjBase)(id As String) As T
-		Return GetObj(id)
-	End Function
+    Public Overloads Overrides Function GetObj(Of T As ObjBase)(id As String) As T
+        Return GetObj(id)
+    End Function
 
-	Public Overrides Sub RemoveObj(id As String)
-		CheckDB()
-		Dim sql = String.Format("DELETE FROM [dbo].[{0}] WHERE [guid] like '{1}'", Name, id)
-		MSSQLSRVUtils.ExecSQL(ConnectionString, sql)
-	End Sub
+    Public Overrides Sub RemoveObj(id As String)
+        CheckDB()
+        Dim sql = String.Format("DELETE FROM [dbo].[{0}] WHERE [guid] like '{1}'", Name, id)
+        MSSQLSRVUtils.ExecSQL(ConnectionString, sql)
+    End Sub
 
-	Public Overrides Sub UpdateObj(obj As ObjBase)
-		CheckDB()
-		Dim json = CfJsonConverter.Serialize(obj)
-		Update(ConnectionString, obj.ID, json)
+    Public Overrides Sub UpdateObj(obj As ObjBase)
+        CheckDB()
+        Dim json = CfJsonConverter.Serialize(obj)
+        Update(ConnectionString, obj.ID, json)
 
-		For Each indexing In _indexingMembers
-			Dim indexTableName = GetIndexTableName(indexing)
-			Try
-				Dim indexValue = ReflectionTools.GetMemberValue(indexing.Name, obj)
-				If (TypeOf (indexValue) Is DateTime) Then
-					indexValue = CType(indexValue, DateTime).Ticks
-				End If
-				UpdateIndex(indexTableName, obj.ID, indexValue)
-			Catch ex As Exception
-				'...
-			End Try
-		Next
-	End Sub
+        For Each indexing In _indexingMembers
+            Dim indexTableName = GetIndexTableName(indexing)
+            Dim indexValue = ReflectionTools.GetMemberValue(indexing.Name, obj)
+            If (TypeOf (indexValue) Is DateTime) Then
+                indexValue = CType(indexValue, DateTime).Ticks
+            End If
+            AddOrUpdateIndex(indexTableName, obj.ID, indexValue)
+        Next
+    End Sub
 
-	Public ReadOnly Property Name As String
-		Get
-			Return _name
-		End Get
-	End Property
+    Public ReadOnly Property Name As String
+        Get
+            Return _name
+        End Get
+    End Property
 
-	Public Property ConnectionStringBld As SqlConnectionStringBuilder
-		Get
-			Return _connectionStringBld
-		End Get
-		Set(value As SqlConnectionStringBuilder)
-			_connectionStringBld = value
-		End Set
-	End Property
+    Public Property ConnectionStringBld As SqlConnectionStringBuilder
+        Get
+            Return _connectionStringBld
+        End Get
+        Set(value As SqlConnectionStringBuilder)
+            _connectionStringBld = value
+        End Set
+    End Property
 
-	Public Overrides Function GetObjects(Of T As ObjBase)(objIds As String(), Optional sortParam As SortParam = Nothing) As IEnumerable(Of T)
-		Return GetObjects(objIds, sortParam).Select(Function(o) CType(o, T))
-	End Function
+    Public Overrides Function GetObjects(Of T As ObjBase)(objIds As String(), Optional sortParam As SortParam = Nothing) As IEnumerable(Of T)
+        Return GetObjects(objIds, sortParam).Select(Function(o) CType(o, T))
+    End Function
 
-	Public Overrides Function GetObjects(objIds As String(), Optional sortParam As SortParam = Nothing) As IEnumerable(Of ObjBase)
-		CheckDB()
+    Public Overrides Function GetObjects(objIds As String(), Optional sortParam As SortParam = Nothing) As IEnumerable(Of ObjBase)
+        CheckDB()
 
-		'''' sorting
-		Dim sortModeStr = "ASC"
-		Dim sortField = ""
-		Dim sortTableName = ""
-		If sortParam IsNot Nothing Then
-			If sortParam.SortMode = SortMode.Descending Then
-				sortModeStr = "DESC"
-			End If
+        '''' sorting
+        Dim sortModeStr = "ASC"
+        Dim sortField = ""
+        Dim sortTableName = ""
+        If sortParam IsNot Nothing Then
+            If sortParam.SortMode = SortMode.Descending Then
+                sortModeStr = "DESC"
+            End If
 
-			Dim indexInfo = _indexingMembers.FirstOrDefault(Function(indInf) indInf.Name = sortParam.Field)
-			If (indexInfo IsNot Nothing) Then
-				sortField = " , [value]"
-				sortTableName = ", [dbo].[" + GetIndexTableName(indexInfo) + "] s "
-			Else
-				Throw New Exception("MSSQLSRVStorage.GetObjects _ BadSortParam _ index " + indexInfo.Name + " not found.")
-			End If
-		End If
+            Dim indexInfo = _indexingMembers.FirstOrDefault(Function(indInf) indInf.Name = sortParam.Field)
+            If (indexInfo IsNot Nothing) Then
+                sortField = " , [value]"
+                sortTableName = ", [dbo].[" + GetIndexTableName(indexInfo) + "] s "
+            Else
+                Throw New Exception("MSSQLSRVStorage.GetObjects _ BadSortParam _ index " + indexInfo.Name + " not found.")
+            End If
+        End If
 
-		Dim resList = New List(Of ObjBase)
-		If (objIds IsNot Nothing AndAlso objIds.Any) Then
-			Dim strIds = " ( ( t.[guid] = '" + String.Join("' ) or ( t.[guid] = '", objIds) + "' ) ) "
-			Dim sql = String.Format("SELECT [json] , [type] " + sortField + " FROM [dbo].[{0}] t " + sortTableName + "  WHERE {1}", Name, strIds)
+        Dim resList = New List(Of ObjBase)
+        If (objIds IsNot Nothing AndAlso objIds.Any) Then
+            Dim strIds = " ( ( t.[guid] = '" + String.Join("' ) or ( t.[guid] = '", objIds) + "' ) ) "
+            Dim sql = String.Format("SELECT [json] , [type] " + sortField + " FROM [dbo].[{0}] t " + sortTableName + "  WHERE {1}", Name, strIds)
 
-			If (sortTableName <> "") Then
-				sql += " and  (s.[guid] = t.[guid]) "
-				sql += " order by [value] " + sortModeStr
-			End If
+            If (sortTableName <> "") Then
+                sql += " and  (s.[guid] = t.[guid]) "
+                sql += " order by [value] " + sortModeStr
+            End If
 
-			Dim ValuesObjList = MSSQLSRVUtils.GetObjectList(ConnectionString, sql)
-			If (ValuesObjList IsNot Nothing) Then
-				Dim tmpList = ValuesObjList.Select(
-					Function(val)
-						Dim jsonObj = val(0)
-						Dim typeName = val(1)
-						If (typeName = "-") Or String.IsNullOrWhiteSpace(typeName) Then
-							typeName = SupportedType.AssemblyQualifiedName
-						End If
+            Dim ValuesObjList = MSSQLSRVUtils.GetObjectList(ConnectionString, sql)
+            If (ValuesObjList IsNot Nothing) Then
+                Dim tmpList = ValuesObjList.Select(
+                    Function(val)
+                        Dim jsonObj = val(0)
+                        Dim typeName = val(1)
+                        If (typeName = "-") Or String.IsNullOrWhiteSpace(typeName) Then
+                            typeName = SupportedType.AssemblyQualifiedName
+                        End If
 
-						Dim res As ObjBase = Nothing
-						If (jsonObj IsNot Nothing) Then
-							Dim json = jsonObj.ToString
-							Try
-								res = CfJsonConverter.Deserialize(json, Type.GetType(typeName.ToString))
-							Catch exc As Exception
-								Dim polo = exc.Message
-							End Try
-						End If
-						Return res
-					End Function)
-				resList.AddRange(tmpList.ToArray)
-			End If
-		End If
-		Return resList
-	End Function
+                        Dim res As ObjBase = Nothing
+                        If (jsonObj IsNot Nothing) Then
+                            Dim json = jsonObj.ToString
+                            Try
+                                res = CfJsonConverter.Deserialize(json, Type.GetType(typeName.ToString))
+                            Catch exc As Exception
+                                Dim polo = exc.Message
+                            End Try
+                        End If
+                        Return res
+                    End Function)
+                resList.AddRange(tmpList.ToArray)
+            End If
+        End If
+        Return resList
+    End Function
 
-	Public Overrides Function Contains(id As String) As Boolean
-		CheckDB()
+    Public Overrides Function Contains(id As String) As Boolean
+        CheckDB()
 
-		Dim res = False
-		Dim sql = String.Format("SELECT [guid] FROM [dbo].[{0}] WHERE [guid] = '{1}'", Name, id)
-		Dim idFromDb = MSSQLSRVUtils.ExecSQLScalar(ConnectionString, sql)
-		If (Not String.IsNullOrWhiteSpace(idFromDb) AndAlso idFromDb.ToString.Replace(" ", "") = id) Then
-			res = True
-		End If
-		Return res
-	End Function
+        Dim res = False
+        Dim sql = String.Format("SELECT [guid] FROM [dbo].[{0}] WHERE [guid] = '{1}'", Name, id)
+        Dim idFromDb = MSSQLSRVUtils.ExecSQLScalar(ConnectionString, sql)
+        If (Not String.IsNullOrWhiteSpace(idFromDb) AndAlso idFromDb.ToString.Replace(" ", "") = id) Then
+            res = True
+        End If
+        Return res
+    End Function
 
-	Private ReadOnly Property ConnectionString As String
-		Get
-			Return ConnectionStringBld.ConnectionString
-		End Get
-	End Property
+    Private ReadOnly Property ConnectionString As String
+        Get
+            Return ConnectionStringBld.ConnectionString
+        End Get
+    End Property
 
-	Private Sub CheckDB()
-		MSSQLSRVUtils.CreateDB(ConnectionStringBld, _dbName)
-		CreateMainTable(ConnectionString, Name)
-	End Sub
+    Private Sub CheckDB()
+        MSSQLSRVUtils.CreateDB(ConnectionStringBld, _dbName)
+        CreateMainTable(ConnectionString, Name)
+    End Sub
 
-	Private Shared Sub CreateMainTable(connString As String, tableName As String)
-		If (Not MSSQLSRVUtils.TableExists(connString, tableName)) Then
-			Threading.Thread.Sleep(1000)
-			If (Not MSSQLSRVUtils.TableExists(connString, tableName)) Then
-				Dim sql = String.Format(My.Resources.CreateMainTableSQL, tableName)
-				MSSQLSRVUtils.ExecSQL(connString, sql)
-			End If
-		End If
-	End Sub
+    Private Shared Sub CreateMainTable(connString As String, tableName As String)
+        If (Not MSSQLSRVUtils.TableExists(connString, tableName)) Then
+            Threading.Thread.Sleep(1000)
+            If (Not MSSQLSRVUtils.TableExists(connString, tableName)) Then
+                Dim sql = String.Format(My.Resources.CreateMainTableSQL, tableName)
+                MSSQLSRVUtils.ExecSQL(connString, sql)
+            End If
+        End If
+    End Sub
 
-	Private Sub SaveIndex(tableName As String, id As String, value As Object)
-		Dim sql = String.Format(My.Resources.InsertIndexSQL, tableName, id, "@p1")
-		MSSQLSRVUtils.ExecSQL(ConnectionString, sql, {New SqlParameter("@p1", value)})
-	End Sub
+    'Private Sub SaveIndex(tableName As String, id As String, value As Object)
+    '	Dim sql = String.Format(My.Resources.InsertIndexSQL, tableName, id, "@p1")
+    '	MSSQLSRVUtils.ExecSQL(ConnectionString, sql, {New SqlParameter("@p1", value)})
+    'End Sub
 
-	Private Sub UpdateIndex(tableName As String, id As String, value As Object)
-		Dim sql = String.Format("UPDATE [{0}] SET [value] = @p1 WHERE [guid] = @p2", tableName)
-		MSSQLSRVUtils.ExecSQL(ConnectionString, sql, {New SqlParameter("@p1", value), New SqlParameter("@p2", id)})
-	End Sub
+    Private Sub AddOrUpdateIndex(tableName As String, id As String, value As Object)
+        Dim sql = String.Empty
+        Dim params = {New SqlParameter("@p1", value)}
+        If value IsNot Nothing Then
+            sql = String.Format("select [guid] from [{0}] where [guid]='{1}'", tableName, id)
+            Dim indexId = MSSQLSRVUtils.ExecSQLScalar(ConnectionString, sql)
+            If Not String.IsNullOrEmpty(indexId) Then
+                sql = String.Format("UPDATE [{0}] SET [value] = @p1 WHERE [guid] = '{1}'", tableName, id)
+            Else
+                sql = String.Format("INSERT INTO [dbo].[{0}] ([guid],[value]) VALUES('{1}',@p1)", tableName, id)
+            End If
+        Else
+            sql = String.Format("DELETE FROM [{0}] WHERE [guid] = '{1}'", tableName, id)
+            params = Nothing
+        End If
+        MSSQLSRVUtils.ExecSQL(ConnectionString, sql, params)
+    End Sub
 
 	Private Function GetIndexTableName(indexing As IndexInfo) As String
 		Dim indexTableName = String.Empty

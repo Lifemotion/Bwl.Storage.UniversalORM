@@ -1,23 +1,23 @@
 ﻿Imports System.Data.SqlClient
 
 Public Class MSSQLSRVUtils
-	Public Shared Sub ExecSQL(connString As String, sql As String, Optional parameters As SqlParameter() = Nothing)
-		Dim con = New SqlConnection(connString)
-		Try
-			con.Open()
-			Dim cmd = New SqlCommand(sql, con)
-			If parameters IsNot Nothing Then
-				cmd.Parameters.AddRange(parameters)
-			End If
-			cmd.ExecuteNonQuery()
-			cmd.Dispose()
-		Catch ex As Exception
-			Throw New Exception(String.Format("MSSQLSRVUtils.ExecSQL({0}, {1}) - {2})", connString, sql, ex.ToString))
-		Finally
-			con.Close()
-			con.Dispose()
-		End Try
-	End Sub
+    Public Shared Sub ExecSQL(connString As String, sql As String, Optional parameters As SqlParameter() = Nothing)
+        Dim con = New SqlConnection(connString)
+        Try
+            con.Open()
+            Dim cmd = New SqlCommand(sql, con)
+            If parameters IsNot Nothing Then
+                cmd.Parameters.AddRange(parameters)
+            End If
+            cmd.ExecuteNonQuery()
+            cmd.Dispose()
+        Catch ex As Exception
+            Throw New Exception(String.Format("MSSQLSRVUtils.ExecSQL({0}, {1}) - {2})", connString, sql, ex.ToString))
+        Finally
+            con.Close()
+            con.Dispose()
+        End Try
+    End Sub
 
 	Public Shared Function ExecSQLScalar(connString As String, sql As String, Optional parameters As SqlParameter() = Nothing) As Object
 		Dim res As Object = Nothing

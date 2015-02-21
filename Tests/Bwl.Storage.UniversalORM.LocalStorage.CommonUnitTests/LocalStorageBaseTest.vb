@@ -193,7 +193,50 @@ Public MustInherit Class LocalStorageBaseTest
 		Assert.AreEqual(d1.BigData(100), d2.BigData(100))
 		Assert.AreEqual(d1.BigData(268), d2.BigData(268))
 		Assert.AreEqual(d1.BigData(43453), d2.BigData(43453))
-	End Sub
+    End Sub
+
+    <TestMethod()>
+    Public Sub UpdateIndex()
+        _localStorage.RemoveAllObj(GetType(TestData))
+
+        Dim d1 = New TestData
+        d1.Cat = "happycat"
+        d1.ID = Guid.NewGuid.ToString("B")
+        d1.Image = New Bitmap(100, 100)
+        ReDim d1.BigData(100000)
+        d1.BigData(268) = 44
+        d1.BigData(43453) = 58
+
+        _localStorage.AddObj(d1)
+        d1.Cat = "hhhhhh"
+        _localStorage.UpdateObj(d1)
+
+        Dim ids = _localStorage.FindObj(Of TestData)(New SearchParams({New FindCriteria("Cat", FindCondition.eqaul, d1.Cat)}))
+
+        Assert.AreEqual(d1.ID, ids.First)
+
+        Dim d2 = _localStorage.GetObj(Of TestData)(d1.ID)
+
+        Assert.AreEqual(d1.Cat, d2.Cat)
+
+        d1.Cat = Nothing
+        _localStorage.UpdateObj(d1)
+
+        d2 = _localStorage.GetObj(Of TestData)(d1.ID)
+
+        Assert.AreEqual(d1.Cat, d2.Cat)
+
+
+        Assert.AreEqual(d1.ID, d2.ID)
+        Assert.AreEqual(d1.Cat, d2.Cat)
+        Assert.AreEqual(d1.Image.Width, d2.Image.Width)
+        Assert.AreEqual(d1.Image.Height, d2.Image.Height)
+        Assert.AreEqual(d1.BigData.Length, d2.BigData.Length)
+
+        Assert.AreEqual(d1.BigData(100), d2.BigData(100))
+        Assert.AreEqual(d1.BigData(268), d2.BigData(268))
+        Assert.AreEqual(d1.BigData(43453), d2.BigData(43453))
+    End Sub
 
 	<TestMethod()>
 	Public Sub BigData_inCycle_10()

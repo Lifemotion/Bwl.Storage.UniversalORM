@@ -343,46 +343,46 @@ Public Class FBStorage
 	End Sub
 
 	Private Function GetIndexName(indexing As IndexInfo) As String
-		Dim indexName = indexing.Name.Replace(".", "_").ToUpper()
+        Dim indexName = indexing.Name.Replace(".", "_").ToUpper()
 
-		Dim t = indexing.Type
+        Dim t = indexing.Type
 
-		Dim SQLfields = String.Format("SELECT R.RDB$FIELD_NAME FROM RDB$FIELDS F, RDB$RELATION_FIELDS R WHERE F.RDB$FIELD_NAME = R.RDB$FIELD_SOURCE AND R.RDB$SYSTEM_FLAG = 0 AND RDB$RELATION_NAME = '{0}' AND R.RDB$FIELD_NAME = '{1}'", Name.ToUpper(), indexName)
-		Dim fields = FbUtils.ExecSQLScalar(ConnectionString, SQLfields)
-		If fields Is Nothing Then
-			Dim ListQuery As New FbBatchExecution(New FbConnection(ConnectionString))
-			Dim sql = String.Empty
-			Select Case (t)
-				Case GetType(String)
-					Dim len = Byte.MaxValue.ToString
-					If (indexing.Length > 0 And indexing.Length < Byte.MaxValue) Then
-						len = indexing.Length.ToString
-					End If
-					sql = String.Format(My.Resources.AddStringColumn, Name, indexName, len)
+        Dim SQLfields = String.Format("SELECT R.RDB$FIELD_NAME FROM RDB$FIELDS F, RDB$RELATION_FIELDS R WHERE F.RDB$FIELD_NAME = R.RDB$FIELD_SOURCE AND R.RDB$SYSTEM_FLAG = 0 AND RDB$RELATION_NAME = '{0}' AND R.RDB$FIELD_NAME = '{1}'", Name.ToUpper(), indexName)
+        Dim fields = FbUtils.ExecSQLScalar(ConnectionString, SQLfields)
+        If fields Is Nothing Then
+            Dim ListQuery As New FbBatchExecution(New FbConnection(ConnectionString))
+            Dim sql = String.Empty
+            Select Case (t)
+                Case GetType(String)
+                    Dim len = Byte.MaxValue.ToString
+                    If (indexing.Length > 0 And indexing.Length < Byte.MaxValue) Then
+                        len = indexing.Length.ToString
+                    End If
+                    sql = String.Format(My.Resources.AddStringColumn, Name, indexName, len)
 
-				Case GetType(Integer)
-					sql = String.Format(My.Resources.AddIntColumn, Name, indexName)
-				Case GetType(Double)
-					sql = String.Format(My.Resources.AddFloatColumn, Name, indexName)
-				Case GetType(DateTime)
-					sql = String.Format(My.Resources.AddBigIntColumn, Name, indexName)
-				Case GetType(Long)
-					sql = String.Format(My.Resources.AddBigIntColumn, Name, indexName)
-				Case GetType(Boolean)
-					sql = String.Format(My.Resources.AddStringColumn, Name, indexName, Byte.MaxValue.ToString)
-				Case Else
-					Dim enumType = Type.GetType("System.Enum, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089")
-					If t.BaseType = enumType Then
-						sql = String.Format(My.Resources.AddStringColumn, Name, indexName, Byte.MaxValue.ToString)
-					Else
-						Throw New Exception("Обнаружен не поддерживаемый тип индексируемого поля " + indexName + " _ " + t.FullName)
-					End If
-			End Select
-			ListQuery.SqlStatements.Add(sql)
-			ListQuery.SqlStatements.Add(String.Format(My.Resources.CreateIndexSQL, Name, indexName))
+                Case GetType(Integer)
+                    sql = String.Format(My.Resources.AddIntColumn, Name, indexName)
+                Case GetType(Double)
+                    sql = String.Format(My.Resources.AddFloatColumn, Name, indexName)
+                Case GetType(DateTime)
+                    sql = String.Format(My.Resources.AddBigIntColumn, Name, indexName)
+                Case GetType(Long)
+                    sql = String.Format(My.Resources.AddBigIntColumn, Name, indexName)
+                Case GetType(Boolean)
+                    sql = String.Format(My.Resources.AddStringColumn, Name, indexName, Byte.MaxValue.ToString)
+                Case Else
+                    Dim enumType = Type.GetType("System.Enum, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089")
+                    If t.BaseType = enumType Then
+                        sql = String.Format(My.Resources.AddStringColumn, Name, indexName, Byte.MaxValue.ToString)
+                    Else
+                        Throw New Exception("Обнаружен не поддерживаемый тип индексируемого поля " + indexName + " _ " + t.FullName)
+                    End If
+            End Select
+            ListQuery.SqlStatements.Add(sql)
+            ListQuery.SqlStatements.Add(String.Format("CREATE ASCENDING INDEX ""IX_{0}_{1}"" ON {0}(""{1}"")", Name, indexName))
 
-			ListQuery.Execute()
-		End If
+            ListQuery.Execute()
+        End If
 		Return indexName
 	End Function
 

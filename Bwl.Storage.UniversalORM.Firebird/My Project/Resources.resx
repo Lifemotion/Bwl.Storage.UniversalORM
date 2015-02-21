@@ -129,12 +129,6 @@
   <data name="AddStringColumn" xml:space="preserve">
     <value>ALTER TABLE {0} ADD "{1}" varchar({2})  </value>
   </data>
-  <data name="CreateIndexSQL" xml:space="preserve">
-    <value>CREATE ASCENDING INDEX "IX_{1}" ON {0}
-(
-    "{1}"
-)</value>
-  </data>
   <data name="CreateMainTableSQL" xml:space="preserve">
     <value>CREATE TABLE {0}
 (

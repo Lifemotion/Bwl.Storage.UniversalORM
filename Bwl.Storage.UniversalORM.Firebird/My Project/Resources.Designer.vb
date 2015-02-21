@@ -97,23 +97,11 @@ Namespace My.Resources
         End Property
         
         '''<summary>
-        '''  Ищет локализованную строку, похожую на CREATE ASCENDING INDEX &quot;IX_{1}&quot; ON {0}
-        '''(
-        '''    &quot;{1}&quot;
-        ''').
-        '''</summary>
-        Friend ReadOnly Property CreateIndexSQL() As String
-            Get
-                Return ResourceManager.GetString("CreateIndexSQL", resourceCulture)
-            End Get
-        End Property
-        
-        '''<summary>
         '''  Ищет локализованную строку, похожую на CREATE TABLE {0}
         '''(
         '''    guid varchar(38) NOT NULL,
-		'''    type varchar(5000) ,
-		'''    json BLOB SUB_TYPE 1,                                                                                CONSTRAINT PK_{0} PRIMARY KEY
+        '''    type varchar(5000) ,
+        '''    json BLOB SUB_TYPE 1,                                                                                CONSTRAINT PK_{0} PRIMARY KEY
         '''(
         '''    guid
         ''')

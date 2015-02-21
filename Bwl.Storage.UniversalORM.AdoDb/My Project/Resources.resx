@@ -225,11 +225,4 @@ REFERENCES [dbo].[{1}] ([guid])
 ON DELETE CASCADE
 ALTER TABLE [dbo].[{0}] CHECK CONSTRAINT [FK_{0}_{1}]</value>
   </data>
-  <data name="InsertIndexSQL" xml:space="preserve">
-    <value>INSERT INTO [dbo].[{0}]
-           ([guid]
-           ,[value])
-     VALUES
-           ('{1}',{2})</value>
-  </data>
 </root>

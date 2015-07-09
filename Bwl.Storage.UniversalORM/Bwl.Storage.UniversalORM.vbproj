@@ -18,7 +18,7 @@
     <DebugType>full</DebugType>
     <DefineDebug>true</DefineDebug>
     <DefineTrace>true</DefineTrace>
-    <OutputPath>..\UniversalOrm-Debug\</OutputPath>
+    <OutputPath>..\debug\UniversalORM\</OutputPath>
     <DocumentationFile>Bwl.Storage.UniversalORM.xml</DocumentationFile>
     <NoWarn>42016,41999,42017,42018,42019,42032,42036,42020,42021,42022</NoWarn>
   </PropertyGroup>
@@ -27,7 +27,7 @@
     <DefineDebug>false</DefineDebug>
     <DefineTrace>true</DefineTrace>
     <Optimize>true</Optimize>
-    <OutputPath>..\UniversalOrm-Release\</OutputPath>
+    <OutputPath>..\release\UniversalORM\</OutputPath>
     <DocumentationFile>Bwl.Storage.UniversalORM.xml</DocumentationFile>
     <NoWarn>42016,41999,42017,42018,42019,42032,42036,42020,42021,42022</NoWarn>
   </PropertyGroup>
@@ -49,6 +49,8 @@
       <HintPath>..\refs\Newtonsoft.Json.dll</HintPath>
     </Reference>
     <Reference Include="System" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Drawing" />
   </ItemGroup>
   <ItemGroup>
     <Import Include="Microsoft.VisualBasic" />
@@ -56,17 +58,42 @@
     <Import Include="System" />
     <Import Include="System.Collections" />
     <Import Include="System.Collections.Generic" />
+    <Import Include="System.Data" />
     <Import Include="System.Diagnostics" />
     <Import Include="System.Linq" />
     <Import Include="System.Threading.Tasks" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="AdoDb\MSSQLSRVStorage.vb" />
+    <Compile Include="AdoDb\MSSQLSRVStorageManager.vb" />
+    <Compile Include="AdoDb\MSSQLSRVUtils.vb" />
+    <Compile Include="AdoDb\SqlHelper.vb" />
+    <Compile Include="AdoDb\SqlReaderHelper.vb" />
+    <Compile Include="Blob\BinarySavers\BitmapBinarySaver.vb" />
+    <Compile Include="Blob\BinarySavers\BytesBinarySaver.vb" />
     <Compile Include="Blob\BlobAttribute.vb" />
     <Compile Include="Blob\BlobContainerAttribute.vb" />
+    <Compile Include="Blob\Common\BlobInfo.vb" />
+    <Compile Include="Blob\Common\CommonBlobStorage.vb" />
+    <Compile Include="Blob\Common\IBlobBinarySaver.vb" />
+    <Compile Include="Blob\Common\IBlobSaver.vb" />
+    <Compile Include="Blob\Common\IBlobStorage.vb" />
+    <Compile Include="Blob\Common\ObjBlobInfo.vb" />
+    <Compile Include="Blob\Savers\FileBlobSaver.vb" />
+    <Compile Include="Blob\Savers\MemorySaver.vb" />
+    <Compile Include="Blob\TypeMembersTools.vb" />
     <Compile Include="Common\CommonObjStorage.vb" />
     <Compile Include="Common\ILocalStorage.vb" />
     <Compile Include="Common\IObjStorage.vb" />
     <Compile Include="Common\IObjStorageManager.vb" />
+    <Compile Include="Files\FileStorage.vb" />
+    <Compile Include="Files\FileStorageManager.vb" />
+    <Compile Include="Files\ObjInfo.vb" />
+    <Compile Include="Files\Utils.vb" />
+    <Compile Include="LocalStorage\LocalStorage.vb" />
+    <Compile Include="LocalStorage\TempStorage\ObjDataInfo.vb" />
+    <Compile Include="LocalStorage\TempStorage\ObjDataInfoGenerator.vb" />
+    <Compile Include="LocalStorage\TempStorage\TempStorage.vb" />
     <Compile Include="MemoryStorage\MemoryStorage.vb" />
     <Compile Include="MemoryStorage\MemoryStorageManager.vb" />
     <Compile Include="Objects\ObjContainer.vb" />

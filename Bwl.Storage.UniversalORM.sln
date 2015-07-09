@@ -1,38 +1,17 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Express 2013 for Windows Desktop
-VisualStudioVersion = 12.0.21005.1
+# Visual Studio 2013
+VisualStudioVersion = 12.0.31101.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{F184B08F-C81C-45F6-A57F-5ABD9991F28F}") = "Bwl.Storage.UniversalORM", "Bwl.Storage.UniversalORM\Bwl.Storage.UniversalORM.vbproj", "{CFD756AD-1CB6-4B12-A969-D18A434D1E72}"
 EndProject
-Project("{F184B08F-C81C-45F6-A57F-5ABD9991F28F}") = "Bwl.Storage.UniversalORM.Files", "Bwl.Storage.UniversalORM.Files\Bwl.Storage.UniversalORM.Files.vbproj", "{C5EF603A-B36D-4FEA-A710-85A84908C896}"
-	ProjectSection(ProjectDependencies) = postProject
-		{CFD756AD-1CB6-4B12-A969-D18A434D1E72} = {CFD756AD-1CB6-4B12-A969-D18A434D1E72}
-	EndProjectSection
-EndProject
-Project("{F184B08F-C81C-45F6-A57F-5ABD9991F28F}") = "Bwl.Storage.UniversalORM.AdoDb", "Bwl.Storage.UniversalORM.AdoDb\Bwl.Storage.UniversalORM.AdoDb.vbproj", "{646DCFE6-8EA7-4AFA-A142-395FA1031240}"
-EndProject
-Project("{F184B08F-C81C-45F6-A57F-5ABD9991F28F}") = "Bwl.Storage.UniversalORM.LocalStorage", "Bwl.Storage.UniversalORM.LocalStorage\Bwl.Storage.UniversalORM.LocalStorage.vbproj", "{A5B104B3-DA24-4402-B2BB-9E8BDBAA5462}"
-EndProject
-Project("{F184B08F-C81C-45F6-A57F-5ABD9991F28F}") = "Bwl.Storage.UniversalORM.Blob", "Bwl.Storage.UniversalORM.Blob\Bwl.Storage.UniversalORM.Blob.vbproj", "{6C002239-1F5E-4DAC-B249-AC1994F22E2C}"
-EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Test", "Test", "{BFE8DDEA-A0B8-477C-979A-DE143B801176}"
-EndProject
 Project("{F184B08F-C81C-45F6-A57F-5ABD9991F28F}") = "Bwl.Storage.UniversalORM.Firebird", "Bwl.Storage.UniversalORM.Firebird\Bwl.Storage.UniversalORM.Firebird.vbproj", "{B58E49C1-7FD7-4674-A1D4-282BC3C88F47}"
 EndProject
-Project("{F184B08F-C81C-45F6-A57F-5ABD9991F28F}") = "Bwl.Storage.UniversalORM.AdoDb.Test", "Tests\Bwl.Storage.UniversalORM.AdoDb.Test\Bwl.Storage.UniversalORM.AdoDb.Test.vbproj", "{28960DEC-66DD-4812-8051-91876A6E728B}"
+Project("{F184B08F-C81C-45F6-A57F-5ABD9991F28F}") = "Bwl.Storage.UniversalORM.TestApps", "Bwl.Storage.UniversalORM.TestApps\Bwl.Storage.UniversalORM.TestApps.vbproj", "{2348A06D-D67E-4BB6-8BC6-290E6992F8D8}"
 EndProject
-Project("{F184B08F-C81C-45F6-A57F-5ABD9991F28F}") = "Bwl.Storage.UniversalORM.Blob.Test", "Tests\Bwl.Storage.UniversalORM.Blob.Test\Bwl.Storage.UniversalORM.Blob.Test.vbproj", "{A85F3A0D-FBAD-417F-B1DA-5536A7E6AFF0}"
+Project("{F184B08F-C81C-45F6-A57F-5ABD9991F28F}") = "Bwl.Storage.UniversalORM.Firebird.TestApps", "Bwl.Storage.UniversalORM.Firebird.TestApps\Bwl.Storage.UniversalORM.Firebird.TestApps.vbproj", "{8BD382DF-A0DF-4813-BBA2-6FFE98F100A9}"
 EndProject
-Project("{F184B08F-C81C-45F6-A57F-5ABD9991F28F}") = "Bwl.Storage.UniversalORM.LocalStorage.CommonUnitTests", "Tests\Bwl.Storage.UniversalORM.LocalStorage.CommonUnitTests\Bwl.Storage.UniversalORM.LocalStorage.CommonUnitTests.vbproj", "{4064529B-8AAB-4A64-9481-A08972C24AB1}"
-EndProject
-Project("{F184B08F-C81C-45F6-A57F-5ABD9991F28F}") = "Bwl.Storage.UniversalORM.LocalStorage.Test", "Tests\Bwl.Storage.UniversalORM.LocalStorage.Test\Bwl.Storage.UniversalORM.LocalStorage.Test.vbproj", "{EA2C356E-2456-4E91-ADDB-AF4561861E72}"
-EndProject
-Project("{F184B08F-C81C-45F6-A57F-5ABD9991F28F}") = "Bwl.Storage.UniversalORM.Files.Test", "Tests\Bwl.Storage.UniversalORM.Files.Test\Bwl.Storage.UniversalORM.Files.Test.vbproj", "{E6499D7D-0169-4812-AE68-68C6B7E58F77}"
-EndProject
-Project("{F184B08F-C81C-45F6-A57F-5ABD9991F28F}") = "Bwl.Storage.UniversalORM.Firebird.Test", "Tests\Bwl.Storage.UniversalORM.Firebird.Test\Bwl.Storage.UniversalORM.Firebird.Test.vbproj", "{4B5090D2-F045-43D5-939A-F83F45FC9EB1}"
-EndProject
-Project("{F184B08F-C81C-45F6-A57F-5ABD9991F28F}") = "Bwl.Storage.UniversalORM.BigDataTest", "Tests\Bwl.Storage.UniversalORM.BigDataTest\Bwl.Storage.UniversalORM.BigDataTest.vbproj", "{A737808F-3C2D-466A-9712-81FFAB6D4601}"
+Project("{F184B08F-C81C-45F6-A57F-5ABD9991F28F}") = "Bwl.Storage.UniversalORM.UnitTests", "Bwl.Storage.UniversalORM.UnitTests\Bwl.Storage.UniversalORM.UnitTests.vbproj", "{4064529B-8AAB-4A64-9481-A08972C24AB1}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -44,65 +23,24 @@ Global
 		{CFD756AD-1CB6-4B12-A969-D18A434D1E72}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{CFD756AD-1CB6-4B12-A969-D18A434D1E72}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{CFD756AD-1CB6-4B12-A969-D18A434D1E72}.Release|Any CPU.Build.0 = Release|Any CPU
-		{C5EF603A-B36D-4FEA-A710-85A84908C896}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{C5EF603A-B36D-4FEA-A710-85A84908C896}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{C5EF603A-B36D-4FEA-A710-85A84908C896}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{C5EF603A-B36D-4FEA-A710-85A84908C896}.Release|Any CPU.Build.0 = Release|Any CPU
-		{646DCFE6-8EA7-4AFA-A142-395FA1031240}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{646DCFE6-8EA7-4AFA-A142-395FA1031240}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{646DCFE6-8EA7-4AFA-A142-395FA1031240}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{646DCFE6-8EA7-4AFA-A142-395FA1031240}.Release|Any CPU.Build.0 = Release|Any CPU
-		{A5B104B3-DA24-4402-B2BB-9E8BDBAA5462}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{A5B104B3-DA24-4402-B2BB-9E8BDBAA5462}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{A5B104B3-DA24-4402-B2BB-9E8BDBAA5462}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{A5B104B3-DA24-4402-B2BB-9E8BDBAA5462}.Release|Any CPU.Build.0 = Release|Any CPU
-		{6C002239-1F5E-4DAC-B249-AC1994F22E2C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{6C002239-1F5E-4DAC-B249-AC1994F22E2C}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{6C002239-1F5E-4DAC-B249-AC1994F22E2C}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{6C002239-1F5E-4DAC-B249-AC1994F22E2C}.Release|Any CPU.Build.0 = Release|Any CPU
 		{B58E49C1-7FD7-4674-A1D4-282BC3C88F47}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{B58E49C1-7FD7-4674-A1D4-282BC3C88F47}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{B58E49C1-7FD7-4674-A1D4-282BC3C88F47}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{B58E49C1-7FD7-4674-A1D4-282BC3C88F47}.Release|Any CPU.Build.0 = Release|Any CPU
-		{28960DEC-66DD-4812-8051-91876A6E728B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{28960DEC-66DD-4812-8051-91876A6E728B}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{28960DEC-66DD-4812-8051-91876A6E728B}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{28960DEC-66DD-4812-8051-91876A6E728B}.Release|Any CPU.Build.0 = Release|Any CPU
-		{A85F3A0D-FBAD-417F-B1DA-5536A7E6AFF0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{A85F3A0D-FBAD-417F-B1DA-5536A7E6AFF0}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{A85F3A0D-FBAD-417F-B1DA-5536A7E6AFF0}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{A85F3A0D-FBAD-417F-B1DA-5536A7E6AFF0}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2348A06D-D67E-4BB6-8BC6-290E6992F8D8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2348A06D-D67E-4BB6-8BC6-290E6992F8D8}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2348A06D-D67E-4BB6-8BC6-290E6992F8D8}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2348A06D-D67E-4BB6-8BC6-290E6992F8D8}.Release|Any CPU.Build.0 = Release|Any CPU
+		{8BD382DF-A0DF-4813-BBA2-6FFE98F100A9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8BD382DF-A0DF-4813-BBA2-6FFE98F100A9}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8BD382DF-A0DF-4813-BBA2-6FFE98F100A9}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8BD382DF-A0DF-4813-BBA2-6FFE98F100A9}.Release|Any CPU.Build.0 = Release|Any CPU
 		{4064529B-8AAB-4A64-9481-A08972C24AB1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{4064529B-8AAB-4A64-9481-A08972C24AB1}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{4064529B-8AAB-4A64-9481-A08972C24AB1}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{4064529B-8AAB-4A64-9481-A08972C24AB1}.Release|Any CPU.Build.0 = Release|Any CPU
-		{EA2C356E-2456-4E91-ADDB-AF4561861E72}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{EA2C356E-2456-4E91-ADDB-AF4561861E72}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{EA2C356E-2456-4E91-ADDB-AF4561861E72}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{EA2C356E-2456-4E91-ADDB-AF4561861E72}.Release|Any CPU.Build.0 = Release|Any CPU
-		{E6499D7D-0169-4812-AE68-68C6B7E58F77}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{E6499D7D-0169-4812-AE68-68C6B7E58F77}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{E6499D7D-0169-4812-AE68-68C6B7E58F77}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{E6499D7D-0169-4812-AE68-68C6B7E58F77}.Release|Any CPU.Build.0 = Release|Any CPU
-		{4B5090D2-F045-43D5-939A-F83F45FC9EB1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{4B5090D2-F045-43D5-939A-F83F45FC9EB1}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{4B5090D2-F045-43D5-939A-F83F45FC9EB1}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{4B5090D2-F045-43D5-939A-F83F45FC9EB1}.Release|Any CPU.Build.0 = Release|Any CPU
-		{A737808F-3C2D-466A-9712-81FFAB6D4601}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{A737808F-3C2D-466A-9712-81FFAB6D4601}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{A737808F-3C2D-466A-9712-81FFAB6D4601}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{A737808F-3C2D-466A-9712-81FFAB6D4601}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
-	EndGlobalSection
-	GlobalSection(NestedProjects) = preSolution
-		{28960DEC-66DD-4812-8051-91876A6E728B} = {BFE8DDEA-A0B8-477C-979A-DE143B801176}
-		{A85F3A0D-FBAD-417F-B1DA-5536A7E6AFF0} = {BFE8DDEA-A0B8-477C-979A-DE143B801176}
-		{4064529B-8AAB-4A64-9481-A08972C24AB1} = {BFE8DDEA-A0B8-477C-979A-DE143B801176}
-		{EA2C356E-2456-4E91-ADDB-AF4561861E72} = {BFE8DDEA-A0B8-477C-979A-DE143B801176}
-		{E6499D7D-0169-4812-AE68-68C6B7E58F77} = {BFE8DDEA-A0B8-477C-979A-DE143B801176}
-		{4B5090D2-F045-43D5-939A-F83F45FC9EB1} = {BFE8DDEA-A0B8-477C-979A-DE143B801176}
-		{A737808F-3C2D-466A-9712-81FFAB6D4601} = {BFE8DDEA-A0B8-477C-979A-DE143B801176}
 	EndGlobalSection
 EndGlobal

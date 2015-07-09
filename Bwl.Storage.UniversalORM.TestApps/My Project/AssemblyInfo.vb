@@ -8,26 +8,26 @@ Imports System.Runtime.InteropServices
 
 ' Проверьте значения атрибутов сборки
 
-<Assembly: AssemblyTitle("Bwl.Storage.UniversalORM.Firebird")> 
+<Assembly: AssemblyTitle("Bwl.Storage.UniversalORM.TestApps")> 
 <Assembly: AssemblyDescription("f2ab926 Починил работу с индексами в SQlSrv и FB.")>
-<Assembly: AssemblyCompany("Microsoft")> 
-<Assembly: AssemblyProduct("Bwl.Storage.UniversalORM.Firebird")> 
-<Assembly: AssemblyCopyright("Copyright © Microsoft 2014")> 
+<Assembly: AssemblyCompany("")> 
+<Assembly: AssemblyProduct("Bwl.Storage.UniversalORM.TestApps")> 
+<Assembly: AssemblyCopyright("Copyright ©  2015")> 
 <Assembly: AssemblyTrademark("")> 
 
 <Assembly: ComVisible(False)>
 
 'Следующий GUID служит для идентификации библиотеки типов, если этот проект будет видимым для COM
-<Assembly: Guid("27494076-5ce9-4601-99fd-2c7dd4506d86")> 
+<Assembly: Guid("acc83997-0048-419f-a1c3-757bae3bbf68")> 
 
 ' Сведения о версии сборки состоят из следующих четырех значений:
 '
 '      Основной номер версии
 '      Дополнительный номер версии 
-'      Номер построения
+'   Номер сборки
 '      Редакция
 '
-' Можно задать все значения или принять номер построения и номер редакции по умолчанию, 
+' Можно задать все значения или принять номера сборки и редакции по умолчанию 
 ' используя "*", как показано ниже:
 ' <Assembly: AssemblyVersion("1.0.*")> 
 

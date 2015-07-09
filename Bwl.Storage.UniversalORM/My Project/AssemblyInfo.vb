@@ -9,7 +9,7 @@ Imports System.Runtime.InteropServices
 ' Проверьте значения атрибутов сборки
 
 <Assembly: AssemblyTitle("Bwl.Storage.UniversalORM")> 
-<Assembly: AssemblyDescription("")> 
+<Assembly: AssemblyDescription("f2ab926 Починил работу с индексами в SQlSrv и FB.")>
 <Assembly: AssemblyCompany("")> 
 <Assembly: AssemblyProduct("Bwl.Storage.UniversalORM")> 
 <Assembly: AssemblyCopyright("Copyright ©  2014")> 
@@ -31,5 +31,5 @@ Imports System.Runtime.InteropServices
 ' используя "*", как показано ниже:
 ' <Assembly: AssemblyVersion("1.0.*")> 
 
-<Assembly: AssemblyVersion("1.0.0.0")> 
-<Assembly: AssemblyFileVersion("1.0.0.0")> 
+<Assembly: AssemblyVersion("1.2015.0709.1103")>
+<Assembly: AssemblyFileVersion("1.2015.0709.1103")>

@@ -15,7 +15,7 @@ Imports Bwl.Framework
         Dim settings = New LocalSettings_SqlSrv(app.RootStorage)
         Dim manager = New MSSQLSRVStorageManager(settings.SqlConnectionStringBuilder)
         Dim blobSaverDir = IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "..\BlobData")
-        Dim blobFileSaver = New FileBlobSaver(blobSaverDir)
+        Dim blobFileSaver = New FileBlobFieldsWriter(blobSaverDir)
         Dim localStorage = New Bwl.Storage.UniversalORM.LocalStorage(manager, blobFileSaver)
         Return localStorage
     End Function

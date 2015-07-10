@@ -21,7 +21,7 @@ Public Class LocalStorageTestDataForm
 
         Dim blobSaverDir = Path.Combine(Application.StartupPath, "BlobData")
 
-        Dim blobFileSaver = New FileBlobSaver(blobSaverDir)
+        Dim blobFileSaver = New FileBlobFieldsWriter(blobSaverDir)
 
         'Dim localstorage = New LocalStorage(storageManager, New Blob.MemorySaver())
         Dim localstorage = New LocalStorage(storageManager, blobFileSaver)

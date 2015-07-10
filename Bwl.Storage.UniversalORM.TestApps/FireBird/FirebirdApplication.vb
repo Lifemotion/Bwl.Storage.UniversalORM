@@ -14,7 +14,7 @@ Public Class FirebirdApplication
         Dim fileSaverDir = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "FileData")
         Dim storageManager = New FbStorageManager(settings.ConnectionStringBuilder_Embeded)
         Dim blobSaverDir = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "BlobData")
-        Dim blobFileSaver = New FileBlobSaver(blobSaverDir)
+        Dim blobFileSaver = New FileBlobFieldsWriter(blobSaverDir)
         _localStorage = New Bwl.Storage.UniversalORM.LocalStorage(storageManager, blobFileSaver)
 
         Dim data = New FireBirdTestDataInternal

@@ -5,27 +5,27 @@ Imports Newtonsoft.Json.Linq
 Public Class TempStorage
 	Inherits Bwl.Storage.UniversalORM.CommonObjStorage
 	Implements Bwl.Storage.UniversalORM.IObjStorageManager
-    Implements Bwl.Storage.UniversalORM.IBlobSaver
+    Implements Bwl.Storage.UniversalORM.IBlobFieldsWriter
 
-	Public Property ObjDataInfo As ObjDataInfo
+    Public Property ObjDataInfo As ObjDataInfo
 
-	Public Sub New(type As Type)
-		MyBase.New(type)
-	End Sub
+    Public Sub New(type As Type)
+        MyBase.New(type)
+    End Sub
 
-	Public Function CreateStorage(Of T As ObjBase)(name As String) As IObjStorage Implements IObjStorageManager.CreateStorage
-		Return Me
-	End Function
+    Public Function CreateStorage(Of T As ObjBase)(name As String) As IObjStorage Implements IObjStorageManager.CreateStorage
+        Return Me
+    End Function
 
-    Public Function Load(parentObjId As String) As ObjBlobInfo Implements IBlobSaver.Load
+    Public Function Load(parentObjId As String) As BlobFieldsSet Implements IBlobFieldsWriter.Load
         Return ObjDataInfo.ObjBlobInfo
     End Function
 
-    Public Sub Remove(parentObjId As String) Implements IBlobSaver.Remove
+    Public Sub Remove(parentObjId As String) Implements IBlobFieldsWriter.Remove
 
     End Sub
 
-    Public Sub Save(objBlobInfo As ObjBlobInfo) Implements IBlobSaver.Save
+    Public Sub Save(objBlobInfo As BlobFieldsSet) Implements IBlobFieldsWriter.Save
         ObjDataInfo.ObjBlobInfo = objBlobInfo
     End Sub
 

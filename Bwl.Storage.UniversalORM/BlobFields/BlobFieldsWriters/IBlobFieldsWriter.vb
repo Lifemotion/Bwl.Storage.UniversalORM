@@ -1,11 +1,9 @@
-﻿Imports System.IO
-
-''' <summary>
+﻿''' <summary>
 ''' Модуль для сохранения/загрузки потоков в реальное хранилище (файл, БД и т.д.)
 ''' </summary>
 ''' <remarks></remarks>
-Public Interface IBlobSaver
-	Sub Save(objBlobInfo As ObjBlobInfo)
-	Function Load(parentObjId As String) As ObjBlobInfo
-	Sub Remove(parentObjId As String)
+Public Interface IBlobFieldsWriter
+    Sub Save(objBlobInfo As BlobFieldsSet)
+    Function Load(parentObjId As String) As BlobFieldsSet
+    Sub Remove(parentObjId As String)
 End Interface

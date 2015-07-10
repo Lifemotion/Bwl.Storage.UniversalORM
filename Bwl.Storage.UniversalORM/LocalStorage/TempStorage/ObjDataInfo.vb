@@ -2,7 +2,7 @@
 
 Public Class ObjDataInfo
     Public Property ObjInfo As ObjInfo
-    Public Property ObjBlobInfo As ObjBlobInfo
+    Public Property ObjBlobInfo As BlobFieldsSet
 
     Public Function GetFilesForWeb() As IEnumerable(Of Byte())
         Dim files = New List(Of Byte())
@@ -13,7 +13,7 @@ Public Class ObjDataInfo
         Dim ObjBlobInfoJson = CfJsonConverter.Serialize(ObjBlobInfo)
         files.Add(Encoding.UTF8.GetBytes(ObjBlobInfoJson))
 
-        For Each b In ObjBlobInfo.BlobsInfo
+        For Each b In ObjBlobInfo.BlobFields
             files.Add(b.Data)
         Next
 
@@ -26,10 +26,10 @@ Public Class ObjDataInfo
         objDataInfo.ObjInfo = CfJsonConverter.Deserialize(Of ObjInfo)(str1)
 
         Dim str2 = Encoding.UTF8.GetString(files(1))
-        objDataInfo.ObjBlobInfo = CfJsonConverter.Deserialize(Of ObjBlobInfo)(str2)
+        objDataInfo.ObjBlobInfo = CfJsonConverter.Deserialize(Of BlobFieldsSet)(str2)
 
         Dim i = 2
-        For Each bi In objDataInfo.ObjBlobInfo.BlobsInfo
+        For Each bi In objDataInfo.ObjBlobInfo.BlobFields
             bi.Data = files(i)
             i += 1
         Next

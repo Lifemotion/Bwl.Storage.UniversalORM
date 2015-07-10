@@ -71,19 +71,22 @@
     <Compile Include="AdoDb\MSSQLSRVUtils.vb" />
     <Compile Include="AdoDb\SqlHelper.vb" />
     <Compile Include="AdoDb\SqlReaderHelper.vb" />
-    <Compile Include="Blob\BinarySavers\BitmapBinarySaver.vb" />
-    <Compile Include="Blob\BinarySavers\BytesBinarySaver.vb" />
-    <Compile Include="Blob\BlobAttribute.vb" />
-    <Compile Include="Blob\BlobContainerAttribute.vb" />
-    <Compile Include="Blob\Common\BlobInfo.vb" />
-    <Compile Include="Blob\Common\CommonBlobStorage.vb" />
-    <Compile Include="Blob\Common\IBlobBinarySaver.vb" />
-    <Compile Include="Blob\Common\IBlobSaver.vb" />
-    <Compile Include="Blob\Common\IBlobStorage.vb" />
-    <Compile Include="Blob\Common\ObjBlobInfo.vb" />
-    <Compile Include="Blob\Savers\FileBlobSaver.vb" />
-    <Compile Include="Blob\Savers\MemorySaver.vb" />
-    <Compile Include="Blob\TypeMembersTools.vb" />
+    <Compile Include="BlobFields\BinaryConverters\BitmapBinaryConverter.vb" />
+    <Compile Include="BlobFields\BinaryConverters\BytesBinaryConverter.vb" />
+    <Compile Include="BlobFields\Common\BlobAttribute.vb" />
+    <Compile Include="BlobFields\Common\BlobContainerAttribute.vb" />
+    <Compile Include="BlobFields\Common\BlobField.vb" />
+    <Compile Include="BinaryStorage\Common\BinaryObject.vb" />
+    <Compile Include="BinaryStorage\FileBinaryStorage.vb" />
+    <Compile Include="BinaryStorage\Common\IBinaryObject.vb" />
+    <Compile Include="BinaryStorage\Common\IBinaryStorage.vb" />
+    <Compile Include="BlobFields\FieldStorage\BlobFiledsStorage.vb" />
+    <Compile Include="BlobFields\BinaryConverters\IBinaryConverter.vb" />
+    <Compile Include="BlobFields\BlobFieldsWriters\IBlobFieldsWriter.vb" />
+    <Compile Include="BlobFields\FieldStorage\IBlobFiledsStorage.vb" />
+    <Compile Include="BlobFields\Common\BlobFieldsSet.vb" />
+    <Compile Include="BlobFields\BlobFieldsWriters\FileBlobFieldsWriter.vb" />
+    <Compile Include="BlobFields\BlobFieldsWriters\MemoryBlobFieldsWriter.vb" />
     <Compile Include="Common\CommonObjStorage.vb" />
     <Compile Include="Common\ILocalStorage.vb" />
     <Compile Include="Common\IObjStorage.vb" />
@@ -121,7 +124,7 @@
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
     </Compile>
     <Compile Include="Objects\ObjBase.vb" />
-    <Compile Include="Reflection\TypeMembersTools.vb" />
+    <Compile Include="Reflection\ReflectionTools.vb" />
     <Compile Include="SearchParams\SearchParams.vb" />
     <Compile Include="SearchParams\SelectMode.vb" />
     <Compile Include="SearchParams\SelectOptions.vb" />

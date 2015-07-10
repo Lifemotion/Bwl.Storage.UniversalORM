@@ -60,6 +60,26 @@ Public Class ExamplesApp
         _logger.AddMessage("FirebirdStorageExample - ok")
     End Sub
 
-
+    Private Sub FileBinaryStorageExample() Handles buttonFileBinaryStorageExample.Click
+        'путь к файлу базы данных
+        Dim filesPath = IO.Path.Combine(AppBase.DataFolder, "FileBinaryStorage")
+        'создание простого хранилища бинаризуемых объектов
+        Dim fileStorage As New FileBinaryStorage(filesPath)
+        'сохранение массива байт непосредственно
+        Dim id1 = Guid.NewGuid.ToString
+        fileStorage.Save(id1, "cats.txt", System.Text.Encoding.ASCII.GetBytes("123123"))
+        'сохранение массива байт в виде объекта
+        Dim binObj As New BinaryObject()
+        Dim id2 = binObj.ID
+        binObj.Bytes = System.Text.Encoding.ASCII.GetBytes("543235")
+        binObj.Name = "dogs.txt"
+        fileStorage.Save(binObj)
+        'загрузка массива байт непосредсвенно
+        Dim bytes1 = fileStorage.Load(id1)
+        'загрузка массива 
+        Dim binObjLoaded As New BinaryObject
+        fileStorage.Load(id2, binObjLoaded)
+        _logger.AddMessage("FirebirdStorageExample - ok")
+    End Sub
 End Class
 

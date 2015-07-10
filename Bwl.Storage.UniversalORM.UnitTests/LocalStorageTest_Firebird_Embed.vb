@@ -16,7 +16,7 @@ Imports FirebirdSql.Data.FirebirdClient
         Dim manager = New FbStorageManager(settings.ConnectionStringBuilder_Embeded)
 
 		Dim blobSaverDir = IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "..\BlobData")
-        Dim blobFileSaver = New FileBlobSaver(blobSaverDir)
+        Dim blobFileSaver = New FileBlobFieldsWriter(blobSaverDir)
         Dim localStorage = New Bwl.Storage.UniversalORM.LocalStorage(manager, blobFileSaver)
 		Return localStorage
 	End Function

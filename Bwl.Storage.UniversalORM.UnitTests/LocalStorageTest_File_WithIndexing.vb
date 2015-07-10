@@ -12,7 +12,7 @@ Imports Bwl.Storage.UniversalORM
 		Dim manager As New FileStorageManager(path)
 		manager.UseIndexing = True
 		Dim blobSaverDir = IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "..\BlobData")
-        Dim blobFileSaver = New FileBlobSaver(blobSaverDir)
+        Dim blobFileSaver = New FileBlobFieldsWriter(blobSaverDir)
         Dim localStorage = New Bwl.Storage.UniversalORM.LocalStorage(manager, blobFileSaver)
 		Return localStorage
 	End Function

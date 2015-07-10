@@ -4,9 +4,9 @@
 Public Class BlobUORM
     Private Sub Button1_Click(sender As Object, e As EventArgs) Handles Button1.Click
 
-        Dim blobStorage = New CommonBlobStorage()
+        Dim blobStorage = New BlobFiledsStorage()
 
-        blobStorage.AddSaver(New FileBlobSaver(Path.Combine(Application.StartupPath, "data")))
+        blobStorage.AddBlobWriter(New FileBlobFieldsWriter(Path.Combine(Application.StartupPath, "data")))
 
         Dim testData = New BlobSomeData
         testData.Text1 = "111111111111"

@@ -2,18 +2,18 @@
 Imports Bwl.Storage.UniversalORM.Firebird
 Imports System.IO
 
-Public Class FireBirdForm
+Public Class FirebirdApplication
     Inherits Bwl.Framework.FormAppBase
 
     Private Sub Form1_Load(sender As Object, e As EventArgs) Handles MyBase.Load
-        Dim settings = New LocalSettings_Firebird(AppBase.RootStorage)
+        Dim settings = New FirebirdLocalSettings(AppBase.RootStorage)
 
 
         '     Try
         '------------------
         Dim _localStorage As ILocalStorage
         Dim fileSaverDir = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "FileData")
-        Dim storageManager = New Firebird.FbStorageManager(settings.ConnectionStringBuilder_Embeded)
+        Dim storageManager = New FbStorageManager(settings.ConnectionStringBuilder_Embeded)
         Dim blobSaverDir = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "BlobData")
         Dim blobFileSaver = New FileBlobSaver(blobSaverDir)
         _localStorage = New Bwl.Storage.UniversalORM.LocalStorage(storageManager, blobFileSaver)

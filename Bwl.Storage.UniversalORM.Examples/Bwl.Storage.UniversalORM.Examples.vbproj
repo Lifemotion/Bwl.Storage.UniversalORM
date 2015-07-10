@@ -4,11 +4,11 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{8BD382DF-A0DF-4813-BBA2-6FFE98F100A9}</ProjectGuid>
+    <ProjectGuid>{B52CCE47-2DD9-4A31-90FD-DAA8C1FCA141}</ProjectGuid>
     <OutputType>WinExe</OutputType>
-    <StartupObject>Bwl.Storage.UniversalORM.Firebird.TestApps.My.MyApplication</StartupObject>
-    <RootNamespace>Bwl.Storage.UniversalORM.Firebird.TestApps</RootNamespace>
-    <AssemblyName>Bwl.Storage.UniversalORM.Firebird.TestApps</AssemblyName>
+    <StartupObject>Bwl.Storage.UniversalORM.Examples.My.MyApplication</StartupObject>
+    <RootNamespace>Bwl.Storage.UniversalORM.Examples</RootNamespace>
+    <AssemblyName>Bwl.Storage.UniversalORM.Examples</AssemblyName>
     <FileAlignment>512</FileAlignment>
     <MyType>WindowsForms</MyType>
     <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
@@ -20,8 +20,8 @@
     <DebugType>full</DebugType>
     <DefineDebug>true</DefineDebug>
     <DefineTrace>true</DefineTrace>
-    <OutputPath>..\debug\UniversalORM Firebird TestApps\bin\</OutputPath>
-    <DocumentationFile>Bwl.Storage.UniversalORM.Firebird.TestApps.xml</DocumentationFile>
+    <OutputPath>..\debug\Examples\bin\</OutputPath>
+    <DocumentationFile>Bwl.Storage.UniversalORM.Examples.xml</DocumentationFile>
     <NoWarn>42016,41999,42017,42018,42019,42032,42036,42020,42021,42022</NoWarn>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
@@ -30,8 +30,8 @@
     <DefineDebug>false</DefineDebug>
     <DefineTrace>true</DefineTrace>
     <Optimize>true</Optimize>
-    <OutputPath>..\debug\UniversalORM Firebird TestApps\bin\</OutputPath>
-    <DocumentationFile>Bwl.Storage.UniversalORM.Firebird.TestApps.xml</DocumentationFile>
+    <OutputPath>..\debug\Examples\bin\</OutputPath>
+    <DocumentationFile>Bwl.Storage.UniversalORM.Examples.xml</DocumentationFile>
     <NoWarn>42016,41999,42017,42018,42019,42032,42036,42020,42021,42022</NoWarn>
   </PropertyGroup>
   <PropertyGroup>
@@ -50,20 +50,15 @@
     <Reference Include="Bwl.Framework">
       <HintPath>..\refs\Bwl.Framework.dll</HintPath>
     </Reference>
-    <Reference Include="FirebirdSql.Data.FirebirdClient">
-      <HintPath>..\refs\FirebirdSql.Data.FirebirdClient.dll</HintPath>
-    </Reference>
     <Reference Include="Newtonsoft.Json, Version=4.5.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\refs\Newtonsoft.Json.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Data" />
-    <Reference Include="System.Deployment" />
     <Reference Include="System.Drawing" />
     <Reference Include="System.Windows.Forms" />
     <Reference Include="System.Core" />
-    <Reference Include="System.Data.DataSetExtensions" />
   </ItemGroup>
   <ItemGroup>
     <Import Include="Microsoft.VisualBasic" />
@@ -78,21 +73,13 @@
     <Import Include="System.Threading.Tasks" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="FireBirdBigData\BigData.vb" />
-    <Compile Include="FireBirdBigData\BigDataTestForm.Designer.vb">
-      <DependentUpon>BigDataTestForm.vb</DependentUpon>
-    </Compile>
-    <Compile Include="FireBirdBigData\BigDataTestForm.vb">
+    <Compile Include="ExamplesApp.vb">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="FireBird\FirebirdApplication.Designer.vb">
-      <DependentUpon>FirebirdApplication.vb</DependentUpon>
-    </Compile>
-    <Compile Include="FireBird\FirebirdApplication.vb">
+    <Compile Include="ExamplesApp.Designer.vb">
+      <DependentUpon>ExamplesApp.vb</DependentUpon>
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="FireBird\FirebirdTestData.vb" />
-    <Compile Include="FireBird\FirebirdLocalSettings.vb" />
     <Compile Include="My Project\AssemblyInfo.vb" />
     <Compile Include="My Project\Application.Designer.vb">
       <AutoGen>True</AutoGen>
@@ -110,11 +97,8 @@
     </Compile>
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Include="FireBirdBigData\BigDataTestForm.resx">
-      <DependentUpon>BigDataTestForm.vb</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="FireBird\FirebirdApplication.resx">
-      <DependentUpon>FirebirdApplication.vb</DependentUpon>
+    <EmbeddedResource Include="ExamplesApp.resx">
+      <DependentUpon>ExamplesApp.vb</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="My Project\Resources.resx">
       <Generator>VbMyResourcesResXFileCodeGenerator</Generator>
@@ -157,6 +141,7 @@
       <Name>Bwl.Storage.UniversalORM</Name>
     </ProjectReference>
   </ItemGroup>
+  <ItemGroup />
   <ItemGroup>
     <None Include="..\refs\fbe32\fbembed.dll">
       <Link>fbe32\fbembed.dll</Link>

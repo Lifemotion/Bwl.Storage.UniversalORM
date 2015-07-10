@@ -1,5 +1,5 @@
 ﻿<Global.Microsoft.VisualBasic.CompilerServices.DesignerGenerated()> _
-Partial Class FireBirdForm
+Partial Class FirebirdApplication
     Inherits Bwl.Framework.FormAppBase
 
     'Форма переопределяет dispose для очистки списка компонентов.

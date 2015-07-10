@@ -10,7 +10,21 @@ Public Class FbStorageManager
 	Public Sub New(connStringBld As FbConnectionStringBuilder)
 		_connStringBld = connStringBld
 		_dbName = connStringBld.Database
-	End Sub
+    End Sub
+
+    Public Sub New(databaseFilePath As String)
+        _connStringBld = New FbConnectionStringBuilder()
+
+        _connStringBld.Database = databaseFilePath
+        _connStringBld.UserID = "sysdba"
+        _connStringBld.Password = "masterkey"
+        _connStringBld.Dialect = 3
+        _connStringBld.ServerType = FbServerType.Embedded
+        _connStringBld.ConnectionTimeout = 1
+        _connStringBld.ClientLibrary = "fbe32\fbembed.dll"
+
+        _dbName = _connStringBld.Database
+    End Sub
 
 	Public Property ConnectionStringBuilder As FbConnectionStringBuilder
 		Get

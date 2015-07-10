@@ -32,7 +32,7 @@ Namespace My
         
         <Global.System.Diagnostics.DebuggerStepThroughAttribute()>  _
         Protected Overrides Sub OnCreateMainForm()
-            Me.MainForm = Global.Bwl.Storage.UniversalORM.Firebird.TestApps.FirebirdApplication
+            Me.MainForm = Global.Bwl.Storage.UniversalORM.Examples.ExamplesApp
         End Sub
     End Class
 End Namespace

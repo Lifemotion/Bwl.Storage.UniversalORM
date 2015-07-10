@@ -6,7 +6,7 @@
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <ProjectGuid>{B58E49C1-7FD7-4674-A1D4-282BC3C88F47}</ProjectGuid>
     <OutputType>Library</OutputType>
-    <RootNamespace>Bwl.Storage.UniversalORM.Firebird</RootNamespace>
+    <RootNamespace>Bwl.Storage.UniversalORM</RootNamespace>
     <AssemblyName>Bwl.Storage.UniversalORM.Firebird</AssemblyName>
     <FileAlignment>512</FileAlignment>
     <MyType>Windows</MyType>

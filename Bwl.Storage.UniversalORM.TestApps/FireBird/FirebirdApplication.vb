@@ -1,5 +1,4 @@
 ﻿Imports FirebirdSql.Data.FirebirdClient
-Imports Bwl.Storage.UniversalORM.Firebird
 Imports System.IO
 
 Public Class FirebirdApplication

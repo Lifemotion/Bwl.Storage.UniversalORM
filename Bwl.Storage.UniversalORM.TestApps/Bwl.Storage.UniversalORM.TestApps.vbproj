@@ -50,19 +50,19 @@
     <Reference Include="Bwl.Framework">
       <HintPath>..\refs\Bwl.Framework.dll</HintPath>
     </Reference>
+    <Reference Include="FirebirdSql.Data.FirebirdClient, Version=4.5.0.0, Culture=neutral, PublicKeyToken=3750abcc3150b00c, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\refs\FirebirdSql.Data.FirebirdClient.dll</HintPath>
+    </Reference>
     <Reference Include="Newtonsoft.Json, Version=4.5.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\refs\Newtonsoft.Json.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Data" />
-    <Reference Include="System.Deployment" />
     <Reference Include="System.Drawing" />
     <Reference Include="System.Windows.Forms" />
-    <Reference Include="System.Xml" />
     <Reference Include="System.Core" />
-    <Reference Include="System.Xml.Linq" />
-    <Reference Include="System.Data.DataSetExtensions" />
   </ItemGroup>
   <ItemGroup>
     <Import Include="Bwl.Framework" />
@@ -75,7 +75,6 @@
     <Import Include="System.Diagnostics" />
     <Import Include="System.Windows.Forms" />
     <Import Include="System.Linq" />
-    <Import Include="System.Xml.Linq" />
     <Import Include="System.Threading.Tasks" />
   </ItemGroup>
   <ItemGroup>
@@ -101,6 +100,21 @@
     <Compile Include="Files\FilesUORM_test.vb">
       <SubType>Form</SubType>
     </Compile>
+    <Compile Include="FireBirdBigData\BigData.vb" />
+    <Compile Include="FireBirdBigData\BigDataTestForm.Designer.vb">
+      <DependentUpon>BigDataTestForm.vb</DependentUpon>
+    </Compile>
+    <Compile Include="FireBirdBigData\BigDataTestForm.vb">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="FireBird\FirebirdApplication.Designer.vb">
+      <DependentUpon>FirebirdApplication.vb</DependentUpon>
+    </Compile>
+    <Compile Include="FireBird\FirebirdApplication.vb">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="FireBird\FirebirdLocalSettings.vb" />
+    <Compile Include="FireBird\FirebirdTestData.vb" />
     <Compile Include="LocalStorage\LocalStorageTestData.vb" />
     <Compile Include="LocalStorage\LocalStorageTestData2.vb" />
     <Compile Include="LocalStorage\LocalStorageTestDataForm.Designer.vb">
@@ -146,6 +160,12 @@
     <EmbeddedResource Include="Files\FilesUORM_test.resx">
       <DependentUpon>FilesUORM_test.vb</DependentUpon>
     </EmbeddedResource>
+    <EmbeddedResource Include="FireBirdBigData\BigDataTestForm.resx">
+      <DependentUpon>BigDataTestForm.vb</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="FireBird\FirebirdApplication.resx">
+      <DependentUpon>FirebirdApplication.vb</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="LocalStorage\LocalStorageTestDataForm.resx">
       <DependentUpon>LocalStorageTestDataForm.vb</DependentUpon>
     </EmbeddedResource>
@@ -157,6 +177,18 @@
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>
+    <None Include="..\refs\fbe32\aliases.conf">
+      <Link>fbe32\aliases.conf</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="..\refs\fbe32\firebird.conf">
+      <Link>fbe32\firebird.conf</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="..\refs\fbe32\firebird.msg">
+      <Link>fbe32\firebird.msg</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
     <None Include="My Project\Application.myapp">
       <Generator>MyApplicationCodeGenerator</Generator>
       <LastGenOutput>Application.Designer.vb</LastGenOutput>
@@ -178,7 +210,28 @@
       <Name>Bwl.Storage.UniversalORM</Name>
     </ProjectReference>
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <None Include="..\refs\fbe32\fbembed.dll">
+      <Link>fbe32\fbembed.dll</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <Content Include="..\refs\fbe32\ib_util.dll">
+      <Link>fbe32\ib_util.dll</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="..\refs\fbe32\icudt30.dll">
+      <Link>fbe32\icudt30.dll</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="..\refs\fbe32\icuin30.dll">
+      <Link>fbe32\icuin30.dll</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="..\refs\fbe32\icuuc30.dll">
+      <Link>fbe32\icuuc30.dll</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.VisualBasic.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

@@ -52,9 +52,10 @@ Public Class ExamplesApp
         'поиск возможен только по полям Indexing
         Dim objSearchResults1b = fbStorageForTestData.FindObj(New SearchParams({New FindCriteria("Cat", FindCondition.eqaul, "cat1")}))
         'поиск идентификаторов объектов, где поле Cat содержит значению cat1
-        Dim objSearchResults1c = fbStorageForTestData.FindObj(New SearchParams({New FindCriteria("Dog", FindCondition.likeEqaul, "cat")}))
+        Dim objSearchResults1c = fbStorageForTestData.FindObj(New SearchParams({New FindCriteria("Cat", FindCondition.likeEqaul, "cat")}))
         'извлечение объекта из хранилища по идентификатору
         Dim obj1restored As TestDataClass = fbStorageForTestData.GetObj(objSearchResults1a(0))
+        _logger.AddMessage("FirebirdStorageExample - ok")
     End Sub
 
 

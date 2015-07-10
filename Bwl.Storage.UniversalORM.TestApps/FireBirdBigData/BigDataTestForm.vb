@@ -1,6 +1,5 @@
 ﻿Imports FirebirdSql.Data.FirebirdClient
 Imports Bwl.Storage.UniversalORM
-Imports Bwl.Storage.UniversalORM.Firebird
 Imports System.Data.SqlClient
 
 Public Class FormBigDataTest

@@ -158,10 +158,10 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <Content Include="..\refs\fbe32\fbembed.dll">
+    <None Include="..\refs\fbe32\fbembed.dll">
       <Link>fbe32\fbembed.dll</Link>
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
+    </None>
     <Content Include="..\refs\fbe32\ib_util.dll">
       <Link>fbe32\ib_util.dll</Link>
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>

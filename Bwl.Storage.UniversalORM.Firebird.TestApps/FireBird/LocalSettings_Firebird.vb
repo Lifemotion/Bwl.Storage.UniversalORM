@@ -15,7 +15,7 @@ Public Class LocalSettings_Firebird
 		'  их надо изменять в конфиг файле
 		'!!!!!!!!!!!!!!!!!!!!!
 
-        Dim pathSep = IO.Path.PathSeparator
+        Dim pathSep = IO.Path.DirectorySeparatorChar
 
 		Dim dbStorage = _settings.CreateChildStorage("DB_FB")
 

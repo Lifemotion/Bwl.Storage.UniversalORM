@@ -79,7 +79,11 @@ Public Class ExamplesApp
         'загрузка массива 
         Dim binObjLoaded As New BinaryObject
         fileStorage.Load(id2, binObjLoaded)
-        _logger.AddMessage("FirebirdStorageExample - ok")
+        _logger.AddMessage("FileBinaryStorageExample - ok")
+    End Sub
+
+    Private Sub ExamplesApp_Load(sender As Object, e As EventArgs) Handles MyBase.Load
+
     End Sub
 End Class
 

@@ -11,11 +11,11 @@
     <AssemblyName>Bwl.Storage.UniversalORM.Examples</AssemblyName>
     <FileAlignment>512</FileAlignment>
     <MyType>WindowsForms</MyType>
-    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <TargetFrameworkProfile />
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
-    <PlatformTarget>x86</PlatformTarget>
+    <PlatformTarget>AnyCPU</PlatformTarget>
     <DebugSymbols>true</DebugSymbols>
     <DebugType>full</DebugType>
     <DefineDebug>true</DefineDebug>
@@ -23,9 +23,10 @@
     <OutputPath>..\debug\Examples\bin\</OutputPath>
     <DocumentationFile>Bwl.Storage.UniversalORM.Examples.xml</DocumentationFile>
     <NoWarn>42016,41999,42017,42018,42019,42032,42036,42020,42021,42022</NoWarn>
+    <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
-    <PlatformTarget>x86</PlatformTarget>
+    <PlatformTarget>AnyCPU</PlatformTarget>
     <DebugType>pdbonly</DebugType>
     <DefineDebug>false</DefineDebug>
     <DefineTrace>true</DefineTrace>
@@ -33,6 +34,7 @@
     <OutputPath>..\debug\Examples\bin\</OutputPath>
     <DocumentationFile>Bwl.Storage.UniversalORM.Examples.xml</DocumentationFile>
     <NoWarn>42016,41999,42017,42018,42019,42032,42036,42020,42021,42022</NoWarn>
+    <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <PropertyGroup>
     <OptionExplicit>On</OptionExplicit>
@@ -119,6 +121,22 @@
       <Link>fbe32\firebird.msg</Link>
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
+    <None Include="..\refs\fbe64\aliases.conf">
+      <Link>fbe64\aliases.conf</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="..\refs\fbe64\firebird.conf">
+      <Link>fbe64\firebird.conf</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="..\refs\fbe64\firebird.log">
+      <Link>fbe64\firebird.log</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="..\refs\fbe64\firebird.msg">
+      <Link>fbe64\firebird.msg</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
     <None Include="My Project\Application.myapp">
       <Generator>MyApplicationCodeGenerator</Generator>
       <LastGenOutput>Application.Designer.vb</LastGenOutput>
@@ -142,10 +160,10 @@
   </ItemGroup>
   <ItemGroup />
   <ItemGroup>
-    <None Include="..\refs\fbe32\fbembed.dll">
+    <Content Include="..\refs\fbe32\fbembed.dll">
       <Link>fbe32\fbembed.dll</Link>
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
+    </Content>
     <Content Include="..\refs\fbe32\ib_util.dll">
       <Link>fbe32\ib_util.dll</Link>
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
@@ -160,6 +178,42 @@
     </Content>
     <Content Include="..\refs\fbe32\icuuc30.dll">
       <Link>fbe32\icuuc30.dll</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="..\refs\fbe32\msvcp80.dll">
+      <Link>fbe32\msvcp80.dll</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="..\refs\fbe32\msvcr80.dll">
+      <Link>fbe32\msvcr80.dll</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="..\refs\fbe64\fbembed.dll">
+      <Link>fbe64\fbembed.dll</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="..\refs\fbe64\ib_util.dll">
+      <Link>fbe64\ib_util.dll</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="..\refs\fbe64\icudt30.dll">
+      <Link>fbe64\icudt30.dll</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="..\refs\fbe64\icuin30.dll">
+      <Link>fbe64\icuin30.dll</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="..\refs\fbe64\icuuc30.dll">
+      <Link>fbe64\icuuc30.dll</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="..\refs\fbe64\msvcp80.dll">
+      <Link>fbe64\msvcp80.dll</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="..\refs\fbe64\msvcr80.dll">
+      <Link>fbe64\msvcr80.dll</Link>
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
   </ItemGroup>

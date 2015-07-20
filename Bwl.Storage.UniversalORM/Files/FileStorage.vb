@@ -299,10 +299,10 @@ Public Class FileObjStorage
 										End If
 
 										Select Case (crit.Condition)
-											Case FindCondition.eqaul
-												If (value = crit.Value) Then
-													tmpResult.Add(idStr)
-												End If
+                                            Case FindCondition.equal
+                                                If (value = crit.Value) Then
+                                                    tmpResult.Add(idStr)
+                                                End If
 											Case FindCondition.greater
 												If (value > crit.Value) Then
 													tmpResult.Add(idStr)

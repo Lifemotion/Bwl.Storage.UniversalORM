@@ -176,10 +176,11 @@ Public Class FBStorage
 		Dim betweenSql = String.Empty
 		Dim mainSelect = String.Empty
 		If (searchParams IsNot Nothing) AndAlso (searchParams.SelectOptions IsNot Nothing) AndAlso (searchParams.SelectOptions.SelectMode = SelectMode.Between) Then
-			mainSelect = String.Format("SELECT FIRST {1} SKIP {2} GUID FROM {0}", Name, searchParams.SelectOptions.EndValue - searchParams.SelectOptions.StartValue + 1, searchParams.SelectOptions.StartValue)
-			'betweenSql
+            'BUG: 'mainSelect = String.Format("SELECT FIRST {1} SKIP {2} GUID FROM {0}", Name, searchParams.SelectOptions.EndValue - searchParams.SelectOptions.StartValue + 1, searchParams.SelectOptions.StartValue)
+            mainSelect = String.Format("SELECT FIRST {2} SKIP {3} GUID FROM {0} {1} ORDER BY {4} {5}", Name, whereSql,
+                                       searchParams.SelectOptions.EndValue - searchParams.SelectOptions.StartValue + 1,
+                                       searchParams.SelectOptions.StartValue, """" + sortField.ToUpper() + """", sortModeStr)
 		Else
-
 			'''' main sql			
 			If (searchParams Is Nothing) Or ((searchParams IsNot Nothing) AndAlso (searchParams.SortParam Is Nothing)) Then
 				mainSelect = String.Format("SELECT {2} GUID FROM {0} {1}", Name, whereSql, topSql)
@@ -301,7 +302,8 @@ Public Class FBStorage
 												   End Function)
 				resList.AddRange(tmpList)
 			End If
-		End If
+        End If
+
 		Return resList
 	End Function
 
@@ -313,7 +315,8 @@ Public Class FBStorage
 		Dim idFromDb = FbUtils.ExecSQLScalar(ConnectionString, sql)
 		If (Not String.IsNullOrWhiteSpace(idFromDb) AndAlso idFromDb.ToString.Replace(" ", "") = id) Then
 			res = True
-		End If
+        End If
+
 		Return res
 	End Function
 
@@ -383,6 +386,7 @@ Public Class FBStorage
 
             ListQuery.Execute()
         End If
+
 		Return indexName
 	End Function
 
@@ -411,8 +415,8 @@ Public Class FBStorage
 						Dim pName = "@p" + i.ToString
 						Const quote As String = """"
 						Select Case crit.Condition
-							Case FindCondition.eqaul
-								str = String.Format(" ({0} = {1}) ", quote + indexName + quote, pName)
+                            Case FindCondition.equal
+                                str = String.Format(" ({0} = {1}) ", quote + indexName + quote, pName)
 							Case FindCondition.greater
 								str = String.Format(" ({0} > {1}) ", quote + indexName + quote, pName)
 							Case FindCondition.less

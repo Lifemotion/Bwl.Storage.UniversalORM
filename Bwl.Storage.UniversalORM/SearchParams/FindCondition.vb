@@ -1,6 +1,6 @@
 ﻿
 Public Enum FindCondition
-    eqaul
+    equal
     likeEqaul
     notEqual
     greater

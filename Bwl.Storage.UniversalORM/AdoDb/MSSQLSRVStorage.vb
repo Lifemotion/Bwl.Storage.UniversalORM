@@ -478,8 +478,8 @@ Public Class MSSQLSRVStorage
 						Dim str = String.Empty
 						Dim pName = "@p" + i.ToString
 						Select Case crit.Condition
-							Case FindCondition.eqaul
-								str = String.Format(" ([{0}].[value] = {1}) ", indexTableName, pName)
+                            Case FindCondition.equal
+                                str = String.Format(" ([{0}].[value] = {1}) ", indexTableName, pName)
 							Case FindCondition.greater
 								str = String.Format(" ([{0}].[value] > {1}) ", indexTableName, pName)
 							Case FindCondition.less

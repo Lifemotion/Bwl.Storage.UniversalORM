@@ -65,7 +65,7 @@ Public Class LocalStorageTestDataForm
 
 
         Dim sp1 = New SearchParams
-        sp1.FindCriterias = {New FindCriteria("id", FindCondition.eqaul, data1.ID)}
+        sp1.FindCriterias = {New FindCriteria("id", FindCondition.equal, data1.ID)}
         Dim id111111 = localstorage.FindObj(Of LocalStorageTestData)(sp1)
 
 
@@ -89,7 +89,7 @@ Public Class LocalStorageTestDataForm
         Dim data2 = localstorage.GetObj(Of LocalStorageTestData)(data1.ID)
 
 
-        Dim crit = {New FindCriteria("Cat", FindCondition.eqaul, "111211")}
+        Dim crit = {New FindCriteria("Cat", FindCondition.equal, "111211")}
         Dim sp = New SearchParams(crit)
         Dim ids = localstorage.FindObj(Of LocalStorageTestData)(sp)
 

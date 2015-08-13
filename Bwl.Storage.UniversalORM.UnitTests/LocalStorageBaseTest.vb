@@ -211,7 +211,7 @@ Public MustInherit Class LocalStorageBaseTest
         d1.Cat = "hhhhhh"
         _localStorage.UpdateObj(d1)
 
-        Dim ids = _localStorage.FindObj(Of TestData)(New SearchParams({New FindCriteria("Cat", FindCondition.eqaul, d1.Cat)}))
+        Dim ids = _localStorage.FindObj(Of TestData)(New SearchParams({New FindCriteria("Cat", FindCondition.equal, d1.Cat)}))
 
         Assert.AreEqual(d1.ID, ids.First)
 
@@ -347,8 +347,8 @@ Public MustInherit Class LocalStorageBaseTest
 		_localStorage.AddObj(_data5)
 		_localStorage.AddObj(_data6)
 
-		Dim sp = New SearchParams({New FindCriteria("Cat", FindCondition.eqaul, "happycat")})
-		Dim p1 = _localStorage.FindObj(Of TestData)(sp)
+        Dim sp = New SearchParams({New FindCriteria("Cat", FindCondition.equal, "happycat")})
+        Dim p1 = _localStorage.FindObj(Of TestData)(sp)
 		Assert.AreEqual(p1.Count, 3)
 	End Sub
 
@@ -387,8 +387,8 @@ Public MustInherit Class LocalStorageBaseTest
 		_localStorage.AddObj(_data2)
 
 
-		Dim sp = New SearchParams({New FindCriteria("Timestamp", FindCondition.eqaul, dt)})
-		Dim p1 = _localStorage.FindObj(Of TestData)(sp)
+        Dim sp = New SearchParams({New FindCriteria("Timestamp", FindCondition.equal, dt)})
+        Dim p1 = _localStorage.FindObj(Of TestData)(sp)
 		Assert.AreEqual(p1.Count, 1)
 		Assert.AreEqual(p1.First, _data2.ID)
 	End Sub
@@ -447,11 +447,11 @@ Public MustInherit Class LocalStorageBaseTest
 		_data2.Cat = "tttttttttttttttttttttt"
 		_localStorage.AddObj(_data2)
 
-		Dim sp = New SearchParams({
-								  New FindCriteria("Timestamp", FindCondition.less, DateTime.MaxValue),
-								  New FindCriteria("Cat", FindCondition.eqaul, _data2.Cat)
-								  })
-		Dim p1 = _localStorage.FindObj(Of TestData)(sp)
+        Dim sp = New SearchParams({
+                                  New FindCriteria("Timestamp", FindCondition.less, DateTime.MaxValue),
+                                  New FindCriteria("Cat", FindCondition.equal, _data2.Cat)
+                                  })
+        Dim p1 = _localStorage.FindObj(Of TestData)(sp)
 		Assert.AreEqual(p1.Count, 1)
 		Assert.AreEqual(p1.First, _data2.ID)
 	End Sub
@@ -559,8 +559,8 @@ Public MustInherit Class LocalStorageBaseTest
 
 		_localStorage.AddObjects(massAdd)
 
-		Dim spadd As New SearchParams({New FindCriteria("Cat", FindCondition.eqaul, "td")})
-		spadd.SelectOptions = New SelectOptions(0, 3)
+        Dim spadd As New SearchParams({New FindCriteria("Cat", FindCondition.equal, "td")})
+        spadd.SelectOptions = New SelectOptions(0, 3)
 		Dim F1 = _localStorage.FindObj(Of TestData)(spadd)
 		Assert.AreEqual(4, F1.Count)
 
@@ -621,9 +621,9 @@ Public MustInherit Class LocalStorageBaseTest
 	Public Sub FindByBadField()
 		_localStorage.RemoveAllObj(GetType(TestData))
 		Dim sp = New SearchParams
-		sp.FindCriterias = {New FindCriteria("Fffiieiwefjolijef", FindCondition.eqaul, "edfsdf")}
+        sp.FindCriterias = {New FindCriteria("Fffiieiwefjolijef", FindCondition.equal, "edfsdf")}
 
-		Dim exc As Exception = Nothing
+        Dim exc As Exception = Nothing
 		Try
 			Dim ids = _localStorage.FindObj(Of TestDataInternal)(sp)
 		Catch ex As Exception

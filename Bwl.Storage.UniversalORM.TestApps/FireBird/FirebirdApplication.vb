@@ -24,7 +24,7 @@ Public Class FirebirdApplication
         Dim contains = _localStorage.Contains(data.ID, GetType(FireBirdTestDataInternal))
         '--
         Dim spt = New SearchParams
-        spt.FindCriterias = {New FindCriteria("Second", FindCondition.eqaul, 123)}
+        spt.FindCriterias = {New FindCriteria("Second", FindCondition.equal, 123)}
         Dim ids = _localStorage.FindObj(Of FireBirdTestDataInternal)(spt)
 
         '--
@@ -206,7 +206,7 @@ Public Class FirebirdApplication
         testData1.Cat = "meow_meow"
         _localStorage.UpdateObj(testData1)
 
-        Dim sp = New SearchParams({New FindCriteria("Cat", FindCondition.likeEqaul, "%2"), New FindCriteria("Int.Second", FindCondition.eqaul, "4444")})
+        Dim sp = New SearchParams({New FindCriteria("Cat", FindCondition.likeEqual, "%2"), New FindCriteria("Int.Second", FindCondition.equal, "4444")})
         sp.SelectOptions = New SelectOptions(4)
         Dim sortP As New SortParam("Cat", SortMode.Descending)
         Dim FOcount = _localStorage.FindObjCount(GetType(FireBirdTestData), sp)

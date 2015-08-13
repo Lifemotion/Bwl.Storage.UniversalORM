@@ -1,7 +1,7 @@
 ﻿
 Public Enum FindCondition
     equal
-    likeEqaul
+    likeEqual
     notEqual
     greater
 	less

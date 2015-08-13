@@ -50,11 +50,11 @@ Public Class ExamplesApp
         Dim objSearchResults1a = fbStorageForTestData.FindObj(New SearchParams)
         'поиск идентификаторов объектов, где поле Cat равно cat1
         'поиск возможен только по полям Indexing
-        Dim objSearchResults1b = fbStorageForTestData.FindObj(New SearchParams({New FindCriteria("Cat", FindCondition.eqaul, "cat1")}))
+        Dim objSearchResults1b = fbStorageForTestData.FindObj(New SearchParams({New FindCriteria("Cat", FindCondition.equal, "cat1")}))
         'поиск идентификаторов объектов, где поле Cat содержит cat
-        Dim objSearchResults1c = fbStorageForTestData.FindObj(New SearchParams({New FindCriteria("Cat", FindCondition.likeEqaul, "cat")}))
+        Dim objSearchResults1c = fbStorageForTestData.FindObj(New SearchParams({New FindCriteria("Cat", FindCondition.likeEqual, "cat")}))
         'поиск идентификаторов объектов, где поле Second вложенного объекта NestedData равно 1
-        Dim objSearchResults1d = fbStorageForTestData.FindObj(New SearchParams({New FindCriteria("NestedData.Second", FindCondition.eqaul, 1)}))
+        Dim objSearchResults1d = fbStorageForTestData.FindObj(New SearchParams({New FindCriteria("NestedData.Second", FindCondition.equal, 1)}))
         'извлечение объекта из хранилища по идентификатору
         Dim obj1restored As TestDataClass = fbStorageForTestData.GetObj(objSearchResults1a(0))
         _logger.AddMessage("FirebirdStorageExample - ok")

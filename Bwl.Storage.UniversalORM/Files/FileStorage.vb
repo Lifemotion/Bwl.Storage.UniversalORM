@@ -319,8 +319,8 @@ Public Class FileObjStorage
 												If (value <= crit.Value) Then
 													tmpResult.Add(idStr)
 												End If
-											Case FindCondition.likeEqaul
-												Throw New NotSupportedException
+                                            Case FindCondition.likeEqual
+                                                Throw New NotSupportedException
 											Case FindCondition.notEqual
 												If (value <> crit.Value) Then
 													tmpResult.Add(idStr)

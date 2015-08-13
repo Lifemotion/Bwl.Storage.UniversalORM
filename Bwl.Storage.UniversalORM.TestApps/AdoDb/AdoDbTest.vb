@@ -39,7 +39,7 @@ Public Class AdoDbTest
             storage.AddObj(testData2)
             storage.AddObj(testdata3)
 
-            Dim sp = New SearchParams({New FindCriteria("Cat", FindCondition.likeEqaul, "%2"), New FindCriteria("Int.Second", FindCondition.eqaul, "4444")})
+            Dim sp = New SearchParams({New FindCriteria("Cat", FindCondition.likeEqual, "%2"), New FindCriteria("Int.Second", FindCondition.equal, "4444")})
 
             Dim cat2Id = storage.FindObj(sp)
 

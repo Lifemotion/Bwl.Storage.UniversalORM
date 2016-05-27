@@ -474,9 +474,10 @@ Public MustInherit Class LocalStorageBaseTest
 
 		Dim sortp = New SortParam("Timestamp", SortMode.Ascending)
 		sp.SortParam = sortp
-		Dim p2 = _localStorage.FindObj(Of TestData)(sp)
+        Dim p2 = _localStorage.FindObj(Of TestData)(sp)
+        Dim obj_tmp1 = _localStorage.GetObjects(Of TestData)(p2, True, sortp)
 
-		sortp = New SortParam("Timestamp", SortMode.Descending)
+        sortp = New SortParam("Timestamp", SortMode.Descending)
 		sp.SortParam = sortp
 		Dim p3 = _localStorage.FindObj(Of TestData)(sp)
 

@@ -274,7 +274,7 @@ Public Class FBStorage
 
             Dim indexInfo = _indexingMembers.FirstOrDefault(Function(indInf) indInf.Name = sortParam.Field)
             If (indexInfo IsNot Nothing) Then
-                sortFieldName = GetIndexName(indexInfo)
+                sortFieldName = """" + GetIndexName(indexInfo) + """"
                 sortField = ", " + sortFieldName
             Else
                 Throw New Exception("FBtorage.GetObjects _ BadSortParam _ index " + indexInfo.Name + " not found.")

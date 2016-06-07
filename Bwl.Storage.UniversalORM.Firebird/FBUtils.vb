@@ -3,7 +3,8 @@
 Public Class FbUtils
 
 	Public Shared Sub ExecSQL(connString As String, sql As String, Optional parameters As FirebirdSql.Data.FirebirdClient.FbParameter() = Nothing)
-		Dim con = New FbConnection(connString)
+        FbConnection.ClearAllPools()
+        Dim con = New FbConnection(connString)
 		Try
 			con.Open()
 
@@ -26,6 +27,7 @@ Public Class FbUtils
 
 	Public Shared Function ExecSQLScalar(connString As String, sql As String, Optional parameters As FbParameter() = Nothing) As Object
 		Dim res As Object = Nothing
+        FbConnection.ClearAllPools()
 		Dim con = New FbConnection(connString)
 		Try
 			con.Open()

@@ -440,6 +440,8 @@ Public Class FBStorage
                                 str = String.Format(" ({0} <> {1}) ", quote + indexName + quote, pName)
                             Case FindCondition.likeEqual
                                 str = String.Format(" ({0} LIKE {1}) ", quote + indexName + quote, pName)
+                            Case FindCondition.notLikeEqual
+                                str = String.Format(" ({0} NOT LIKE {1}) ", quote + indexName + quote, pName)
                             Case FindCondition.greaterOrEqual
                                 str = String.Format(" ({0} >= {1}) ", quote + indexName + quote, pName)
                             Case FindCondition.lessOrEqual

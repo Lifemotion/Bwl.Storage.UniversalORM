@@ -488,6 +488,8 @@ Public Class MSSQLSRVStorage
 								str = String.Format(" ([{0}].[value] <> {1}) ", indexTableName, pName)
                             Case FindCondition.likeEqual
                                 str = String.Format(" ([{0}].[value] LIKE {1}) ", indexTableName, pName)
+                            Case FindCondition.notLikeEqual
+                                str = String.Format(" ([{0}].[value] NOT LIKE {1}) ", indexTableName, pName)
 							Case FindCondition.greaterOrEqual
 								str = String.Format(" ([{0}].[value] >= {1}) ", indexTableName, pName)
 							Case FindCondition.lessOrEqual

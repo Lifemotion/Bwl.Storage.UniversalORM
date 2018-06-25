@@ -11,8 +11,8 @@ Imports FirebirdSql.Data.FirebirdClient
 	Inherits LocalStorageBaseTest
 
 	Protected Overrides Function CreateLocalStorage() As ILocalStorage
-		Dim app = New Bwl.Framework.AppBase(True)
-		Dim settings = New LocalSettings_Firebird(app.RootStorage)
+        Dim app = New Bwl.Framework.AppBase()
+        Dim settings = New LocalSettings_Firebird(app.RootStorage)
         Dim manager = New FbStorageManager(settings.ConnectionStringBuilder_Service)
 
 		Dim blobSaverDir = IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "..\BlobData")

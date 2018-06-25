@@ -11,7 +11,7 @@ Imports Bwl.Framework
     Inherits LocalStorageBaseTest
 
     Protected Overrides Function CreateLocalStorage() As ILocalStorage
-        Dim app = New Bwl.Framework.AppBase(True)
+        Dim app = New Bwl.Framework.AppBase()
         Dim settings = New LocalSettings_SqlSrv(app.RootStorage)
         Dim manager = New MSSQLSRVStorageManager(settings.SqlConnectionStringBuilder)
         Dim blobSaverDir = IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "..\BlobData")

@@ -6,6 +6,97 @@ Bwl.Framework
 </name>
 </assembly>
 <members>
+<member name="T:Bwl.Framework.My.Resources.Resources">
+<summary>
+  Класс ресурса со строгой типизацией для поиска локализованных строк и т.д.
+</summary>
+</member>
+<member name="P:Bwl.Framework.My.Resources.Resources.ResourceManager">
+<summary>
+  Возвращает кэшированный экземпляр ResourceManager, использованный этим классом.
+</summary>
+</member>
+<member name="P:Bwl.Framework.My.Resources.Resources.Culture">
+<summary>
+  Перезаписывает свойство CurrentUICulture текущего потока для всех
+  обращений к ресурсу с помощью этого класса ресурса со строгой типизацией.
+</summary>
+</member>
+<member name="M:Bwl.Framework.CryptoTools.Des3Encode(System.String,System.Byte[])">
+ <summary>
+ 
+ </summary>
+ <param name="data"></param>
+ <param name="key"></param>
+ <returns></returns>
+ <remarks>Вначале добавляется 16 байт IV</remarks>
+</member>
+<member name="T:Bwl.Framework.IniFile">
+ <summary>
+ Класс, представляющий ini-файл. Выполняет чтение и запись параметров.
+ </summary>
+ <remarks></remarks>
+</member>
+<member name="M:Bwl.Framework.IniFile.#ctor(System.String)">
+ <summary>
+ Создает iniReader, настроенный на работу с заданным файлом.
+ </summary>
+ <param name="filename">
+ Имя файла с расширением и путем.
+ </param>
+ <remarks></remarks>
+</member>
+<member name="M:Bwl.Framework.IniFile.GetSettingNoWrite(System.String,System.String,System.String)">
+ <summary>
+ Читает значение параметра. Если параметр не найден, возвращает заданную строку. Только чтение, ничего не пишет.
+ </summary>
+ <param name="groupName">Имя группы параметров в ini-файле.</param>
+ <param name="paramName">Имя параметра.</param>
+ <param name="returnIsNotExist">Что возвращает, если параметр не найден.</param>
+ <returns>Значение параметра.</returns>
+ <remarks></remarks>
+</member>
+<member name="M:Bwl.Framework.IniFile.GetSetting(System.String,System.String,System.String,System.String)">
+ <summary>
+ Читает значение параметра. Если параметр не найден, возвращает заданную строку.
+ </summary>
+ <param name="groupName">Имя группы параметров в ini-файле.</param>
+ <param name="paramName">Имя параметра.</param>
+ <param name="returnIsNotExist">Что возвращает, если параметр не найден.</param>
+ <returns>Значение параметра.</returns>
+ <remarks></remarks>
+</member>
+<member name="M:Bwl.Framework.IniFile.SetSetting(System.String,System.String,System.String)">
+ <summary>
+ Записывает значение параметра. Создает файл, группу, параметр, если они не найдены.
+ </summary>
+ <param name="groupName">Имя группы параметров в ini-файле.</param>
+ <param name="paramName">Имя параметра.</param>
+ <param name="value">Значение параметра.</param>
+ <remarks></remarks>
+</member>
+<member name="M:Bwl.Framework.IniFile.IsFileExist">
+ <summary>
+ Проверяет, присутсвует ли указанный файл.
+ </summary>
+ <returns></returns>
+ <remarks></remarks>
+</member>
+<member name="M:Bwl.Framework.IniFile.GetGroupList">
+ <summary>
+ Возвращает список групп из файла.
+ </summary>
+ <returns></returns>
+ <remarks></remarks>
+</member>
+<member name="M:Bwl.Framework.IniFile.GetParamList(System.String)">
+ <summary>
+ Возвращает список параметров в указанной группе из файла.
+ </summary>
+ <param name="groupName">Имя группы. Если не указано, возвращает список всех параметров.</param>
+ <returns></returns>
+ <remarks></remarks>
+</member>
 <member name="T:Bwl.Framework.ImageAttr">
  <summary>
  Отображаемое поле или свойтсво объекта
@@ -42,31 +133,10 @@ Bwl.Framework
  </summary>
  <remarks></remarks>
 </member>
-<member name="T:Bwl.Framework.My.Resources.Resources">
-<summary>
-  Класс ресурса со строгой типизацией для поиска локализованных строк и т.д.
-</summary>
-</member>
-<member name="P:Bwl.Framework.My.Resources.Resources.ResourceManager">
-<summary>
-  Возвращает кэшированный экземпляр ResourceManager, использованный этим классом.
-</summary>
-</member>
-<member name="P:Bwl.Framework.My.Resources.Resources.Culture">
-<summary>
-  Перезаписывает свойство CurrentUICulture текущего потока для всех
-  обращений к ресурсу с помощью этого класса ресурса со строгой типизацией.
-</summary>
-</member>
 <member name="P:Bwl.Framework.PasswordSetting.Value">
  <summary>
  Не является парллем, используйте поле Pass.
  </summary>
-</member>
-<member name="M:Bwl.Framework.SettingsStorageBackup.#ctor(System.String,Bwl.Framework.Logger,Bwl.Framework.SettingsStorage)">
- <summary>Создать новое хранилище настроек, являющееся корневым.</summary>    
- <param name="settingsFolder">Путь к настройкам.</param>
- <param name="logger">Логгер.</param>
 </member>
 <member name="P:Bwl.Framework.SettingsStorageBackup.BackupAtStart">
  <summary>Включить архивацию при старте. По-умолчанию включено.</summary>
@@ -75,10 +145,7 @@ Bwl.Framework
  <summary>Включить автоархивацию. По-умолчанию выключено.</summary>
 </member>
 <member name="P:Bwl.Framework.SettingsStorageBackup.AutoBackupInterval">
- <summary>Интервал автоархивации в минутах.</summary>
-</member>
-<member name="P:Bwl.Framework.SettingsStorageBackup.Folder">
- <summary>Имя директории бакапа.</summary>
+ <summary>Интервал автоархивации в секундах.</summary>
 </member>
 <member name="M:Bwl.Framework.SettingsStorageRoot.#ctor(Bwl.Framework.ISettingsReaderWriter,System.String,System.Boolean)">
  <summary>
@@ -96,6 +163,14 @@ Bwl.Framework
  <remarks></remarks>
 </member>
 <member name="M:Bwl.Framework.SettingsStorageRoot.#ctor(System.String,System.String)">
+ <summary>
+ Создать новое хранилище настроек, являющееся корневым.
+ </summary>
+ <param name="iniFileName">Имя ini-файла с настройками.</param>
+ <param name="rootCategoryName">Имя корневой категории настроек.</param>
+ <remarks></remarks>
+</member>
+<member name="M:Bwl.Framework.SettingsStorageRoot.#ctor(System.String,System.String,System.Boolean)">
  <summary>
  Создать новое хранилище настроек, являющееся корневым.
  </summary>
@@ -171,187 +246,19 @@ Bwl.Framework
  <returns></returns>
  <remarks></remarks>
 </member>
-<member name="M:Bwl.Framework.CryptoTools.Des3Encode(System.String,System.Byte[])">
- 3DES '''
-</member>
-<member name="M:Bwl.Framework.CryptoTools.Rijndael256Encode(System.String,System.Byte[])">
- Rijndael-256 '''
-</member>
-<member name="T:Bwl.Framework.Image">
- <summary>Изображение</summary>
-</member>
-<member name="M:Bwl.Framework.Image.SaveImage(System.String)">
- <summary>Сохранить кадр по указанному пути.</summary>
-</member>
-<member name="M:Bwl.Framework.Image.GetBitmap">
+<member name="M:Bwl.Framework.SettingsStorageBufferedRoot.#ctor">
  <summary>
- Скопировать изображение
- </summary>
-</member>
-<member name="P:Bwl.Framework.Image.RowDataBytes">
- <summary>Сырые данные изобаржения</summary>
-</member>
-<member name="T:Bwl.Framework.IniFile">
- <summary>
- Класс, представляющий ini-файл. Выполняет чтение и запись параметров.
+ Создать хранилище настроек с виртуальным интерфейсом загрузки\сохранения и корневой категорией Root.
  </summary>
  <remarks></remarks>
 </member>
-<member name="M:Bwl.Framework.IniFile.#ctor(System.String)">
+<member name="M:Bwl.Framework.SettingsStorageBufferedRoot.#ctor(System.String,System.String,System.Boolean)">
  <summary>
- Создает iniReader, настроенный на работу с заданным файлом.
+ Создать новое хранилище настроек, являющееся корневым.
  </summary>
- <param name="filename">
- Имя файла с расширением и путем.
- </param>
- <remarks></remarks>
-</member>
-<member name="M:Bwl.Framework.IniFile.GetSetting(System.String,System.String,System.String,System.String)">
- <summary>
- Читает значение параметра. Если параметр не найден, возвращает заданную строку.
- </summary>
- <param name="groupName">Имя группы параметров в ini-файле.</param>
- <param name="paramName">Имя параметра.</param>
- <param name="returnIsNotExist">Что возвращает, если параметр не найден.</param>
- <returns>Значение параметра.</returns>
- <remarks></remarks>
-</member>
-<member name="M:Bwl.Framework.IniFile.SetSetting(System.String,System.String,System.String)">
- <summary>
- Записывает значение параметра. Создает файл, группу, параметр, если они не найдены.
- </summary>
- <param name="groupName">Имя группы параметров в ini-файле.</param>
- <param name="paramName">Имя параметра.</param>
- <param name="value">Значение параметра.</param>
- <remarks></remarks>
-</member>
-<member name="M:Bwl.Framework.IniFile.IsFileExist">
- <summary>
- Проверяет, присутсвует ли указанный файл.
- </summary>
- <returns></returns>
- <remarks></remarks>
-</member>
-<member name="M:Bwl.Framework.IniFile.GetGroupList">
- <summary>
- Возвращает список групп из файла.
- </summary>
- <returns></returns>
- <remarks></remarks>
-</member>
-<member name="M:Bwl.Framework.IniFile.GetParamList(System.String)">
- <summary>
- Возвращает список параметров в указанной группе из файла.
- </summary>
- <param name="groupName">Имя группы. Если не указано, возвращает список всех параметров.</param>
- <returns></returns>
- <remarks></remarks>
-</member>
-<member name="T:Bwl.Framework.StreamCryptoWrapper">
- <summary>
- Класс, помещающий поток в обертку, работающую с шифрованием по алгоритму Rijndael-256
- </summary>
-</member>
-<member name="F:Bwl.Framework.StreamCryptoWrapper._IV">
- <summary>
- Вектор инициализации алгоритма шифрования.
- </summary>
-</member>
-<member name="F:Bwl.Framework.StreamCryptoWrapper._decryptor">
- <summary>
- Набор базовых операций криптографического преобразования для расшифровки.
- </summary>
-</member>
-<member name="F:Bwl.Framework.StreamCryptoWrapper._encryptor">
- <summary>
- Набор базовых операций криптографического преобразования для шифрования.
- </summary>
-</member>
-<member name="F:Bwl.Framework.StreamCryptoWrapper._hash256">
- <summary>
- Экземпляр класса "SHA256".
- </summary>
-</member>
-<member name="F:Bwl.Framework.StreamCryptoWrapper._hash512">
- <summary>
- Экземпляр класса "SHA512".
- </summary>
-</member>
-<member name="F:Bwl.Framework.StreamCryptoWrapper._key">
- <summary>
- Ключ.
- </summary>
-</member>
-<member name="F:Bwl.Framework.StreamCryptoWrapper._rijndael">
- <summary>
- Алгоритм шифрования Rijndael.
- </summary>
- <remarks>
- Алгоритм шифрования Rijndael является прототипом AES, но имеет размер блока 256 бит
- (а не 128, как у AES, т.к. для прототипа не задавалось соответствие аппаратным криптопроцессорам,
- ориентированным на ограниченную разрядность).
- </remarks>
-</member>
-<member name="M:Bwl.Framework.StreamCryptoWrapper.#ctor">
- <summary>
- Конструктор по-умолчанию
- </summary>
-</member>
-<member name="M:Bwl.Framework.StreamCryptoWrapper.#ctor(System.Byte[],System.Int32)">
- <summary>
- Конструктор
- </summary>
- <param name="password"> Пароль в форме строки. </param>
- <param name="iterations"> Количество итераций при хешировании пароля. </param>
-</member>
-<member name="M:Bwl.Framework.StreamCryptoWrapper.Dispose">
- <summary>
- IDisposable
- </summary>
-</member>
-<member name="F:Bwl.Framework.StreamCryptoWrapper._isInitialized">
- <summary>
- Экземпляр класса инициализирован?
- </summary>
-</member>
-<member name="M:Bwl.Framework.StreamCryptoWrapper.Hash(System.Byte[],System.Int32,System.Byte[]@,System.Byte[]@)">
- <summary>
- Получение хеша от строки
- </summary>
- <param name="data"> Данные для хеширования. </param>
- <param name="iterations"> Количество итераций. </param>
- <param name="key"> Ключ шифрования. </param>
- <param name="IV"> Инициализирующий вектор шифрования. </param>
-</member>
-<member name="M:Bwl.Framework.StreamCryptoWrapper.Initialize(System.Byte[],System.Int32)">
- <summary>
- Инициализация экземпляра класса
- </summary>
- <param name="password"> Пароль в форме строки. </param>
- <param name="iterations"> Количество итераций при хешировании пароля. </param>
-</member>
-<member name="M:Bwl.Framework.StreamCryptoWrapper.Clear">
- <summary>
- Очистка конфиденциальных данных
- </summary>
-</member>
-<member name="M:Bwl.Framework.StreamCryptoWrapper.WrapStream(System.IO.Stream,System.Boolean)">
- <summary>
- Получение потока-обертки, работающего с шифрованием
- </summary>
- <remarks>
-   При шифровании нужно оборачивать выходной поток, а при расшифровке - входной.
- </remarks>
- <param name="stream"> Входной поток. </param>
- <param name="encryptionMode"> Используется режим шифрования? </param>
- <returns> Поток-обертка, работающий с шифрованием. </returns>
-</member>
-<member name="M:Bwl.Framework.StreamCryptoWrapper.ClearArray``1(``0[])">
- <summary>
- Очистка массива
- </summary>
- <typeparam name="T"> Тип элементов массивов. </typeparam>
- <param name="array"> Массив для очистки. </param>
+ <param name="iniFileName">Имя ini-файла с настройками.</param>
+ <param name="rootName">Имя.</param>
+ <param name="logAllEvents">Логировать все события, связанные ini-файлом?</param>
 </member>
 </members>
 </doc>

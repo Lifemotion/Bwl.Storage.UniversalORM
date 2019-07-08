@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 2013
-VisualStudioVersion = 12.0.31101.0
+# Visual Studio 15
+VisualStudioVersion = 15.0.27703.2035
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{F184B08F-C81C-45F6-A57F-5ABD9991F28F}") = "Bwl.Storage.UniversalORM", "Bwl.Storage.UniversalORM\Bwl.Storage.UniversalORM.vbproj", "{CFD756AD-1CB6-4B12-A969-D18A434D1E72}"
 EndProject
@@ -12,6 +12,8 @@ EndProject
 Project("{F184B08F-C81C-45F6-A57F-5ABD9991F28F}") = "Bwl.Storage.UniversalORM.UnitTests", "Bwl.Storage.UniversalORM.UnitTests\Bwl.Storage.UniversalORM.UnitTests.vbproj", "{4064529B-8AAB-4A64-9481-A08972C24AB1}"
 EndProject
 Project("{F184B08F-C81C-45F6-A57F-5ABD9991F28F}") = "Bwl.Storage.UniversalORM.Examples", "Bwl.Storage.UniversalORM.Examples\Bwl.Storage.UniversalORM.Examples.vbproj", "{B52CCE47-2DD9-4A31-90FD-DAA8C1FCA141}"
+EndProject
+Project("{F184B08F-C81C-45F6-A57F-5ABD9991F28F}") = "Bwl.Storage.UniversalORM.Postgresql", "Bwl.Storage.UniversalORM.Postgresql\Bwl.Storage.UniversalORM.Postgresql.vbproj", "{5CD05490-FF08-405B-ACC3-BE5E9DE07C76}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -39,8 +41,15 @@ Global
 		{B52CCE47-2DD9-4A31-90FD-DAA8C1FCA141}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{B52CCE47-2DD9-4A31-90FD-DAA8C1FCA141}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{B52CCE47-2DD9-4A31-90FD-DAA8C1FCA141}.Release|Any CPU.Build.0 = Release|Any CPU
+		{5CD05490-FF08-405B-ACC3-BE5E9DE07C76}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5CD05490-FF08-405B-ACC3-BE5E9DE07C76}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5CD05490-FF08-405B-ACC3-BE5E9DE07C76}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5CD05490-FF08-405B-ACC3-BE5E9DE07C76}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {B6C6C79C-9AAE-4B07-8014-9BE1D4587D0E}
 	EndGlobalSection
 EndGlobal

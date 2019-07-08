@@ -6,7 +6,7 @@ Imports Bwl.Storage.UniversalORM
 ''' </summary>
 ''' <remarks></remarks>
 Public Class LocalStorage
-	Implements ILocalStorage
+    Implements ILocalStorage
 
     Protected ReadOnly _blobStorage As BlobFiledsStorage
     Protected ReadOnly _blobSaver As IBlobFieldsWriter
@@ -196,23 +196,23 @@ Public Class LocalStorage
         End Get
     End Property
 
-	Public Overridable Sub RemoveAllObj(type As Type) Implements ILocalStorage.RemoveAllObj
-		Dim storage = GetStorage(type)
-		If storage IsNot Nothing Then
-			Dim ids = storage.FindObj(Nothing)
-			For Each id In ids
-				_blobStorage.Remove(id)
-			Next
-			storage.RemoveAllObjects()
-		End If
-	End Sub
+    Public Overridable Sub RemoveAllObj(type As Type) Implements ILocalStorage.RemoveAllObj
+        Dim storage = GetStorage(type)
+        If storage IsNot Nothing Then
+            Dim ids = storage.FindObj(Nothing)
+            For Each id In ids
+                _blobStorage.Remove(id)
+            Next
+            storage.RemoveAllObjects()
+        End If
+    End Sub
 
-	Public Function GetSomeFieldDistinct(fieldName As String, type As Type) As IEnumerable(Of String) Implements ILocalStorage.GetSomeFieldDistinct
-		Dim res As List(Of String) = Nothing
-		Dim storage = GetStorage(type)
-		If storage IsNot Nothing Then
-			res = storage.GetSomeFieldDistinct(fieldName)
-		End If
-		Return res
-	End Function
+    Public Function GetSomeFieldDistinct(fieldName As String, type As Type) As IEnumerable(Of String) Implements ILocalStorage.GetSomeFieldDistinct
+        Dim res As List(Of String) = Nothing
+        Dim storage = GetStorage(type)
+        If storage IsNot Nothing Then
+            res = storage.GetSomeFieldDistinct(fieldName)
+        End If
+        Return res
+    End Function
 End Class

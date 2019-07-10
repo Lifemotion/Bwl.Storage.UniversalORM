@@ -452,8 +452,8 @@ Public Class PgStorage
                             value = CType(value, DateTime).Ticks
                         End If
 
+                        ' Костыль для поиска в БД данных по соответствующему типу
                         Dim param As NpgsqlParameter
-
                         Try
                             Dim intValue = Integer.Parse(value)
                             param = New NpgsqlParameter(pName, NpgsqlDbType.Integer)

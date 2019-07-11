@@ -6,6 +6,8 @@ Public Class SqliteStorage
     Private ReadOnly _name As String
     Private ReadOnly _dbPath As String
 
+    Private _syncObj As New Object
+
     Public Property ConnectionStringBld As SQLiteConnectionStringBuilder
 
     Private ReadOnly Property ConnectionString As String
@@ -24,199 +26,209 @@ Public Class SqliteStorage
     End Sub
 
     Public Overrides Sub AddObj(obj As ObjBase)
-        CheckDb()
-        Dim json = CfJsonConverter.Serialize(obj)
-        Save(ConnectionString, obj.ID, json, obj.GetType)
+        SyncLock _syncObj
+            CheckDb()
+            Dim json = CfJsonConverter.Serialize(obj)
+            Save(ConnectionString, obj.ID, json, obj.GetType)
 
-        For Each indexing In _indexingMembers
-            Dim indexName = GetIndexName(indexing)
-            Try
-                Dim indexValue = ReflectionTools.GetMemberValue(indexing.Name, obj)
-                If indexValue Is Nothing Then indexValue = "" 'TODO: исправить
-                If (TypeOf (indexValue) Is DateTime) Then
-                    indexValue = CType(indexValue, DateTime).Ticks
-                End If
-                SaveIndex(Name, indexName, obj.ID, indexValue)
-            Catch ex As Exception
-                Throw New Exception(ex.Message)
-            End Try
-        Next
+            For Each indexing In _indexingMembers
+                Dim indexName = GetIndexName(indexing)
+                Try
+                    Dim indexValue = ReflectionTools.GetMemberValue(indexing.Name, obj)
+                    If indexValue Is Nothing Then indexValue = "" 'TODO: исправить
+                    If (TypeOf (indexValue) Is DateTime) Then
+                        indexValue = CType(indexValue, DateTime).Ticks
+                    End If
+                    SaveIndex(Name, indexName, obj.ID, indexValue)
+                Catch ex As Exception
+                    Throw New Exception(ex.Message)
+                End Try
+            Next
+        End SyncLock
     End Sub
 
     Public Overrides Function GetSomeFieldDistinct(fieldName As String) As IEnumerable(Of String)
         Dim res = New List(Of String)
-        CheckDb()
-        For Each indexing In _indexingMembers
-            If indexing.Name.ToLower = fieldName.ToLower Then
-                Dim indexName = GetIndexName(indexing)
-                Dim query = "SELECT DISTINCT """ + indexName + """ FROM """ + _name + """"
-                Dim values = SqliteUtils.GetObjectList(_ConnectionStringBld.ConnectionString, query)
-                If values IsNot Nothing AndAlso values.Any Then
-                    res.AddRange(values.Select(Function(v) v.First.ToString))
+        SyncLock _syncObj
+            CheckDb()
+            For Each indexing In _indexingMembers
+                If indexing.Name.ToLower = fieldName.ToLower Then
+                    Dim indexName = GetIndexName(indexing)
+                    Dim query = "SELECT DISTINCT """ + indexName + """ FROM """ + _name + """"
+                    Dim values = SqliteUtils.GetObjectList(_ConnectionStringBld.ConnectionString, query)
+                    If values IsNot Nothing AndAlso values.Any Then
+                        res.AddRange(values.Select(Function(v) v.First.ToString))
+                    End If
                 End If
-            End If
-        Next
+            Next
+        End SyncLock
         Return res
     End Function
 
     Public Overrides Sub AddObjects(objects As ObjBase())
-        For Each obj In objects
-            AddObj(obj)
-        Next
+        SyncLock _syncObj
+            For Each obj In objects
+                AddObj(obj)
+            Next
+        End SyncLock
     End Sub
 
     Public Overrides Function FindObjCount(searchParams As SearchParams) As Long
         Dim res As Long = 0
-        CheckDb()
+        SyncLock _syncObj
+            CheckDb()
 
-        '''' TOP
-        Dim topSql = String.Empty
-        If (searchParams IsNot Nothing) AndAlso (searchParams.SelectOptions IsNot Nothing) Then
-            If searchParams.SelectOptions.TopValue > 0 Then
-                topSql = " LIMIT " + searchParams.SelectOptions.TopValue.ToString + " "
+            '''' TOP
+            Dim topSql = String.Empty
+            If (searchParams IsNot Nothing) AndAlso (searchParams.SelectOptions IsNot Nothing) Then
+                If searchParams.SelectOptions.TopValue > 0 Then
+                    topSql = " LIMIT " + searchParams.SelectOptions.TopValue.ToString + " "
+                End If
             End If
-        End If
 
-        ' '''' sorting
-        'Dim sortModeStr = "ASC"
-        'Dim sortField = "guid"
-        'Dim sortColName = Name
-        'If (searchParams IsNot Nothing) AndAlso (searchParams.SortParam IsNot Nothing) Then
-        '	If searchParams.SortParam.SortMode = SortMode.Descending Then
-        '		sortModeStr = "DESC"
-        '	End If
+            ' '''' sorting
+            'Dim sortModeStr = "ASC"
+            'Dim sortField = "guid"
+            'Dim sortColName = Name
+            'If (searchParams IsNot Nothing) AndAlso (searchParams.SortParam IsNot Nothing) Then
+            '	If searchParams.SortParam.SortMode = SortMode.Descending Then
+            '		sortModeStr = "DESC"
+            '	End If
 
-        '	Dim indexInfo = _indexingMembers.FirstOrDefault(Function(indInf) indInf.Name = searchParams.SortParam.Field)
-        '	If (indexInfo IsNot Nothing) Then
-        '		sortField = "value"
-        '		sortColName = GetIndexName(indexInfo)
-        '	Else
-        '		Throw New Exception("FBStorage.FindObj _ BadSortParam _ index " + searchParams.SortParam.Field + " not found.")
-        '	End If
-        'End If
+            '	Dim indexInfo = _indexingMembers.FirstOrDefault(Function(indInf) indInf.Name = searchParams.SortParam.Field)
+            '	If (indexInfo IsNot Nothing) Then
+            '		sortField = "value"
+            '		sortColName = GetIndexName(indexInfo)
+            '	Else
+            '		Throw New Exception("FBStorage.FindObj _ BadSortParam _ index " + searchParams.SortParam.Field + " not found.")
+            '	End If
+            'End If
 
-        Dim crit As IEnumerable(Of FindCriteria) = Nothing
-        If (searchParams IsNot Nothing) Then
-            crit = searchParams.FindCriterias
-        End If
+            Dim crit As IEnumerable(Of FindCriteria) = Nothing
+            If (searchParams IsNot Nothing) Then
+                crit = searchParams.FindCriterias
+            End If
 
-        Dim sort As SortParam = Nothing
-        If (searchParams IsNot Nothing) Then
-            sort = searchParams.SortParam
-        End If
+            Dim sort As SortParam = Nothing
+            If (searchParams IsNot Nothing) Then
+                sort = searchParams.SortParam
+            End If
 
-        '''' where
-        Dim whereSql = String.Empty
-        Dim parameters As SQLiteParameter() = Nothing
-        Dim helper = GenerateWhereSql(crit, sort)
-        If helper IsNot Nothing Then
-            whereSql = helper.Sql
-            parameters = helper.Parameters.ToArray
-        End If
+            '''' where
+            Dim whereSql = String.Empty
+            Dim parameters As SQLiteParameter() = Nothing
+            Dim helper = GenerateWhereSql(crit, sort)
+            If helper IsNot Nothing Then
+                whereSql = helper.Sql
+                parameters = helper.Parameters.ToArray
+            End If
 
-        '''' main sql
-        Dim mainSelect = String.Format("SELECT COUNT(*) FROM (SELECT GUID FROM ""{0}"" {1} {2}) AS PSEUDONYM", Name, whereSql, topSql)
-        Dim count = SqliteUtils.ExecSqlScalar(ConnectionString, mainSelect, parameters)
-        If count IsNot Nothing Then
-            res = Convert.ToInt64(count)
-        End If
+            '''' main sql
+            Dim mainSelect = String.Format("SELECT COUNT(*) FROM (SELECT GUID FROM ""{0}"" {1} {2}) AS PSEUDONYM", Name, whereSql, topSql)
+            Dim count = SqliteUtils.ExecSqlScalar(ConnectionString, mainSelect, parameters)
+            If count IsNot Nothing Then
+                res = Convert.ToInt64(count)
+            End If
+        End SyncLock
         Return res
     End Function
 
     Public Overrides Function FindObj(searchParams As SearchParams) As String()
-        CheckDb()
+        Dim res = New List(Of String)
+        SyncLock _syncObj
+            CheckDb()
 
-        ' TODO: надо сделать проверку типа данных, т.к. postgresql сильно к ним привязывается и ничего не исправляет сам
-        '''' TOP
-        Dim topSql = String.Empty
-        If (searchParams IsNot Nothing) AndAlso (searchParams.SelectOptions IsNot Nothing) AndAlso (searchParams.SelectOptions.SelectMode = SelectMode.Top) Then
-            If searchParams.SelectOptions.TopValue > 0 Then
-                topSql = " LIMIT " + searchParams.SelectOptions.TopValue.ToString + " "
-            End If
-        End If
-
-        '''' sorting
-        Dim sortModeStr = "ASC"
-        Dim sortField = "guid"
-        'Dim sortTableName = Name
-        If (searchParams IsNot Nothing) AndAlso (searchParams.SortParam IsNot Nothing) Then
-            If searchParams.SortParam.SortMode = SortMode.Descending Then
-                sortModeStr = "DESC"
+            ' TODO: надо сделать проверку типа данных, т.к. postgresql сильно к ним привязывается и ничего не исправляет сам
+            '''' TOP
+            Dim topSql = String.Empty
+            If (searchParams IsNot Nothing) AndAlso (searchParams.SelectOptions IsNot Nothing) AndAlso (searchParams.SelectOptions.SelectMode = SelectMode.Top) Then
+                If searchParams.SelectOptions.TopValue > 0 Then
+                    topSql = " LIMIT " + searchParams.SelectOptions.TopValue.ToString + " "
+                End If
             End If
 
-            Dim indexInfo = _indexingMembers.FirstOrDefault(Function(indInf) indInf.Name = searchParams.SortParam.Field)
-            If (indexInfo IsNot Nothing) Then
-                sortField = GetIndexName(indexInfo)
+            '''' sorting
+            Dim sortModeStr = "ASC"
+            Dim sortField = "guid"
+            'Dim sortTableName = Name
+            If (searchParams IsNot Nothing) AndAlso (searchParams.SortParam IsNot Nothing) Then
+                If searchParams.SortParam.SortMode = SortMode.Descending Then
+                    sortModeStr = "DESC"
+                End If
+
+                Dim indexInfo = _indexingMembers.FirstOrDefault(Function(indInf) indInf.Name = searchParams.SortParam.Field)
+                If (indexInfo IsNot Nothing) Then
+                    sortField = GetIndexName(indexInfo)
+                Else
+                    Throw New Exception("FBStorage.FindObj _ BadSortParam _ index " + indexInfo.Name + " not found.")
+                End If
+            End If
+
+            Dim crit As IEnumerable(Of FindCriteria) = Nothing
+            If (searchParams IsNot Nothing) Then
+                crit = searchParams.FindCriterias
+            End If
+
+            Dim sort As SortParam = Nothing
+            If (searchParams IsNot Nothing) Then
+                sort = searchParams.SortParam
+            End If
+
+            '''' from + where
+            'Dim fromSql = GenerateFromSql(crit, sort)
+
+            '''' where
+            Dim whereSql = String.Empty
+            Dim parameters As SQLiteParameter() = Nothing
+            Dim helper = GenerateWhereSql(crit, sort)
+            If helper IsNot Nothing Then
+                whereSql = helper.Sql
+                parameters = helper.Parameters.ToArray
+            End If
+
+            Dim betweenSql = String.Empty
+            Dim mainSelect = String.Empty
+            If (searchParams IsNot Nothing) AndAlso (searchParams.SelectOptions IsNot Nothing) AndAlso (searchParams.SelectOptions.SelectMode = SelectMode.Between) Then
+                'BUG: 'mainSelect = String.Format("SELECT FIRST {1} SKIP {2} GUID FROM {0}", Name, searchParams.SelectOptions.EndValue - searchParams.SelectOptions.StartValue + 1, searchParams.SelectOptions.StartValue)
+                mainSelect = String.Format("SELECT GUID FROM ""{0}"" {1} ORDER BY ""{4}"" {5} LIMIT {2} OFFSET {3}", Name, whereSql,
+                                           searchParams.SelectOptions.EndValue - searchParams.SelectOptions.StartValue + 1,
+                                           searchParams.SelectOptions.StartValue, sortField, sortModeStr)
             Else
-                Throw New Exception("FBStorage.FindObj _ BadSortParam _ index " + indexInfo.Name + " not found.")
+                '''' main sql			
+                If (searchParams Is Nothing) Or ((searchParams IsNot Nothing) AndAlso (searchParams.SortParam Is Nothing)) Then
+                    mainSelect = String.Format("SELECT GUID FROM ""{0}"" {1} {2}", Name, whereSql, topSql)
+                ElseIf (searchParams.SortParam IsNot Nothing) Then
+                    mainSelect = String.Format("SELECT GUID FROM ""{0}"" {1} ORDER BY ""{3}"" {4} {2}", Name, whereSql, topSql, sortField, sortModeStr)
+                End If
             End If
-        End If
-
-        Dim crit As IEnumerable(Of FindCriteria) = Nothing
-        If (searchParams IsNot Nothing) Then
-            crit = searchParams.FindCriterias
-        End If
-
-        Dim sort As SortParam = Nothing
-        If (searchParams IsNot Nothing) Then
-            sort = searchParams.SortParam
-        End If
-
-        '''' from + where
-        'Dim fromSql = GenerateFromSql(crit, sort)
-
-        '''' where
-        Dim whereSql = String.Empty
-        Dim parameters As SQLiteParameter() = Nothing
-        Dim helper = GenerateWhereSql(crit, sort)
-        If helper IsNot Nothing Then
-            whereSql = helper.Sql
-            parameters = helper.Parameters.ToArray
-        End If
-
-        Dim betweenSql = String.Empty
-        Dim mainSelect = String.Empty
-        If (searchParams IsNot Nothing) AndAlso (searchParams.SelectOptions IsNot Nothing) AndAlso (searchParams.SelectOptions.SelectMode = SelectMode.Between) Then
-            'BUG: 'mainSelect = String.Format("SELECT FIRST {1} SKIP {2} GUID FROM {0}", Name, searchParams.SelectOptions.EndValue - searchParams.SelectOptions.StartValue + 1, searchParams.SelectOptions.StartValue)
-            mainSelect = String.Format("SELECT GUID FROM ""{0}"" {1} ORDER BY ""{4}"" {5} LIMIT {2} OFFSET {3}", Name, whereSql,
-                                       searchParams.SelectOptions.EndValue - searchParams.SelectOptions.StartValue + 1,
-                                       searchParams.SelectOptions.StartValue, sortField, sortModeStr)
-        Else
-            '''' main sql			
-            If (searchParams Is Nothing) Or ((searchParams IsNot Nothing) AndAlso (searchParams.SortParam Is Nothing)) Then
-                mainSelect = String.Format("SELECT GUID FROM ""{0}"" {1} {2}", Name, whereSql, topSql)
-            ElseIf (searchParams.SortParam IsNot Nothing) Then
-                mainSelect = String.Format("SELECT GUID FROM ""{0}"" {1} ORDER BY ""{3}"" {4} {2}", Name, whereSql, topSql, sortField, sortModeStr)
+            Dim list = SqliteUtils.GetObjectList(ConnectionString, mainSelect, parameters)
+            If (list IsNot Nothing AndAlso list.Any) Then
+                res = list.Select(Function(d) d(0).ToString).ToList()
             End If
-        End If
-        Dim list = SqliteUtils.GetObjectList(ConnectionString, mainSelect, parameters)
-        If (list IsNot Nothing AndAlso list.Any) Then
-            Dim resList = list.Select(Function(d) d(0).ToString)
-            Return resList.ToArray
-        Else
-            Return {}
-        End If
+        End SyncLock
+        Return res.ToArray()
     End Function
 
     Public Overrides Function GetObj(id As String) As ObjBase
-        CheckDb()
-
         Dim res As ObjBase = Nothing
-        Dim sql = String.Format("SELECT json, type FROM ""{0}"" WHERE guid = '{1}'", Name, id)
-        Dim vals = SqliteUtils.GetObjectList(ConnectionString, sql)
-        If vals IsNot Nothing AndAlso vals.Any Then
-            Dim jsonObj = vals(0)(0)
-            Dim typeName = vals(0)(1)
+        SyncLock _syncObj
+            CheckDb()
+            Dim sql = String.Format("SELECT json, type FROM ""{0}"" WHERE guid = '{1}'", Name, id)
+            Dim vals = SqliteUtils.GetObjectList(ConnectionString, sql)
+            If vals IsNot Nothing AndAlso vals.Any Then
+                Dim jsonObj = vals(0)(0)
+                Dim typeName = vals(0)(1)
 
-            If (typeName = "-") Or String.IsNullOrWhiteSpace(typeName) Then
-                typeName = SupportedType.AssemblyQualifiedName
-            End If
+                If (typeName = "-") Or String.IsNullOrWhiteSpace(typeName) Then
+                    typeName = SupportedType.AssemblyQualifiedName
+                End If
 
-            If (jsonObj IsNot Nothing) Then
-                Dim json = jsonObj.ToString
-                res = CfJsonConverter.Deserialize(json, Type.GetType(typeName.ToString))
+                If (jsonObj IsNot Nothing) Then
+                    Dim json = jsonObj.ToString
+                    res = CfJsonConverter.Deserialize(json, Type.GetType(typeName.ToString))
+                End If
             End If
-        End If
+        End SyncLock
         Return res
     End Function
 
@@ -225,29 +237,33 @@ Public Class SqliteStorage
     End Function
 
     Public Overrides Sub RemoveObj(id As String)
-        CheckDb()
-        Dim sql = String.Format("DELETE FROM ""{0}"" WHERE guid like '{1}'", Name, id)
-        SqliteUtils.ExecSql(ConnectionString, sql)
+        SyncLock _syncObj
+            CheckDb()
+            Dim sql = String.Format("DELETE FROM ""{0}"" WHERE guid like '{1}'", Name, id)
+            SqliteUtils.ExecSql(ConnectionString, sql)
+        End SyncLock
     End Sub
 
     Public Overrides Sub UpdateObj(obj As ObjBase)
-        CheckDb()
-        Dim json = CfJsonConverter.Serialize(obj)
-        Update(ConnectionString, obj.ID, json)
+        SyncLock _syncObj
+            CheckDb()
+            Dim json = CfJsonConverter.Serialize(obj)
+            Update(ConnectionString, obj.ID, json)
 
-        For Each indexing In _indexingMembers
-            Dim indexName = GetIndexName(indexing)
-            Try
-                Dim indexValue = ReflectionTools.GetMemberValue(indexing.Name, obj)
-                If indexValue Is Nothing Then indexValue = ""  'TODO: исправить
-                If (TypeOf (indexValue) Is DateTime) Then
-                    indexValue = CType(indexValue, DateTime).Ticks
-                End If
-                UpdateIndex(indexName, obj.ID, indexValue)
-            Catch ex As Exception
-                Throw New Exception("Ошибка обновления объекта в базе данных: " + ex.Message)
-            End Try
-        Next
+            For Each indexing In _indexingMembers
+                Dim indexName = GetIndexName(indexing)
+                Try
+                    Dim indexValue = ReflectionTools.GetMemberValue(indexing.Name, obj)
+                    If indexValue Is Nothing Then indexValue = ""  'TODO: исправить
+                    If (TypeOf (indexValue) Is DateTime) Then
+                        indexValue = CType(indexValue, DateTime).Ticks
+                    End If
+                    UpdateIndex(indexName, obj.ID, indexValue)
+                Catch ex As Exception
+                    Throw New Exception("Ошибка обновления объекта в базе данных: " + ex.Message)
+                End Try
+            Next
+        End SyncLock
     End Sub
 
     Public ReadOnly Property Name As String
@@ -262,61 +278,61 @@ Public Class SqliteStorage
     End Function
 
     Public Overrides Function GetObjects(objIds As String(), Optional sortParam As SortParam = Nothing) As IEnumerable(Of ObjBase)
-        CheckDb()
-
-        '''' sorting
-        Dim sortModeStr = "ASC"
-        Dim sortField = ""
-        If sortParam IsNot Nothing Then
-            If sortParam.SortMode = SortMode.Descending Then
-                sortModeStr = "DESC"
-            End If
-
-            Dim indexInfo = _indexingMembers.FirstOrDefault(Function(indInf) indInf.Name = sortParam.Field)
-            If (indexInfo IsNot Nothing) Then
-                sortField = GetIndexName(indexInfo)
-            Else
-                Throw New Exception("FBtorage.GetObjects _ BadSortParam _ index " + indexInfo.Name + " not found.")
-            End If
-        End If
-
         Dim resList = New List(Of ObjBase)
-        If (objIds IsNot Nothing AndAlso objIds.Any) Then
-            Dim strIds = " ( ( t.GUID = '" + String.Join("' ) or ( t.GUID = '", objIds) + "' ) ) "
-            Dim sql = String.Format("SELECT JSON, TYPE {1} FROM ""{0}"" t  WHERE {2}", Name, If(Not String.IsNullOrWhiteSpace(sortField), ", """ + sortField + """", ""), strIds)
+        SyncLock _syncObj
+            CheckDb()
+            '''' sorting
+            Dim sortModeStr = "ASC"
+            Dim sortField = ""
+            If sortParam IsNot Nothing Then
+                If sortParam.SortMode = SortMode.Descending Then
+                    sortModeStr = "DESC"
+                End If
 
-            If (sortField <> "") Then
-                'sql += " and  (s.GUID = t.GUID) "
-                sql += String.Format(" ORDER BY ""{0}"" {1}", sortField, sortModeStr)
+                Dim indexInfo = _indexingMembers.FirstOrDefault(Function(indInf) indInf.Name = sortParam.Field)
+                If (indexInfo IsNot Nothing) Then
+                    sortField = GetIndexName(indexInfo)
+                Else
+                    Throw New Exception("FBtorage.GetObjects _ BadSortParam _ index " + indexInfo.Name + " not found.")
+                End If
             End If
 
-            Dim valuesObjList = SqliteUtils.GetObjectList(ConnectionString, sql)
-            If (valuesObjList IsNot Nothing) Then
-                Dim tmpList = valuesObjList.Select(Function(j)
-                                                       Dim typeName = j(1)
-                                                       If (typeName = "-") Or String.IsNullOrWhiteSpace(typeName) Then
-                                                           typeName = SupportedType.AssemblyQualifiedName
-                                                       End If
+            If (objIds IsNot Nothing AndAlso objIds.Any) Then
+                Dim strIds = " ( ( t.GUID = '" + String.Join("' ) or ( t.GUID = '", objIds) + "' ) ) "
+                Dim sql = String.Format("SELECT JSON, TYPE {1} FROM ""{0}"" t  WHERE {2}", Name, If(Not String.IsNullOrWhiteSpace(sortField), ", """ + sortField + """", ""), strIds)
 
-                                                       Return CType(CfJsonConverter.Deserialize(j(0).ToString, Type.GetType(typeName)), ObjBase)
-                                                   End Function)
-                resList.AddRange(tmpList)
+                If (sortField <> "") Then
+                    'sql += " and  (s.GUID = t.GUID) "
+                    sql += String.Format(" ORDER BY ""{0}"" {1}", sortField, sortModeStr)
+                End If
+
+                Dim valuesObjList = SqliteUtils.GetObjectList(ConnectionString, sql)
+                If (valuesObjList IsNot Nothing) Then
+                    Dim tmpList = valuesObjList.Select(Function(j)
+                                                           Dim typeName = j(1)
+                                                           If (typeName = "-") Or String.IsNullOrWhiteSpace(typeName) Then
+                                                               typeName = SupportedType.AssemblyQualifiedName
+                                                           End If
+
+                                                           Return CType(CfJsonConverter.Deserialize(j(0).ToString, Type.GetType(typeName)), ObjBase)
+                                                       End Function)
+                    resList.AddRange(tmpList)
+                End If
             End If
-        End If
-
+        End SyncLock
         Return resList
     End Function
 
     Public Overrides Function Contains(id As String) As Boolean
-        CheckDb()
-
         Dim res = False
-        Dim sql = String.Format("SELECT GUID FROM ""{0}"" WHERE GUID = '{1}'", Name, id)
-        Dim idFromDb = SqliteUtils.ExecSqlScalar(ConnectionString, sql)
-        If (Not String.IsNullOrWhiteSpace(idFromDb) AndAlso idFromDb.ToString.Replace(" ", "") = id) Then
-            res = True
-        End If
-
+        SyncLock _syncObj
+            CheckDb()
+            Dim sql = String.Format("SELECT GUID FROM ""{0}"" WHERE GUID = '{1}'", Name, id)
+            Dim idFromDb = SqliteUtils.ExecSqlScalar(ConnectionString, sql)
+            If (Not String.IsNullOrWhiteSpace(idFromDb) AndAlso idFromDb.ToString.Replace(" ", "") = id) Then
+                res = True
+            End If
+        End SyncLock
         Return res
     End Function
 
@@ -500,9 +516,11 @@ Public Class SqliteStorage
     End Sub
 
     Public Overrides Sub RemoveAllObjects()
-        CheckDb()
-        Dim sql = String.Format("DELETE FROM ""{0}""", Name)
-        SqliteUtils.ExecSql(ConnectionString, sql)
+        SyncLock _syncObj
+            CheckDb()
+            Dim sql = String.Format("DELETE FROM ""{0}""", Name)
+            SqliteUtils.ExecSql(ConnectionString, sql)
+        End SyncLock
     End Sub
 
 End Class

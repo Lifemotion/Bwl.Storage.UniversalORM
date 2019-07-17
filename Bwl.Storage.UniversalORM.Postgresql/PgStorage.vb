@@ -492,7 +492,9 @@ Public Class PgStorage
         Dim res = ""
         Dim valuesFromArrayOfStrings = CfJsonConverter.Deserialize(Of String())(jsonValues)
         Dim valuesToAggregate = New List(Of String)
-        Dim multipleValueAggregator = If(condition = FindCondition.multipleEqual, " OR ", " AND ")
+        Dim multipleNegativeConditions = New FindCondition() {FindCondition.multipleNotEqual,
+                                                                FindCondition.multipleNotLikeEqual}
+        Dim multipleValueAggregator = If(multipleNegativeConditions.Any(Function(f) f = condition), " AND ", " OR ")
         For Each value As String In valuesFromArrayOfStrings
             Dim pName = "@p" + i.ToString
             Dim param = GetRightParam(pName, value.ToString())

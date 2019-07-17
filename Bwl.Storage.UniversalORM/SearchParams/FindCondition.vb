@@ -9,5 +9,11 @@ Public Enum FindCondition
     greaterOrEqual
     lessOrEqual
     multipleEqual
+    multipleLikeEqual
     multipleNotEqual
+    multipleNotLikeEqual
+    multipleGreater
+    multipleLess
+    multipleGreaterOrEqual
+    multipleLessOrEqual
 End Enum

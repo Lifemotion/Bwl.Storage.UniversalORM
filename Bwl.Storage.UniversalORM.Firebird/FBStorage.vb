@@ -410,7 +410,14 @@ Public Class FBStorage
         Dim parameters As New List(Of FbParameter)()
         Dim i = 0
         Const quote As String = """"
-
+        Dim multipleConditions = New FindCondition() {FindCondition.multipleEqual,
+                                                      FindCondition.multipleLikeEqual,
+                                                      FindCondition.multipleNotEqual,
+                                                      FindCondition.multipleNotLikeEqual,
+                                                      FindCondition.multipleGreater,
+                                                      FindCondition.multipleLess,
+                                                      FindCondition.multipleGreaterOrEqual,
+                                                      FindCondition.multipleLessOrEqual}
         If criterias IsNot Nothing Then
             For Each crit In criterias
                 Dim value = crit.Value
@@ -428,8 +435,8 @@ Public Class FBStorage
                     If (ind IsNot Nothing) Then
                         Dim indexName = GetIndexName(ind)
                         Dim str = String.Empty
-                        If crit.Condition = FindCondition.multipleEqual OrElse crit.Condition = FindCondition.multipleNotEqual Then
-                            str = GetOrString(i, parameters, crit.Condition, quote + indexName + quote, value)
+                        If multipleConditions.Any(Function(f) f = crit.Condition) Then
+                            str = GetMultipleConditionString(i, parameters, crit.Condition, quote + indexName + quote, value)
                         Else
 
                             Dim pName = "@p" + i.ToString
@@ -478,7 +485,7 @@ Public Class FBStorage
         End If
     End Function
 
-    Private Shared Function GetOrString(ByRef i As Integer, ByRef parameters As List(Of FbParameter), condition As FindCondition, indexTableName As String, jsonValues As String) As String
+    Private Shared Function GetMultipleConditionString(ByRef i As Integer, ByRef parameters As List(Of FbParameter), condition As FindCondition, indexTableName As String, jsonValues As String) As String
         Dim res = ""
         Dim valuesFromArrayOfStrings = CfJsonConverter.Deserialize(Of String())(jsonValues)
         Dim valuesToAggregate = New List(Of String)
@@ -486,10 +493,22 @@ Public Class FBStorage
         For Each value As String In valuesFromArrayOfStrings
             Dim pName = "@p" + i.ToString
             Select Case condition
-                Case FindCondition.multipleEqual
+                Case FindCondition.multipleequal
                     valuesToAggregate.Add(String.Format(" ({0} = {1}) ", indexTableName, pName))
-                Case FindCondition.multipleNotEqual
+                Case FindCondition.multiplegreater
+                    valuesToAggregate.Add(String.Format(" ({0} > {1}) ", indexTableName, pName))
+                Case FindCondition.multipleless
+                    valuesToAggregate.Add(String.Format(" ({0} < {1}) ", indexTableName, pName))
+                Case FindCondition.multiplenotEqual
                     valuesToAggregate.Add(String.Format(" ({0} <> {1}) ", indexTableName, pName))
+                Case FindCondition.multiplelikeEqual
+                    valuesToAggregate.Add(String.Format(" ({0} LIKE {1}) ", indexTableName, pName))
+                Case FindCondition.multiplenotLikeEqual
+                    valuesToAggregate.Add(String.Format(" ({0} NOT LIKE {1}) ", indexTableName, pName))
+                Case FindCondition.multiplegreaterOrEqual
+                    valuesToAggregate.Add(String.Format(" ({0} >= {1}) ", indexTableName, pName))
+                Case FindCondition.multiplelessOrEqual
+                    valuesToAggregate.Add(String.Format(" ({0} <= {1}) ", indexTableName, pName))
             End Select
             Dim dateResult As Date
             If (Date.TryParse(value, dateResult)) Then

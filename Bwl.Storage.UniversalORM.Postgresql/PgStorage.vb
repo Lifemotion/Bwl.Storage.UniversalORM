@@ -404,6 +404,14 @@ Public Class PgStorage
         Dim parameters As New List(Of NpgsqlParameter)()
         Dim i = 0
         Const QUOTE As String = """"
+        Dim multipleConditions = New FindCondition() {FindCondition.multipleEqual,
+                                                      FindCondition.multipleLikeEqual,
+                                                      FindCondition.multipleNotEqual,
+                                                      FindCondition.multipleNotLikeEqual,
+                                                      FindCondition.multipleGreater,
+                                                      FindCondition.multipleLess,
+                                                      FindCondition.multipleGreaterOrEqual,
+                                                      FindCondition.multipleLessOrEqual}
 
         If criterias IsNot Nothing Then
             For Each crit In criterias
@@ -423,8 +431,8 @@ Public Class PgStorage
                     If (ind IsNot Nothing) Then
                         Dim indexName = GetIndexName(ind)
                         Dim str = String.Empty
-                        If crit.Condition = FindCondition.multipleEqual OrElse crit.Condition = FindCondition.multipleNotEqual Then
-                            str = GetOrString(i, parameters, crit.Condition, QUOTE + indexName + QUOTE, value)
+                        If multipleConditions.Any(Function(f) f = crit.Condition) Then
+                            str = GetMultipleConditionString(i, parameters, crit.Condition, QUOTE + indexName + QUOTE, value)
                         Else
 
                             Dim pName = "@p" + i.ToString
@@ -476,7 +484,11 @@ Public Class PgStorage
         End If
     End Function
 
-    Private Shared Function GetOrString(ByRef i As Integer, ByRef parameters As List(Of NpgsqlParameter), condition As FindCondition, indexTableName As String, jsonValues As String) As String
+    Private Shared Function GetMultipleConditionString(ByRef i As Integer,
+                                                       ByRef parameters As List(Of NpgsqlParameter),
+                                                       condition As FindCondition,
+                                                       indexTableName As String,
+                                                       jsonValues As String) As String
         Dim res = ""
         Dim valuesFromArrayOfStrings = CfJsonConverter.Deserialize(Of String())(jsonValues)
         Dim valuesToAggregate = New List(Of String)
@@ -487,8 +499,24 @@ Public Class PgStorage
             Select Case condition
                 Case FindCondition.multipleEqual
                     valuesToAggregate.Add(String.Format(" ({0} = {1}) ", indexTableName, pName))
+                Case FindCondition.multipleGreater
+                    valuesToAggregate.Add(String.Format(" ({0} > {1}) ", indexTableName, pName))
+                Case FindCondition.multipleLess
+                    valuesToAggregate.Add(String.Format(" ({0} < {1}) ", indexTableName, pName))
                 Case FindCondition.multipleNotEqual
                     valuesToAggregate.Add(String.Format(" ({0} <> {1}) ", indexTableName, pName))
+                Case FindCondition.multipleLikeEqual
+                    valuesToAggregate.Add(If(param.NpgsqlDbType = NpgsqlDbType.Text,
+                             String.Format(" ({0} LIKE {1}) ", indexTableName, pName),
+                             String.Format(" ({0} = {1}) ", indexTableName, pName)))
+                Case FindCondition.multipleNotLikeEqual
+                    valuesToAggregate.Add(If(param.NpgsqlDbType = NpgsqlDbType.Text,
+                             String.Format(" ({0} NOT LIKE {1}) ", indexTableName, pName),
+                             String.Format(" ({0} <> {1}) ", indexTableName, pName)))
+                Case FindCondition.multipleGreaterOrEqual
+                    valuesToAggregate.Add(String.Format(" ({0} >= {1}) ", indexTableName, pName))
+                Case FindCondition.multipleLessOrEqual
+                    valuesToAggregate.Add(String.Format(" ({0} <= {1}) ", indexTableName, pName))
             End Select
             parameters.Add(param)
             i += 1

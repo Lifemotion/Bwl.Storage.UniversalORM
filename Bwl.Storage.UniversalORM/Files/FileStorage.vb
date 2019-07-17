@@ -325,7 +325,19 @@ Public Class FileObjStorage
                                                 Throw New NotSupportedException
                                             Case FindCondition.multipleEqual
                                                 Throw New NotSupportedException
+                                            Case FindCondition.multipleLikeEqual
+                                                Throw New NotSupportedException
                                             Case FindCondition.multipleNotEqual
+                                                Throw New NotSupportedException
+                                            Case FindCondition.multipleNotLikeEqual
+                                                Throw New NotSupportedException
+                                            Case FindCondition.multipleGreater
+                                                Throw New NotSupportedException
+                                            Case FindCondition.multipleLess
+                                                Throw New NotSupportedException
+                                            Case FindCondition.multipleGreaterOrEqual
+                                                Throw New NotSupportedException
+                                            Case FindCondition.multipleLessOrEqual
                                                 Throw New NotSupportedException
                                             Case FindCondition.notEqual
                                                 If (value <> crit.Value) Then

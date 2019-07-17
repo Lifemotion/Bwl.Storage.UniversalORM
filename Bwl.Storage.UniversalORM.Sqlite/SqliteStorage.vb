@@ -416,7 +416,14 @@ Public Class SqliteStorage
         Dim parameters As New List(Of SQLiteParameter)()
         Dim i = 0
         Const QUOTE As String = """"
-
+        Dim multipleConditions = New FindCondition() {FindCondition.multipleEqual,
+                                                      FindCondition.multipleLikeEqual,
+                                                      FindCondition.multipleNotEqual,
+                                                      FindCondition.multipleNotLikeEqual,
+                                                      FindCondition.multipleGreater,
+                                                      FindCondition.multipleLess,
+                                                      FindCondition.multipleGreaterOrEqual,
+                                                      FindCondition.multipleLessOrEqual}
         If criterias IsNot Nothing Then
             For Each crit In criterias
                 Dim value = crit.Value
@@ -434,8 +441,8 @@ Public Class SqliteStorage
                     If (ind IsNot Nothing) Then
                         Dim indexName = GetIndexName(ind)
                         Dim str = String.Empty
-                        If crit.Condition = FindCondition.multipleEqual OrElse crit.Condition = FindCondition.multipleNotEqual Then
-                            str = GetOrString(i, parameters, crit.Condition, QUOTE + indexName + QUOTE, value)
+                        If multipleConditions.Any(Function(f) f = crit.Condition) Then
+                            str = GetMultipleConditionString(i, parameters, crit.Condition, QUOTE + indexName + QUOTE, value)
                         Else
 
                             Dim pName = "@p" + i.ToString
@@ -485,7 +492,7 @@ Public Class SqliteStorage
         End If
     End Function
 
-    Private Shared Function GetOrString(ByRef i As Integer, ByRef parameters As List(Of SQLiteParameter), condition As FindCondition, indexTableName As String, jsonValues As String) As String
+    Private Shared Function GetMultipleConditionString(ByRef i As Integer, ByRef parameters As List(Of SQLiteParameter), condition As FindCondition, indexTableName As String, jsonValues As String) As String
         Dim res = ""
         Dim valuesFromArrayOfStrings = CfJsonConverter.Deserialize(Of String())(jsonValues)
         Dim valuesToAggregate = New List(Of String)
@@ -494,9 +501,21 @@ Public Class SqliteStorage
             Dim pName = "@p" + i.ToString
             Select Case condition
                 Case FindCondition.multipleEqual
-                    valuesToAggregate.Add(String.Format("({0} = {1})", indexTableName, pName))
+                    valuesToAggregate.Add(String.Format(" ({0} = {1}) ", indexTableName, pName))
+                Case FindCondition.multipleGreater
+                    valuesToAggregate.Add(String.Format(" ({0} > {1}) ", indexTableName, pName))
+                Case FindCondition.multipleLess
+                    valuesToAggregate.Add(String.Format(" ({0} < {1}) ", indexTableName, pName))
                 Case FindCondition.multipleNotEqual
-                    valuesToAggregate.Add(String.Format("({0} <> {1})", indexTableName, pName))
+                    valuesToAggregate.Add(String.Format(" ({0} <> {1}) ", indexTableName, pName))
+                Case FindCondition.multipleLikeEqual
+                    valuesToAggregate.Add(String.Format(" ({0} LIKE {1}) ", indexTableName, pName))
+                Case FindCondition.multipleNotLikeEqual
+                    valuesToAggregate.Add(String.Format(" ({0} NOT LIKE {1}) ", indexTableName, pName))
+                Case FindCondition.multipleGreaterOrEqual
+                    valuesToAggregate.Add(String.Format(" ({0} >= {1}) ", indexTableName, pName))
+                Case FindCondition.multipleLessOrEqual
+                    valuesToAggregate.Add(String.Format(" ({0} <= {1}) ", indexTableName, pName))
             End Select
             Dim dateResult As Date
             If (Date.TryParse(value, dateResult)) Then

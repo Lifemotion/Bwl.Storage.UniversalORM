@@ -439,6 +439,14 @@ Public Class MSSQLSRVStorage
 
     Private Function GenerateWhereSql(criterias As IEnumerable(Of FindCriteria), sort As SortParam) As SqlHelper
         Dim where = String.Empty
+        Dim multipleConditions = New FindCondition() {FindCondition.multipleEqual,
+                                                      FindCondition.multipleLikeEqual,
+                                                      FindCondition.multipleNotEqual,
+                                                      FindCondition.multipleNotLikeEqual,
+                                                      FindCondition.multipleGreater,
+                                                      FindCondition.multipleLess,
+                                                      FindCondition.multipleGreaterOrEqual,
+                                                      FindCondition.multipleLessOrEqual}
         For Each index In _indexingMembers
             Dim crt = Nothing
             If (criterias IsNot Nothing) Then
@@ -476,8 +484,8 @@ Public Class MSSQLSRVStorage
                     If (ind IsNot Nothing) Then
                         Dim indexTableName = GetIndexTableName(ind)
                         Dim str = String.Empty
-                        If crit.Condition = FindCondition.multipleEqual OrElse crit.Condition = FindCondition.multipleNotEqual Then
-                            str = GetOrString(i, parameters, crit.Condition, indexTableName, value)
+                        If multipleConditions.Any(Function(f) f = crit.Condition) Then
+                            str = GetMultipleConditionString(i, parameters, crit.Condition, indexTableName, value)
                         Else
 
                             Dim pName = "@p" + i.ToString
@@ -524,7 +532,7 @@ Public Class MSSQLSRVStorage
         End If
     End Function
 
-    Private Shared Function GetOrString(ByRef i As Integer, ByRef parameters As List(Of SqlParameter), condition As FindCondition, indexTableName As String, jsonValues As String) As String
+    Private Shared Function GetMultipleConditionString(ByRef i As Integer, ByRef parameters As List(Of SqlParameter), condition As FindCondition, indexTableName As String, jsonValues As String) As String
         Dim res = ""
         Dim valuesFromArrayOfStrings = CfJsonConverter.Deserialize(Of String())(jsonValues)
         Dim valuesToAggregate = New List(Of String)
@@ -534,8 +542,20 @@ Public Class MSSQLSRVStorage
             Select Case condition
                 Case FindCondition.multipleEqual
                     valuesToAggregate.Add(String.Format(" ([{0}].[value] = {1}) ", indexTableName, pName))
+                Case FindCondition.multipleGreater
+                    valuesToAggregate.Add(String.Format(" ([{0}].[value] > {1}) ", indexTableName, pName))
+                Case FindCondition.multipleLess
+                    valuesToAggregate.Add(String.Format(" ([{0}].[value] < {1}) ", indexTableName, pName))
                 Case FindCondition.multipleNotEqual
                     valuesToAggregate.Add(String.Format(" ([{0}].[value] <> {1}) ", indexTableName, pName))
+                Case FindCondition.multipleLikeEqual
+                    valuesToAggregate.Add(String.Format(" ([{0}].[value] LIKE {1}) ", indexTableName, pName))
+                Case FindCondition.multipleNotLikeEqual
+                    valuesToAggregate.Add(String.Format(" ([{0}].[value] NOT LIKE {1}) ", indexTableName, pName))
+                Case FindCondition.multipleGreaterOrEqual
+                    valuesToAggregate.Add(String.Format(" ([{0}].[value] >= {1}) ", indexTableName, pName))
+                Case FindCondition.multipleLessOrEqual
+                    valuesToAggregate.Add(String.Format(" ([{0}].[value] <= {1}) ", indexTableName, pName))
             End Select
             Dim dateResult As Date
             If (Date.TryParse(value, dateResult)) Then

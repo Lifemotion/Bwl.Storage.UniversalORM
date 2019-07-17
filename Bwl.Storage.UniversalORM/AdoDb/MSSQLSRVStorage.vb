@@ -1,30 +1,30 @@
 ﻿Imports System.Data.SqlClient
 
 Public Class MSSQLSRVStorage
-	Inherits CommonObjStorage
+    Inherits CommonObjStorage
 
-	Private _name As String
-	Private _dbName As String
-	Private _connectionStringBld As SqlConnectionStringBuilder
+    Private _name As String
+    Private _dbName As String
+    Private _connectionStringBld As SqlConnectionStringBuilder
 
-	Public Sub New(connStringBld As SqlConnectionStringBuilder, type As Type, dbName As String)
-		MyBase.New(type)
-		_name = type.Name
-		_dbName = dbName
+    Public Sub New(connStringBld As SqlConnectionStringBuilder, type As Type, dbName As String)
+        MyBase.New(type)
+        _name = type.Name
+        _dbName = dbName
 
-		ConnectionStringBld = New SqlConnectionStringBuilder(connStringBld.ConnectionString)
-		_connectionStringBld.InitialCatalog = _dbName
+        ConnectionStringBld = New SqlConnectionStringBuilder(connStringBld.ConnectionString)
+        _connectionStringBld.InitialCatalog = _dbName
 
-		CheckDB()
-	End Sub
+        CheckDB()
+    End Sub
 
 
-	Public Overrides Sub AddObj(obj As ObjBase)
-		CheckDB()
-		Dim json = CfJsonConverter.Serialize(obj)
-		Save(ConnectionString, obj.ID, json, obj.GetType)
-		For Each indexing In _indexingMembers
-			Dim indexTableName = GetIndexTableName(indexing)
+    Public Overrides Sub AddObj(obj As ObjBase)
+        CheckDB()
+        Dim json = CfJsonConverter.Serialize(obj)
+        Save(ConnectionString, obj.ID, json, obj.GetType)
+        For Each indexing In _indexingMembers
+            Dim indexTableName = GetIndexTableName(indexing)
             Dim indexValue = ReflectionTools.GetMemberValue(indexing.Name, obj)
             If (TypeOf (indexValue) Is DateTime) Then
                 indexValue = CType(indexValue, DateTime).Ticks
@@ -374,174 +374,201 @@ Public Class MSSQLSRVStorage
         MSSQLSRVUtils.ExecSQL(ConnectionString, sql, params)
     End Sub
 
-	Private Function GetIndexTableName(indexing As IndexInfo) As String
-		Dim indexTableName = String.Empty
-		If indexing.Name.ToLower = "id" Then
-			indexTableName = Name
-		Else
-			indexTableName = String.Format("{0}_{1}", Name, indexing.Name.Replace(".", "_"))
-			If (Not MSSQLSRVUtils.TableExists(ConnectionString, indexTableName)) Then
-				Threading.Thread.Sleep(1000)
-				If (Not MSSQLSRVUtils.TableExists(ConnectionString, indexTableName)) Then
-					Dim sql = String.Empty
-					Dim t = indexing.Type
-					Select Case (t)
-						Case GetType(String)
-							Dim len = Byte.MaxValue.ToString
-							If (indexing.Length > 0 And indexing.Length < Byte.MaxValue) Then
-								len = indexing.Length.ToString
-							End If
-							sql = String.Format(My.Resources.CreateStringIndexTableSQL, indexTableName, Name, len)
-						Case GetType(Integer)
-							sql = String.Format(My.Resources.CreateIntIndexTableSQL, indexTableName, Name)
-						Case GetType(Double)
-							sql = String.Format(My.Resources.CreateFloatIndexTableSQL, indexTableName, Name)
-						Case GetType(DateTime)
-							sql = String.Format(My.Resources.CreateBigIntIndexTableSQL, indexTableName, Name)
-						Case GetType(Long)
-							sql = String.Format(My.Resources.CreateBigIntIndexTableSQL, indexTableName, Name)
-						Case GetType(Boolean)
-							sql = String.Format(My.Resources.CreateStringIndexTableSQL, indexTableName, Name, Byte.MaxValue.ToString)
-						Case Else
-							Dim enumType = Type.GetType("System.Enum, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089")
-							If t.BaseType = enumType Then
-								sql = String.Format(My.Resources.CreateStringIndexTableSQL, indexTableName, Name, Byte.MaxValue.ToString)
-							Else
-								Throw New Exception("Обнаружен не поддерживаемый тип индексируемого поля " + Name + " _ " + t.FullName)
-							End If
-					End Select
-					MSSQLSRVUtils.ExecSQL(ConnectionString, sql)
-				End If
-			End If
-		End If
-		Return indexTableName
-	End Function
+    Private Function GetIndexTableName(indexing As IndexInfo) As String
+        Dim indexTableName = String.Empty
+        If indexing.Name.ToLower = "id" Then
+            indexTableName = Name
+        Else
+            indexTableName = String.Format("{0}_{1}", Name, indexing.Name.Replace(".", "_"))
+            If (Not MSSQLSRVUtils.TableExists(ConnectionString, indexTableName)) Then
+                Threading.Thread.Sleep(1000)
+                If (Not MSSQLSRVUtils.TableExists(ConnectionString, indexTableName)) Then
+                    Dim sql = String.Empty
+                    Dim t = indexing.Type
+                    Select Case (t)
+                        Case GetType(String)
+                            Dim len = Byte.MaxValue.ToString
+                            If (indexing.Length > 0 And indexing.Length < Byte.MaxValue) Then
+                                len = indexing.Length.ToString
+                            End If
+                            sql = String.Format(My.Resources.CreateStringIndexTableSQL, indexTableName, Name, len)
+                        Case GetType(Integer)
+                            sql = String.Format(My.Resources.CreateIntIndexTableSQL, indexTableName, Name)
+                        Case GetType(Double)
+                            sql = String.Format(My.Resources.CreateFloatIndexTableSQL, indexTableName, Name)
+                        Case GetType(DateTime)
+                            sql = String.Format(My.Resources.CreateBigIntIndexTableSQL, indexTableName, Name)
+                        Case GetType(Long)
+                            sql = String.Format(My.Resources.CreateBigIntIndexTableSQL, indexTableName, Name)
+                        Case GetType(Boolean)
+                            sql = String.Format(My.Resources.CreateStringIndexTableSQL, indexTableName, Name, Byte.MaxValue.ToString)
+                        Case Else
+                            Dim enumType = Type.GetType("System.Enum, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089")
+                            If t.BaseType = enumType Then
+                                sql = String.Format(My.Resources.CreateStringIndexTableSQL, indexTableName, Name, Byte.MaxValue.ToString)
+                            Else
+                                Throw New Exception("Обнаружен не поддерживаемый тип индексируемого поля " + Name + " _ " + t.FullName)
+                            End If
+                    End Select
+                    MSSQLSRVUtils.ExecSQL(ConnectionString, sql)
+                End If
+            End If
+        End If
+        Return indexTableName
+    End Function
 
-	Private Function GenerateFromSql(criterias As IEnumerable(Of FindCriteria), sort As SortParam) As String
-		Dim fromSQl As String = " [" + Name + "] "
-		Dim where = String.Empty
-		For Each index In _indexingMembers
-			Dim crt = Nothing
-			If (criterias IsNot Nothing) Then
-				crt = criterias.FirstOrDefault(Function(c) c.Field = index.Name)
-			End If
-			Dim sortField = False
-			If sort IsNot Nothing AndAlso sort.Field = index.Name Then
-				sortField = True
-			End If
-			If (crt IsNot Nothing Or sortField) Then
-				Dim indexTableName = GetIndexTableName(index)
-				fromSQl += String.Format(", [{0}]", indexTableName)
-			End If
-		Next
-		Return fromSQl
-	End Function
+    Private Function GenerateFromSql(criterias As IEnumerable(Of FindCriteria), sort As SortParam) As String
+        Dim fromSQl As String = " [" + Name + "] "
+        Dim where = String.Empty
+        For Each index In _indexingMembers
+            Dim crt = Nothing
+            If (criterias IsNot Nothing) Then
+                crt = criterias.FirstOrDefault(Function(c) c.Field = index.Name)
+            End If
+            Dim sortField = False
+            If sort IsNot Nothing AndAlso sort.Field = index.Name Then
+                sortField = True
+            End If
+            If (crt IsNot Nothing Or sortField) Then
+                Dim indexTableName = GetIndexTableName(index)
+                fromSQl += String.Format(", [{0}]", indexTableName)
+            End If
+        Next
+        Return fromSQl
+    End Function
 
-	Private Function GenerateWhereSql(criterias As IEnumerable(Of FindCriteria), sort As SortParam) As SqlHelper
-		Dim where = String.Empty
-		For Each index In _indexingMembers
-			Dim crt = Nothing
-			If (criterias IsNot Nothing) Then
-				crt = criterias.FirstOrDefault(Function(c) c.Field = index.Name)
-			End If
-			Dim sortField = False
-			If sort IsNot Nothing AndAlso sort.Field = index.Name Then
-				sortField = True
-			End If
-			If (crt IsNot Nothing Or sortField) Then
-				Dim indexTableName = GetIndexTableName(index)
-				If (String.IsNullOrEmpty(where)) Then
-					where = String.Format(" ([{0}].[guid] = [{1}].[guid]) ", Name, indexTableName)
-				Else
-					where += " AND " + String.Format(" ([{0}].[guid] = [{1}].[guid]) ", Name, indexTableName)
-				End If
-			End If
-		Next
-		Dim parameters As New List(Of SqlParameter)()
-		Dim i = 0
-		If criterias IsNot Nothing Then
-			For Each crit In criterias
-				Dim value = crit.Value
-				If crit.Field.ToLower = "id" Then
-					Dim pName = "@p" + i.ToString
-					Dim str = String.Format(" ([{0}].[guid] = {1}) ", Name, pName)
-					If (String.IsNullOrEmpty(where)) Then
-						where += str
-					Else
-						where += " AND " + str
-					End If
-					parameters.Add(New SqlParameter(pName, value))
-				Else
-					Dim ind = _indexingMembers.FirstOrDefault(Function(f) f.Name = crit.Field)
-					If (ind IsNot Nothing) Then
-						Dim indexTableName = GetIndexTableName(ind)
-						Dim str = String.Empty
-						Dim pName = "@p" + i.ToString
-						Select Case crit.Condition
-                            Case FindCondition.equal
-                                str = String.Format(" ([{0}].[value] = {1}) ", indexTableName, pName)
-							Case FindCondition.greater
-								str = String.Format(" ([{0}].[value] > {1}) ", indexTableName, pName)
-							Case FindCondition.less
-								str = String.Format(" ([{0}].[value] < {1}) ", indexTableName, pName)
-							Case FindCondition.notEqual
-								str = String.Format(" ([{0}].[value] <> {1}) ", indexTableName, pName)
-                            Case FindCondition.likeEqual
-                                str = String.Format(" ([{0}].[value] LIKE {1}) ", indexTableName, pName)
-                            Case FindCondition.notLikeEqual
-                                str = String.Format(" ([{0}].[value] NOT LIKE {1}) ", indexTableName, pName)
-							Case FindCondition.greaterOrEqual
-								str = String.Format(" ([{0}].[value] >= {1}) ", indexTableName, pName)
-							Case FindCondition.lessOrEqual
-								str = String.Format(" ([{0}].[value] <= {1}) ", indexTableName, pName)
-						End Select
+    Private Function GenerateWhereSql(criterias As IEnumerable(Of FindCriteria), sort As SortParam) As SqlHelper
+        Dim where = String.Empty
+        For Each index In _indexingMembers
+            Dim crt = Nothing
+            If (criterias IsNot Nothing) Then
+                crt = criterias.FirstOrDefault(Function(c) c.Field = index.Name)
+            End If
+            Dim sortField = False
+            If sort IsNot Nothing AndAlso sort.Field = index.Name Then
+                sortField = True
+            End If
+            If (crt IsNot Nothing Or sortField) Then
+                Dim indexTableName = GetIndexTableName(index)
+                If (String.IsNullOrEmpty(where)) Then
+                    where = String.Format(" ([{0}].[guid] = [{1}].[guid]) ", Name, indexTableName)
+                Else
+                    where += " AND " + String.Format(" ([{0}].[guid] = [{1}].[guid]) ", Name, indexTableName)
+                End If
+            End If
+        Next
+        Dim parameters As New List(Of SqlParameter)()
+        Dim i = 0
+        If criterias IsNot Nothing Then
+            For Each crit In criterias
+                Dim value = crit.Value
+                If crit.Field.ToLower = "id" Then
+                    Dim pName = "@p" + i.ToString
+                    Dim str = String.Format(" ([{0}].[guid] = {1}) ", Name, pName)
+                    If (String.IsNullOrEmpty(where)) Then
+                        where += str
+                    Else
+                        where += " AND " + str
+                    End If
+                    parameters.Add(New SqlParameter(pName, value))
+                Else
+                    Dim ind = _indexingMembers.FirstOrDefault(Function(f) f.Name = crit.Field)
+                    If (ind IsNot Nothing) Then
+                        Dim indexTableName = GetIndexTableName(ind)
+                        Dim str = String.Empty
+                        If crit.Condition = FindCondition.multipleEqual OrElse crit.Condition = FindCondition.multipleNotEqual Then
+                            str = GetOrString(i, parameters, crit.Condition, indexTableName, value)
+                        Else
 
-						If (String.IsNullOrEmpty(where)) Then
-							where += str
-						Else
-							where += " AND " + str
-						End If
+                            Dim pName = "@p" + i.ToString
+                            Select Case crit.Condition
+                                Case FindCondition.equal
+                                    str = String.Format(" ([{0}].[value] = {1}) ", indexTableName, pName)
+                                Case FindCondition.greater
+                                    str = String.Format(" ([{0}].[value] > {1}) ", indexTableName, pName)
+                                Case FindCondition.less
+                                    str = String.Format(" ([{0}].[value] < {1}) ", indexTableName, pName)
+                                Case FindCondition.notEqual
+                                    str = String.Format(" ([{0}].[value] <> {1}) ", indexTableName, pName)
+                                Case FindCondition.likeEqual
+                                    str = String.Format(" ([{0}].[value] LIKE {1}) ", indexTableName, pName)
+                                Case FindCondition.notLikeEqual
+                                    str = String.Format(" ([{0}].[value] NOT LIKE {1}) ", indexTableName, pName)
+                                Case FindCondition.greaterOrEqual
+                                    str = String.Format(" ([{0}].[value] >= {1}) ", indexTableName, pName)
+                                Case FindCondition.lessOrEqual
+                                    str = String.Format(" ([{0}].[value] <= {1}) ", indexTableName, pName)
+                            End Select
+                            If (TypeOf (value) Is DateTime) Then
+                                value = CType(value, DateTime).Ticks
+                            End If
+                            parameters.Add(New SqlParameter(pName, value))
+                            i += 1
+                        End If
+                        If (String.IsNullOrEmpty(where)) Then
+                            where += str
+                        Else
+                            where += " AND " + str
+                        End If
+                    Else
+                        Throw New Exception("Поле " + crit.Field + " не является индексируемым")
+                    End If
+                End If
+            Next
+        End If
 
-						If (TypeOf (value) Is DateTime) Then
-							value = CType(value, DateTime).Ticks
-						End If
-						parameters.Add(New SqlParameter(pName, value))
-						i += 1
-					Else
-						Throw New Exception("Поле " + crit.Field + " не является индексируемым")
-					End If
-				End If
-			Next
-		End If
+        If String.IsNullOrWhiteSpace(where) Then
+            Return Nothing
+        Else
+            Return New SqlHelper(" WHERE " + where, parameters)
+        End If
+    End Function
 
-		If String.IsNullOrWhiteSpace(where) Then
-			Return Nothing
-		Else
-			Return New SqlHelper(" WHERE " + where, parameters)
-		End If
-	End Function
+    Private Shared Function GetOrString(ByRef i As Integer, ByRef parameters As List(Of SqlParameter), condition As FindCondition, indexTableName As String, jsonValues As String) As String
+        Dim res = ""
+        Dim valuesFromArrayOfStrings = CfJsonConverter.Deserialize(Of String())(jsonValues)
+        Dim valuesToAggregate = New List(Of String)
+        Dim multipleValueAggregator = If(condition = FindCondition.multipleEqual, " OR ", " AND ")
+        For Each value As String In valuesFromArrayOfStrings
+            Dim pName = "@p" + i.ToString
+            Select Case condition
+                Case FindCondition.multipleEqual
+                    valuesToAggregate.Add(String.Format(" ([{0}].[value] = {1}) ", indexTableName, pName))
+                Case FindCondition.multipleNotEqual
+                    valuesToAggregate.Add(String.Format(" ([{0}].[value] <> {1}) ", indexTableName, pName))
+            End Select
+            Dim dateResult As Date
+            If (Date.TryParse(value, dateResult)) Then
+                value = dateResult.Ticks.ToString()
+            End If
+            parameters.Add(New SqlParameter(pName, value))
+            i += 1
+        Next
+        res = String.Format("({0})", valuesToAggregate.Aggregate(Function(f, t) f + multipleValueAggregator + t))
+        Return res
+    End Function
 
-	Private Sub Save(connStr As String, id As String, json As String, type As Type)
-		Dim rtype = IIf(type.AssemblyQualifiedName = SupportedType.AssemblyQualifiedName, "-", type.AssemblyQualifiedName)
-		Dim parameters = {New SqlParameter("@p1", id), New SqlParameter("@p2", json), New SqlParameter("@p3", rtype)}
-		Dim sql = String.Format("INSERT INTO [dbo].[{0}] ([guid] ,[json], [type]) VALUES(@p1, @p2, @p3)", Name)
-		MSSQLSRVUtils.ExecSQL(ConnectionString, sql, parameters)
-	End Sub
+    Private Sub Save(connStr As String, id As String, json As String, type As Type)
+        Dim rtype = IIf(type.AssemblyQualifiedName = SupportedType.AssemblyQualifiedName, "-", type.AssemblyQualifiedName)
+        Dim parameters = {New SqlParameter("@p1", id), New SqlParameter("@p2", json), New SqlParameter("@p3", rtype)}
+        Dim sql = String.Format("INSERT INTO [dbo].[{0}] ([guid] ,[json], [type]) VALUES(@p1, @p2, @p3)", Name)
+        MSSQLSRVUtils.ExecSQL(ConnectionString, sql, parameters)
+    End Sub
 
-	'Private Sub Save_old(connStr As String, id As String, json As String, type As Type)
-	'	Dim rtype = IIf(type.AssemblyQualifiedName = SupportedType.AssemblyQualifiedName, "-", type.AssemblyQualifiedName)
-	'	Dim sql = String.Format("INSERT INTO [dbo].[{0}] ([guid] ,[json], [type]) VALUES('{1}', '{2}', '{3}')", Name, id, json, rtype)
-	'	MSSQLSRVUtils.ExecSQL(ConnectionString, sql)
-	'End Sub
+    'Private Sub Save_old(connStr As String, id As String, json As String, type As Type)
+    '	Dim rtype = IIf(type.AssemblyQualifiedName = SupportedType.AssemblyQualifiedName, "-", type.AssemblyQualifiedName)
+    '	Dim sql = String.Format("INSERT INTO [dbo].[{0}] ([guid] ,[json], [type]) VALUES('{1}', '{2}', '{3}')", Name, id, json, rtype)
+    '	MSSQLSRVUtils.ExecSQL(ConnectionString, sql)
+    'End Sub
 
-	Private Sub Update(connStr As String, id As String, json As String)
-		Dim sql = String.Format("UPDATE [{0}] SET [json] = @p1 WHERE [guid] = @p2", Name)
-		MSSQLSRVUtils.ExecSQL(ConnectionString, sql, {New SqlParameter("@p1", json), New SqlParameter("@p2", id)})
-	End Sub
+    Private Sub Update(connStr As String, id As String, json As String)
+        Dim sql = String.Format("UPDATE [{0}] SET [json] = @p1 WHERE [guid] = @p2", Name)
+        MSSQLSRVUtils.ExecSQL(ConnectionString, sql, {New SqlParameter("@p1", json), New SqlParameter("@p2", id)})
+    End Sub
 
-	Public Overrides Sub RemoveAllObjects()
-		CheckDB()
-		Dim sql = String.Format("DELETE FROM [dbo].[{0}]", Name)
-		MSSQLSRVUtils.ExecSQL(ConnectionString, sql)
-	End Sub
+    Public Overrides Sub RemoveAllObjects()
+        CheckDB()
+        Dim sql = String.Format("DELETE FROM [dbo].[{0}]", Name)
+        MSSQLSRVUtils.ExecSQL(ConnectionString, sql)
+    End Sub
 End Class

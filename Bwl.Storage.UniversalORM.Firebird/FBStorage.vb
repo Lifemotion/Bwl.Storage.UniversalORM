@@ -409,6 +409,7 @@ Public Class FBStorage
         Dim where = String.Empty
         Dim parameters As New List(Of FbParameter)()
         Dim i = 0
+        Const quote As String = """"
 
         If criterias IsNot Nothing Then
             For Each crit In criterias
@@ -427,38 +428,42 @@ Public Class FBStorage
                     If (ind IsNot Nothing) Then
                         Dim indexName = GetIndexName(ind)
                         Dim str = String.Empty
-                        Dim pName = "@p" + i.ToString
-                        Const quote As String = """"
-                        Select Case crit.Condition
-                            Case FindCondition.equal
-                                str = String.Format(" ({0} = {1}) ", quote + indexName + quote, pName)
-                            Case FindCondition.greater
-                                str = String.Format(" ({0} > {1}) ", quote + indexName + quote, pName)
-                            Case FindCondition.less
-                                str = String.Format(" ({0} < {1}) ", quote + indexName + quote, pName)
-                            Case FindCondition.notEqual
-                                str = String.Format(" ({0} <> {1}) ", quote + indexName + quote, pName)
-                            Case FindCondition.likeEqual
-                                str = String.Format(" ({0} LIKE {1}) ", quote + indexName + quote, pName)
-                            Case FindCondition.notLikeEqual
-                                str = String.Format(" ({0} NOT LIKE {1}) ", quote + indexName + quote, pName)
-                            Case FindCondition.greaterOrEqual
-                                str = String.Format(" ({0} >= {1}) ", quote + indexName + quote, pName)
-                            Case FindCondition.lessOrEqual
-                                str = String.Format(" ({0} <= {1}) ", quote + indexName + quote, pName)
-                        End Select
+                        If crit.Condition = FindCondition.multipleEqual OrElse crit.Condition = FindCondition.multipleNotEqual Then
+                            str = GetOrString(i, parameters, crit.Condition, quote + indexName + quote, value)
+                        Else
+
+                            Dim pName = "@p" + i.ToString
+                            Select Case crit.Condition
+                                Case FindCondition.equal
+                                    str = String.Format(" ({0} = {1}) ", quote + indexName + quote, pName)
+                                Case FindCondition.greater
+                                    str = String.Format(" ({0} > {1}) ", quote + indexName + quote, pName)
+                                Case FindCondition.less
+                                    str = String.Format(" ({0} < {1}) ", quote + indexName + quote, pName)
+                                Case FindCondition.notEqual
+                                    str = String.Format(" ({0} <> {1}) ", quote + indexName + quote, pName)
+                                Case FindCondition.likeEqual
+                                    str = String.Format(" ({0} LIKE {1}) ", quote + indexName + quote, pName)
+                                Case FindCondition.notLikeEqual
+                                    str = String.Format(" ({0} NOT LIKE {1}) ", quote + indexName + quote, pName)
+                                Case FindCondition.greaterOrEqual
+                                    str = String.Format(" ({0} >= {1}) ", quote + indexName + quote, pName)
+                                Case FindCondition.lessOrEqual
+                                    str = String.Format(" ({0} <= {1}) ", quote + indexName + quote, pName)
+                            End Select
+
+                            If (TypeOf (value) Is DateTime) Then
+                                value = CType(value, DateTime).Ticks
+                            End If
+                            parameters.Add(New FbParameter(pName, value))
+                            i += 1
+                        End If
 
                         If (String.IsNullOrEmpty(where)) Then
                             where += str
                         Else
                             where += " AND " + str
                         End If
-
-                        If (TypeOf (value) Is DateTime) Then
-                            value = CType(value, DateTime).Ticks
-                        End If
-                        parameters.Add(New FbParameter(pName, value))
-                        i += 1
                     Else
                         Throw New Exception("Поле " + crit.Field + " не является индексируемым")
                     End If
@@ -471,6 +476,30 @@ Public Class FBStorage
         Else
             Return New SqlHelper(" WHERE " + where, parameters)
         End If
+    End Function
+
+    Private Shared Function GetOrString(ByRef i As Integer, ByRef parameters As List(Of FbParameter), condition As FindCondition, indexTableName As String, jsonValues As String) As String
+        Dim res = ""
+        Dim valuesFromArrayOfStrings = CfJsonConverter.Deserialize(Of String())(jsonValues)
+        Dim valuesToAggregate = New List(Of String)
+        Dim multipleValueAggregator = If(condition = FindCondition.multipleEqual, " OR ", " AND ")
+        For Each value As String In valuesFromArrayOfStrings
+            Dim pName = "@p" + i.ToString
+            Select Case condition
+                Case FindCondition.multipleEqual
+                    valuesToAggregate.Add(String.Format(" ({0} = {1}) ", indexTableName, pName))
+                Case FindCondition.multipleNotEqual
+                    valuesToAggregate.Add(String.Format(" ({0} <> {1}) ", indexTableName, pName))
+            End Select
+            Dim dateResult As Date
+            If (Date.TryParse(value, dateResult)) Then
+                value = dateResult.Ticks.ToString()
+            End If
+            parameters.Add(New FbParameter(pName, value))
+            i += 1
+        Next
+        res = String.Format("({0})", valuesToAggregate.Aggregate(Function(f, t) f + multipleValueAggregator + t))
+        Return res
     End Function
 
     Private Sub Save(connStr As String, id As String, json As String, type As Type)

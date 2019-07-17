@@ -403,30 +403,11 @@ Public Class PgStorage
         Dim where = String.Empty
         Dim parameters As New List(Of NpgsqlParameter)()
         Dim i = 0
+        Const QUOTE As String = """"
 
         If criterias IsNot Nothing Then
             For Each crit In criterias
                 Dim value = crit.Value
-                If (TypeOf (value) Is DateTime) Then
-                    value = CType(value, DateTime).Ticks
-                End If
-                Dim valueAsString = value.ToString()
-                Dim valueType = NpgsqlDbType.Text
-                Try
-                    Dim intValue = Integer.Parse(valueAsString)
-                    valueType = NpgsqlDbType.Integer
-                Catch
-                    Try
-                        Dim longValue = Long.Parse(valueAsString)
-                        valueType = NpgsqlDbType.Bigint
-                    Catch
-                        Try
-                            Dim boolValue = Boolean.Parse(valueAsString)
-                            valueType = NpgsqlDbType.Boolean
-                        Catch
-                        End Try
-                    End Try
-                End Try
 
                 If crit.Field.ToLower = "id" Then
                     Dim pName = "@p" + i.ToString
@@ -442,64 +423,45 @@ Public Class PgStorage
                     If (ind IsNot Nothing) Then
                         Dim indexName = GetIndexName(ind)
                         Dim str = String.Empty
-                        Dim pName = "@p" + i.ToString
-                        Const QUOTE As String = """"
-                        Select Case crit.Condition
-                            Case FindCondition.equal
-                                str = String.Format(" ({0} = {1}) ", QUOTE + indexName + QUOTE, pName)
-                            Case FindCondition.greater
-                                str = String.Format(" ({0} > {1}) ", QUOTE + indexName + QUOTE, pName)
-                            Case FindCondition.less
-                                str = String.Format(" ({0} < {1}) ", QUOTE + indexName + QUOTE, pName)
-                            Case FindCondition.notEqual
-                                str = String.Format(" ({0} <> {1}) ", QUOTE + indexName + QUOTE, pName)
-                            Case FindCondition.likeEqual
-                                str = If(valueType = NpgsqlDbType.Text,
-                                        String.Format(" ({0} LIKE {1}) ", QUOTE + indexName + QUOTE, pName),
-                                        String.Format(" ({0} = {1}) ", QUOTE + indexName + QUOTE, pName))
-                            Case FindCondition.notLikeEqual
-                                str = If(valueType = NpgsqlDbType.Text,
-                                         String.Format(" ({0} NOT LIKE {1}) ", QUOTE + indexName + QUOTE, pName),
-                                         String.Format(" ({0} <> {1}) ", QUOTE + indexName + QUOTE, pName))
-                            Case FindCondition.greaterOrEqual
-                                str = String.Format(" ({0} >= {1}) ", QUOTE + indexName + QUOTE, pName)
-                            Case FindCondition.lessOrEqual
-                                str = String.Format(" ({0} <= {1}) ", QUOTE + indexName + QUOTE, pName)
-                        End Select
+                        If crit.Condition = FindCondition.multipleEqual OrElse crit.Condition = FindCondition.multipleNotEqual Then
+                            str = GetOrString(i, parameters, crit.Condition, QUOTE + indexName + QUOTE, value)
+                        Else
 
+                            Dim pName = "@p" + i.ToString
+
+                            Dim param = GetRightParam(pName, value)
+
+                            Select Case crit.Condition
+                                Case FindCondition.equal
+                                    str = String.Format(" ({0} = {1}) ", QUOTE + indexName + QUOTE, pName)
+                                Case FindCondition.greater
+                                    str = String.Format(" ({0} > {1}) ", QUOTE + indexName + QUOTE, pName)
+                                Case FindCondition.less
+                                    str = String.Format(" ({0} < {1}) ", QUOTE + indexName + QUOTE, pName)
+                                Case FindCondition.notEqual
+                                    str = String.Format(" ({0} <> {1}) ", QUOTE + indexName + QUOTE, pName)
+                                Case FindCondition.likeEqual
+                                    str = If(param.NpgsqlDbType = NpgsqlDbType.Text,
+                                            String.Format(" ({0} LIKE {1}) ", QUOTE + indexName + QUOTE, pName),
+                                            String.Format(" ({0} = {1}) ", QUOTE + indexName + QUOTE, pName))
+                                Case FindCondition.notLikeEqual
+                                    str = If(param.NpgsqlDbType = NpgsqlDbType.Text,
+                                             String.Format(" ({0} NOT LIKE {1}) ", QUOTE + indexName + QUOTE, pName),
+                                             String.Format(" ({0} <> {1}) ", QUOTE + indexName + QUOTE, pName))
+                                Case FindCondition.greaterOrEqual
+                                    str = String.Format(" ({0} >= {1}) ", QUOTE + indexName + QUOTE, pName)
+                                Case FindCondition.lessOrEqual
+                                    str = String.Format(" ({0} <= {1}) ", QUOTE + indexName + QUOTE, pName)
+                            End Select
+
+                            parameters.Add(param)
+                            i += 1
+                        End If
                         If (String.IsNullOrEmpty(where)) Then
                             where += str
                         Else
                             where += " AND " + str
                         End If
-
-                        ' Костыль для поиска в БД данных по соответствующему типу
-                        Dim param As NpgsqlParameter
-                        Select Case valueType
-                            Case NpgsqlDbType.Integer
-                                Dim intValue = Integer.Parse(valueAsString)
-                                param = New NpgsqlParameter(pName, valueType) With {
-                                    .Value = intValue
-                                    }
-                            Case NpgsqlDbType.Bigint
-                                Dim longValue = Long.Parse(valueAsString)
-                                param = New NpgsqlParameter(pName, valueType) With {
-                                    .Value = longValue
-                                    }
-
-                            Case NpgsqlDbType.Boolean
-                                Dim boolValue = Boolean.Parse(valueAsString)
-                                param = New NpgsqlParameter(pName, valueType) With {
-                                    .Value = boolValue
-                                    }
-                            Case Else
-                                param = New NpgsqlParameter(pName, valueType) With {
-                                    .Value = valueAsString
-                                    }
-                        End Select
-
-                        parameters.Add(param)
-                        i += 1
                     Else
                         Throw New Exception("Поле " + crit.Field + " не является индексируемым")
                     End If
@@ -512,6 +474,70 @@ Public Class PgStorage
         Else
             Return New SqlHelper(" WHERE " + where, parameters)
         End If
+    End Function
+
+    Private Shared Function GetOrString(ByRef i As Integer, ByRef parameters As List(Of NpgsqlParameter), condition As FindCondition, indexTableName As String, jsonValues As String) As String
+        Dim res = ""
+        Dim valuesFromArrayOfStrings = CfJsonConverter.Deserialize(Of String())(jsonValues)
+        Dim valuesToAggregate = New List(Of String)
+        Dim multipleValueAggregator = If(condition = FindCondition.multipleEqual, " OR ", " AND ")
+        For Each value As String In valuesFromArrayOfStrings
+            Dim pName = "@p" + i.ToString
+            Dim param = GetRightParam(pName, value.ToString())
+            Select Case condition
+                Case FindCondition.multipleEqual
+                    valuesToAggregate.Add(String.Format(" ({0} = {1}) ", indexTableName, pName))
+                Case FindCondition.multipleNotEqual
+                    valuesToAggregate.Add(String.Format(" ({0} <> {1}) ", indexTableName, pName))
+            End Select
+            parameters.Add(param)
+            i += 1
+        Next
+        res = String.Format("({0})", valuesToAggregate.Aggregate(Function(f, t) f + multipleValueAggregator + t))
+        Return res
+    End Function
+
+    Private Shared Function GetRightParam(pName As String, value As Object) As NpgsqlParameter
+
+        ' Костыль для поиска в БД данных по соответствующему типу
+        Dim param As NpgsqlParameter
+        If (TypeOf value Is Date) Then value = CType(value, Date).Ticks
+        Dim valueAsString = value.ToString()
+        Dim dateValue As Date
+        If (Date.TryParse(valueAsString, dateValue)) Then
+            valueAsString = dateValue.Ticks.ToString()
+        End If
+        Dim intValue As Integer
+        Dim longValue As Long
+        Dim boolValue As Boolean
+
+        Dim valueType = NpgsqlDbType.Text
+        If valueType = NpgsqlDbType.Text AndAlso Integer.TryParse(valueAsString, intValue) Then valueType = NpgsqlDbType.Integer
+        If valueType = NpgsqlDbType.Text AndAlso Long.TryParse(valueAsString, longValue) Then valueType = NpgsqlDbType.Bigint
+        If valueType = NpgsqlDbType.Text AndAlso Boolean.TryParse(valueAsString, boolValue) Then valueType = NpgsqlDbType.Boolean
+
+
+        Select Case valueType
+            Case NpgsqlDbType.Integer
+                param = New NpgsqlParameter(pName, valueType) With {
+                    .Value = intValue
+                    }
+            Case NpgsqlDbType.Bigint
+                param = New NpgsqlParameter(pName, valueType) With {
+                    .Value = longValue
+                    }
+
+            Case NpgsqlDbType.Boolean
+                param = New NpgsqlParameter(pName, valueType) With {
+                    .Value = boolValue
+                    }
+            Case Else
+                param = New NpgsqlParameter(pName, valueType) With {
+                    .Value = valueAsString
+                    }
+        End Select
+
+        Return param
     End Function
 
     Private Sub Save(connStr As String, id As String, json As String, type As Type)

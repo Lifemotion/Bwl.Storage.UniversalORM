@@ -415,6 +415,7 @@ Public Class SqliteStorage
         Dim where = String.Empty
         Dim parameters As New List(Of SQLiteParameter)()
         Dim i = 0
+        Const QUOTE As String = """"
 
         If criterias IsNot Nothing Then
             For Each crit In criterias
@@ -433,26 +434,36 @@ Public Class SqliteStorage
                     If (ind IsNot Nothing) Then
                         Dim indexName = GetIndexName(ind)
                         Dim str = String.Empty
-                        Dim pName = "@p" + i.ToString
-                        Const QUOTE As String = """"
-                        Select Case crit.Condition
-                            Case FindCondition.equal
-                                str = String.Format(" ({0} = {1}) ", QUOTE + indexName + QUOTE, pName)
-                            Case FindCondition.greater
-                                str = String.Format(" ({0} > {1}) ", QUOTE + indexName + QUOTE, pName)
-                            Case FindCondition.less
-                                str = String.Format(" ({0} < {1}) ", QUOTE + indexName + QUOTE, pName)
-                            Case FindCondition.notEqual
-                                str = String.Format(" ({0} <> {1}) ", QUOTE + indexName + QUOTE, pName)
-                            Case FindCondition.likeEqual
-                                str = String.Format(" ({0} LIKE {1}) ", QUOTE + indexName + QUOTE, pName)
-                            Case FindCondition.notLikeEqual
-                                str = String.Format(" ({0} NOT LIKE {1}) ", QUOTE + indexName + QUOTE, pName)
-                            Case FindCondition.greaterOrEqual
-                                str = String.Format(" ({0} >= {1}) ", QUOTE + indexName + QUOTE, pName)
-                            Case FindCondition.lessOrEqual
-                                str = String.Format(" ({0} <= {1}) ", QUOTE + indexName + QUOTE, pName)
-                        End Select
+                        If crit.Condition = FindCondition.multipleEqual OrElse crit.Condition = FindCondition.multipleNotEqual Then
+                            str = GetOrString(i, parameters, crit.Condition, QUOTE + indexName + QUOTE, value)
+                        Else
+
+                            Dim pName = "@p" + i.ToString
+
+                            Dim param = GetRightParam(pName, value)
+
+                            Select Case crit.Condition
+                                Case FindCondition.equal
+                                    str = String.Format(" ({0} = {1}) ", QUOTE + indexName + QUOTE, pName)
+                                Case FindCondition.greater
+                                    str = String.Format(" ({0} > {1}) ", QUOTE + indexName + QUOTE, pName)
+                                Case FindCondition.less
+                                    str = String.Format(" ({0} < {1}) ", QUOTE + indexName + QUOTE, pName)
+                                Case FindCondition.notEqual
+                                    str = String.Format(" ({0} <> {1}) ", QUOTE + indexName + QUOTE, pName)
+                                Case FindCondition.likeEqual
+                                    str = String.Format(" ({0} LIKE {1}) ", QUOTE + indexName + QUOTE, pName)
+                                Case FindCondition.notLikeEqual
+                                    str = String.Format(" ({0} NOT LIKE {1}) ", QUOTE + indexName + QUOTE, pName)
+                                Case FindCondition.greaterOrEqual
+                                    str = String.Format(" ({0} >= {1}) ", QUOTE + indexName + QUOTE, pName)
+                                Case FindCondition.lessOrEqual
+                                    str = String.Format(" ({0} <= {1}) ", QUOTE + indexName + QUOTE, pName)
+                            End Select
+
+                            parameters.Add(param)
+                            i += 1
+                        End If
 
                         If (String.IsNullOrEmpty(where)) Then
                             where += str
@@ -460,35 +471,6 @@ Public Class SqliteStorage
                             where += " AND " + str
                         End If
 
-                        If (TypeOf (value) Is DateTime) Then
-                            value = CType(value, DateTime).Ticks
-                        End If
-
-                        Dim param As SQLiteParameter
-
-                        Try
-                            Dim intValue = Integer.Parse(value)
-                            param = New SQLiteParameter(pName, DbType.Int16)
-                            param.Value = intValue
-                        Catch ex As Exception
-                            Try
-                                Dim longValue = Long.Parse(value)
-                                param = New SQLiteParameter(pName, DbType.Int64)
-                                param.Value = longValue
-                            Catch ex2 As Exception
-                                Try
-                                    Dim boolValue = Boolean.Parse(value)
-                                    param = New SQLiteParameter(pName, DbType.Boolean)
-                                    param.Value = boolValue
-                                Catch ex3 As Exception
-                                    param = New SQLiteParameter(pName, DbType.String)
-                                    param.Value = value
-                                End Try
-                            End Try
-                        End Try
-
-                        parameters.Add(param)
-                        i += 1
                     Else
                         Throw New Exception("Поле " + crit.Field + " не является индексируемым")
                     End If
@@ -501,6 +483,73 @@ Public Class SqliteStorage
         Else
             Return New SqlHelper(" WHERE " + where, parameters)
         End If
+    End Function
+
+    Private Shared Function GetOrString(ByRef i As Integer, ByRef parameters As List(Of SQLiteParameter), condition As FindCondition, indexTableName As String, jsonValues As String) As String
+        Dim res = ""
+        Dim valuesFromArrayOfStrings = CfJsonConverter.Deserialize(Of String())(jsonValues)
+        Dim valuesToAggregate = New List(Of String)
+        Dim multipleValueAggregator = If(condition = FindCondition.multipleEqual, " OR ", " AND ")
+        For Each value As String In valuesFromArrayOfStrings
+            Dim pName = "@p" + i.ToString
+            Select Case condition
+                Case FindCondition.multipleEqual
+                    valuesToAggregate.Add(String.Format("({0} = {1})", indexTableName, pName))
+                Case FindCondition.multipleNotEqual
+                    valuesToAggregate.Add(String.Format("({0} <> {1})", indexTableName, pName))
+            End Select
+            Dim dateResult As Date
+            If (Date.TryParse(value, dateResult)) Then
+                value = dateResult.Ticks.ToString()
+            End If
+            parameters.Add(New SQLiteParameter(pName, value))
+            i += 1
+        Next
+        res = String.Format(" ({0}) ", valuesToAggregate.Aggregate(Function(f, t) f + multipleValueAggregator + t))
+        Return res
+    End Function
+
+    Private Shared Function GetRightParam(pName As String, value As Object) As SQLiteParameter
+
+        ' Костыль для поиска в БД данных по соответствующему типу
+        Dim param As SQLiteParameter
+        If (TypeOf value Is Date) Then value = CType(value, Date).Ticks
+        Dim valueAsString = value.ToString()
+        Dim dateValue As Date
+        If (Date.TryParse(valueAsString, dateValue)) Then
+            valueAsString = dateValue.Ticks.ToString()
+        End If
+        Dim intValue As Integer
+        Dim longValue As Long
+        Dim boolValue As Boolean
+
+        Dim valueType = DbType.String
+        If valueType = DbType.String AndAlso Integer.TryParse(valueAsString, intValue) Then valueType = DbType.Int32
+        If valueType = DbType.String AndAlso Long.TryParse(valueAsString, longValue) Then valueType = DbType.Int64
+        If valueType = DbType.String AndAlso Boolean.TryParse(valueAsString, boolValue) Then valueType = DbType.Boolean
+
+
+        Select Case valueType
+            Case DbType.Int32
+                param = New SQLiteParameter(pName, valueType) With {
+                    .Value = intValue
+                    }
+            Case DbType.Int64
+                param = New SQLiteParameter(pName, valueType) With {
+                    .Value = longValue
+                    }
+
+            Case DbType.Boolean
+                param = New SQLiteParameter(pName, valueType) With {
+                    .Value = boolValue
+                    }
+            Case Else
+                param = New SQLiteParameter(pName, valueType) With {
+                    .Value = valueAsString
+                    }
+        End Select
+
+        Return param
     End Function
 
     Private Sub Save(connStr As String, id As String, json As String, type As Type)

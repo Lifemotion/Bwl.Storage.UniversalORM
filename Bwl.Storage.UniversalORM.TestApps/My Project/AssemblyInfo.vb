@@ -9,7 +9,7 @@ Imports System.Runtime.InteropServices
 ' Проверьте значения атрибутов сборки
 
 <Assembly: AssemblyTitle("Bwl.Storage.UniversalORM.TestApps")> 
-<Assembly: AssemblyDescription("18fb781 Убрана очистка пулов")>
+<Assembly: AssemblyDescription("")>
 <Assembly: AssemblyCompany("")> 
 <Assembly: AssemblyProduct("Bwl.Storage.UniversalORM.TestApps")> 
 <Assembly: AssemblyCopyright("Copyright ©  2015")> 
@@ -31,5 +31,6 @@ Imports System.Runtime.InteropServices
 ' используя "*", как показано ниже:
 ' <Assembly: AssemblyVersion("1.0.*")> 
 
-<Assembly: AssemblyVersion("1.2018.0625.1647")>
-<Assembly: AssemblyFileVersion("1.2018.0625.1647")>
+<Assembly: AssemblyVersion("1.0.0.0")>
+<Assembly: AssemblyFileVersion("1.0.0.0")>
+<Assembly: AssemblyInformationalVersion("{c:ymd.} {c:hms:} {chash:6}")>

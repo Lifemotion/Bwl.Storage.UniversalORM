@@ -9,7 +9,7 @@ Imports System.Runtime.InteropServices
 ' Review the values of the assembly attributes
 
 <Assembly: AssemblyTitle("Bwl.Storage.UniversalORM.Sqlite")>
-<Assembly: AssemblyDescription("b2d2551 Поддержка PostgreSQL, проходит все тесты. Требуется установка PostgreSQL 10 в системе.")>
+<Assembly: AssemblyDescription("")>
 <Assembly: AssemblyCompany("")>
 <Assembly: AssemblyProduct("Bwl.Storage.UniversalORM.Sqlite")>
 <Assembly: AssemblyCopyright("Copyright ©  2019")>
@@ -31,5 +31,6 @@ Imports System.Runtime.InteropServices
 ' by using the '*' as shown below:
 ' <Assembly: AssemblyVersion("1.0.*")>
 
-<Assembly: AssemblyVersion("1.2019.0709.1654")>
-<Assembly: AssemblyFileVersion("1.2019.0709.1654")>
+<Assembly: AssemblyVersion("1.0.0.0")>
+<Assembly: AssemblyFileVersion("1.0.0.0")>
+<Assembly: AssemblyInformationalVersion("{c:ymd.} {c:hms:} {chash:6}")>

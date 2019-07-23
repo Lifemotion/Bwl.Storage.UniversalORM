@@ -9,7 +9,7 @@ Imports System.Runtime.InteropServices
 ' Проверьте значения атрибутов сборки
 
 <Assembly: AssemblyTitle("Bwl.Storage.UniversalORM")> 
-<Assembly: AssemblyDescription("18fb781 Убрана очистка пулов")>
+<Assembly: AssemblyDescription("")>
 <Assembly: AssemblyCompany("")> 
 <Assembly: AssemblyProduct("Bwl.Storage.UniversalORM")> 
 <Assembly: AssemblyCopyright("Copyright ©  2015")> 

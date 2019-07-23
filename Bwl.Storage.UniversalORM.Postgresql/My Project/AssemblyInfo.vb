@@ -9,7 +9,7 @@ Imports System.Runtime.InteropServices
 ' Review the values of the assembly attributes
 
 <Assembly: AssemblyTitle("Bwl.Storage.UniversalORM.Postgresql")>
-<Assembly: AssemblyDescription("5b2020d Маркировка версии.")>
+<Assembly: AssemblyDescription("")>
 <Assembly: AssemblyCompany("")>
 <Assembly: AssemblyProduct("Bwl.Storage.UniversalORM.Postgresql")>
 <Assembly: AssemblyCopyright("Copyright ©  2019")>
@@ -31,5 +31,6 @@ Imports System.Runtime.InteropServices
 ' by using the '*' as shown below:
 ' <Assembly: AssemblyVersion("1.0.*")>
 
-<Assembly: AssemblyVersion("1.2019.0702.1604")>
-<Assembly: AssemblyFileVersion("1.2019.0702.1604")>
+<Assembly: AssemblyVersion("1.0.0.0")>
+<Assembly: AssemblyFileVersion("1.0.0.0")>
+<Assembly: AssemblyInformationalVersion("{c:ymd.} {c:hms:} {chash:6}")>

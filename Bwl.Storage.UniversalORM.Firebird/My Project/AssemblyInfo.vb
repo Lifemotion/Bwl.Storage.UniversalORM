@@ -9,7 +9,7 @@ Imports System.Runtime.InteropServices
 ' Проверьте значения атрибутов сборки
 
 <Assembly: AssemblyTitle("Bwl.Storage.UniversalORM.Firebird")> 
-<Assembly: AssemblyDescription("18fb781 Убрана очистка пулов")>
+<Assembly: AssemblyDescription("")>
 <Assembly: AssemblyCompany("Microsoft")> 
 <Assembly: AssemblyProduct("Bwl.Storage.UniversalORM.Firebird")> 
 <Assembly: AssemblyCopyright("Copyright © Microsoft 2014")> 

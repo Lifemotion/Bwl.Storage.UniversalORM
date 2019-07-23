@@ -5,7 +5,15 @@ Public Enum FindCondition
     notEqual
     notLikeEqual
     greater
-	less
-	greaterOrEqual
-	lessOrEqual
+    less
+    greaterOrEqual
+    lessOrEqual
+    multipleEqual
+    multipleLikeEqual
+    multipleNotEqual
+    multipleNotLikeEqual
+    multipleGreater
+    multipleLess
+    multipleGreaterOrEqual
+    multipleLessOrEqual
 End Enum

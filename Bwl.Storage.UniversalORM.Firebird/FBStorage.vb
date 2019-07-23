@@ -409,7 +409,15 @@ Public Class FBStorage
         Dim where = String.Empty
         Dim parameters As New List(Of FbParameter)()
         Dim i = 0
-
+        Const quote As String = """"
+        Dim multipleConditions = New FindCondition() {FindCondition.multipleEqual,
+                                                      FindCondition.multipleLikeEqual,
+                                                      FindCondition.multipleNotEqual,
+                                                      FindCondition.multipleNotLikeEqual,
+                                                      FindCondition.multipleGreater,
+                                                      FindCondition.multipleLess,
+                                                      FindCondition.multipleGreaterOrEqual,
+                                                      FindCondition.multipleLessOrEqual}
         If criterias IsNot Nothing Then
             For Each crit In criterias
                 Dim value = crit.Value
@@ -427,38 +435,42 @@ Public Class FBStorage
                     If (ind IsNot Nothing) Then
                         Dim indexName = GetIndexName(ind)
                         Dim str = String.Empty
-                        Dim pName = "@p" + i.ToString
-                        Const quote As String = """"
-                        Select Case crit.Condition
-                            Case FindCondition.equal
-                                str = String.Format(" ({0} = {1}) ", quote + indexName + quote, pName)
-                            Case FindCondition.greater
-                                str = String.Format(" ({0} > {1}) ", quote + indexName + quote, pName)
-                            Case FindCondition.less
-                                str = String.Format(" ({0} < {1}) ", quote + indexName + quote, pName)
-                            Case FindCondition.notEqual
-                                str = String.Format(" ({0} <> {1}) ", quote + indexName + quote, pName)
-                            Case FindCondition.likeEqual
-                                str = String.Format(" ({0} LIKE {1}) ", quote + indexName + quote, pName)
-                            Case FindCondition.notLikeEqual
-                                str = String.Format(" ({0} NOT LIKE {1}) ", quote + indexName + quote, pName)
-                            Case FindCondition.greaterOrEqual
-                                str = String.Format(" ({0} >= {1}) ", quote + indexName + quote, pName)
-                            Case FindCondition.lessOrEqual
-                                str = String.Format(" ({0} <= {1}) ", quote + indexName + quote, pName)
-                        End Select
+                        If multipleConditions.Any(Function(f) f = crit.Condition) Then
+                            str = GetMultipleConditionString(i, parameters, crit.Condition, quote + indexName + quote, value)
+                        Else
+
+                            Dim pName = "@p" + i.ToString
+                            Select Case crit.Condition
+                                Case FindCondition.equal
+                                    str = String.Format(" ({0} = {1}) ", quote + indexName + quote, pName)
+                                Case FindCondition.greater
+                                    str = String.Format(" ({0} > {1}) ", quote + indexName + quote, pName)
+                                Case FindCondition.less
+                                    str = String.Format(" ({0} < {1}) ", quote + indexName + quote, pName)
+                                Case FindCondition.notEqual
+                                    str = String.Format(" ({0} <> {1}) ", quote + indexName + quote, pName)
+                                Case FindCondition.likeEqual
+                                    str = String.Format(" ({0} LIKE {1}) ", quote + indexName + quote, pName)
+                                Case FindCondition.notLikeEqual
+                                    str = String.Format(" ({0} NOT LIKE {1}) ", quote + indexName + quote, pName)
+                                Case FindCondition.greaterOrEqual
+                                    str = String.Format(" ({0} >= {1}) ", quote + indexName + quote, pName)
+                                Case FindCondition.lessOrEqual
+                                    str = String.Format(" ({0} <= {1}) ", quote + indexName + quote, pName)
+                            End Select
+
+                            If (TypeOf (value) Is DateTime) Then
+                                value = CType(value, DateTime).Ticks
+                            End If
+                            parameters.Add(New FbParameter(pName, value))
+                            i += 1
+                        End If
 
                         If (String.IsNullOrEmpty(where)) Then
                             where += str
                         Else
                             where += " AND " + str
                         End If
-
-                        If (TypeOf (value) Is DateTime) Then
-                            value = CType(value, DateTime).Ticks
-                        End If
-                        parameters.Add(New FbParameter(pName, value))
-                        i += 1
                     Else
                         Throw New Exception("Поле " + crit.Field + " не является индексируемым")
                     End If
@@ -471,6 +483,44 @@ Public Class FBStorage
         Else
             Return New SqlHelper(" WHERE " + where, parameters)
         End If
+    End Function
+
+    Private Shared Function GetMultipleConditionString(ByRef i As Integer, ByRef parameters As List(Of FbParameter), condition As FindCondition, indexTableName As String, jsonValues As String) As String
+        Dim res = ""
+        Dim valuesFromArrayOfStrings = CfJsonConverter.Deserialize(Of String())(jsonValues)
+        Dim valuesToAggregate = New List(Of String)
+        Dim multipleNegativeConditions = New FindCondition() {FindCondition.multipleNotEqual,
+                                                              FindCondition.multipleNotLikeEqual}
+        Dim multipleValueAggregator = If(multipleNegativeConditions.Any(Function(f) f = condition), " AND ", " OR ")
+        For Each value As String In valuesFromArrayOfStrings
+            Dim pName = "@p" + i.ToString
+            Select Case condition
+                Case FindCondition.multipleequal
+                    valuesToAggregate.Add(String.Format(" ({0} = {1}) ", indexTableName, pName))
+                Case FindCondition.multiplegreater
+                    valuesToAggregate.Add(String.Format(" ({0} > {1}) ", indexTableName, pName))
+                Case FindCondition.multipleless
+                    valuesToAggregate.Add(String.Format(" ({0} < {1}) ", indexTableName, pName))
+                Case FindCondition.multiplenotEqual
+                    valuesToAggregate.Add(String.Format(" ({0} <> {1}) ", indexTableName, pName))
+                Case FindCondition.multiplelikeEqual
+                    valuesToAggregate.Add(String.Format(" ({0} LIKE {1}) ", indexTableName, pName))
+                Case FindCondition.multiplenotLikeEqual
+                    valuesToAggregate.Add(String.Format(" ({0} NOT LIKE {1}) ", indexTableName, pName))
+                Case FindCondition.multiplegreaterOrEqual
+                    valuesToAggregate.Add(String.Format(" ({0} >= {1}) ", indexTableName, pName))
+                Case FindCondition.multiplelessOrEqual
+                    valuesToAggregate.Add(String.Format(" ({0} <= {1}) ", indexTableName, pName))
+            End Select
+            Dim dateResult As Date
+            If (Date.TryParse(value, dateResult)) Then
+                value = dateResult.Ticks.ToString()
+            End If
+            parameters.Add(New FbParameter(pName, value))
+            i += 1
+        Next
+        res = String.Format("({0})", valuesToAggregate.Aggregate(Function(f, t) f + multipleValueAggregator + t))
+        Return res
     End Function
 
     Private Sub Save(connStr As String, id As String, json As String, type As Type)

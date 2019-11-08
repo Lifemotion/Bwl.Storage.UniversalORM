@@ -450,11 +450,11 @@ Public Class PgStorage
                                     str = String.Format(" ({0} <> {1}) ", QUOTE + indexName + QUOTE, pName)
                                 Case FindCondition.likeEqual
                                     str = If(param.NpgsqlDbType = NpgsqlDbType.Text,
-                                            String.Format(" ({0} LIKE {1}) ", QUOTE + indexName + QUOTE, pName),
+                                            String.Format(" ({0} SIMILAR TO {1}) ", QUOTE + indexName + QUOTE, pName),
                                             String.Format(" ({0} = {1}) ", QUOTE + indexName + QUOTE, pName))
                                 Case FindCondition.notLikeEqual
                                     str = If(param.NpgsqlDbType = NpgsqlDbType.Text,
-                                             String.Format(" ({0} NOT LIKE {1}) ", QUOTE + indexName + QUOTE, pName),
+                                             String.Format(" ({0} NOT SIMILAR TO {1}) ", QUOTE + indexName + QUOTE, pName),
                                              String.Format(" ({0} <> {1}) ", QUOTE + indexName + QUOTE, pName))
                                 Case FindCondition.greaterOrEqual
                                     str = String.Format(" ({0} >= {1}) ", QUOTE + indexName + QUOTE, pName)
@@ -509,11 +509,11 @@ Public Class PgStorage
                     valuesToAggregate.Add(String.Format(" ({0} <> {1}) ", indexTableName, pName))
                 Case FindCondition.multipleLikeEqual
                     valuesToAggregate.Add(If(param.NpgsqlDbType = NpgsqlDbType.Text,
-                             String.Format(" ({0} LIKE {1}) ", indexTableName, pName),
+                             String.Format(" ({0} SIMILAR TO {1}) ", indexTableName, pName),
                              String.Format(" ({0} = {1}) ", indexTableName, pName)))
                 Case FindCondition.multipleNotLikeEqual
                     valuesToAggregate.Add(If(param.NpgsqlDbType = NpgsqlDbType.Text,
-                             String.Format(" ({0} NOT LIKE {1}) ", indexTableName, pName),
+                             String.Format(" ({0} NOT SIMILAR TO {1}) ", indexTableName, pName),
                              String.Format(" ({0} <> {1}) ", indexTableName, pName)))
                 Case FindCondition.multipleGreaterOrEqual
                     valuesToAggregate.Add(String.Format(" ({0} >= {1}) ", indexTableName, pName))

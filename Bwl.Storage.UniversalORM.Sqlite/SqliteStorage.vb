@@ -458,15 +458,19 @@ Public Class SqliteStorage
                                 Case FindCondition.notEqual
                                     str = String.Format(" ({0} <> {1}) ", QUOTE + indexName + QUOTE, pName)
                                 Case FindCondition.likeEqual
-                                    str = String.Format(" ({0} GLOB {1}) ", QUOTE + indexName + QUOTE, pName.Replace("%", "*")) ' Вместо % используется *, 
+                                    str = String.Format(" ({0} GLOB {1}) ", QUOTE + indexName + QUOTE, pName)
                                 Case FindCondition.notLikeEqual
-                                    str = String.Format(" ({0} NOT GLOB {1}) ", QUOTE + indexName + QUOTE, pName.Replace("%", "*"))' как в регулярных выражениях UNIX
+                                    str = String.Format(" ({0} NOT GLOB {1}) ", QUOTE + indexName + QUOTE, pName)
                                 Case FindCondition.greaterOrEqual
                                     str = String.Format(" ({0} >= {1}) ", QUOTE + indexName + QUOTE, pName)
                                 Case FindCondition.lessOrEqual
                                     str = String.Format(" ({0} <= {1}) ", QUOTE + indexName + QUOTE, pName)
                             End Select
 
+                            ' Вместо % используется *, как в регулярных выражениях UNIX
+                            If TypeOf (param.Value) Is String AndAlso param.Value.ToString.Contains("%") Then
+                                param.Value = value.ToString.Replace("%", "*")
+                            End If
                             parameters.Add(param)
                             i += 1
                         End If
@@ -521,6 +525,9 @@ Public Class SqliteStorage
             Dim dateResult As Date
             If (Date.TryParse(value, dateResult)) Then
                 value = dateResult.Ticks.ToString()
+            End If
+            If TypeOf (value) Is String AndAlso value.ToString.Contains("%") Then
+                value = value.ToString.Replace("%", "*")
             End If
             parameters.Add(New SQLiteParameter(pName, value))
             i += 1

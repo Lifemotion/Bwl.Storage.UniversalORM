@@ -353,6 +353,24 @@ Public MustInherit Class LocalStorageBaseTest
     End Sub
 
     <TestMethod()>
+    Public Sub FindObj_LikeCriteria()
+        _localStorage.RemoveAllObj(GetType(TestData))
+        _localStorage.AddObj(_data1)
+        _localStorage.AddObj(_data2)
+        _localStorage.AddObj(_data3)
+        _localStorage.AddObj(_data4)
+        _localStorage.AddObj(_data5)
+        _localStorage.AddObj(_data6)
+
+        Dim sp = New SearchParams({New FindCriteria("Cat", FindCondition.likeEqual, "%happy%")})
+        Dim p1 = _localStorage.FindObj(Of TestData)(sp)
+        Assert.AreEqual(p1.Count, 3)
+        sp = New SearchParams({New FindCriteria("Cat", FindCondition.likeEqual, "%%")})
+        Dim p2 = _localStorage.FindObj(Of TestData)(sp)
+        Assert.AreEqual(p2.Count, 6)
+    End Sub
+
+    <TestMethod()>
     Public Sub FindObj_MultipleCriteria()
         _localStorage.RemoveAllObj(GetType(TestData))
         _localStorage.AddObj(_data1)

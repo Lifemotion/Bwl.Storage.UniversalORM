@@ -450,9 +450,9 @@ Public Class FBStorage
                                 Case FindCondition.notEqual
                                     str = String.Format(" ({0} <> {1}) ", quote + indexName + quote, pName)
                                 Case FindCondition.likeEqual
-                                    str = String.Format(" ({0} LIKE {1}) ", quote + indexName + quote, pName)
+                                    str = String.Format(" ({0} SIMILAR TO {1}) ", quote + indexName + quote, pName)
                                 Case FindCondition.notLikeEqual
-                                    str = String.Format(" ({0} NOT LIKE {1}) ", quote + indexName + quote, pName)
+                                    str = String.Format(" ({0} NOT SIMILAR TO {1}) ", quote + indexName + quote, pName)
                                 Case FindCondition.greaterOrEqual
                                     str = String.Format(" ({0} >= {1}) ", quote + indexName + quote, pName)
                                 Case FindCondition.lessOrEqual
@@ -495,21 +495,21 @@ Public Class FBStorage
         For Each value As String In valuesFromArrayOfStrings
             Dim pName = "@p" + i.ToString
             Select Case condition
-                Case FindCondition.multipleequal
+                Case FindCondition.multipleEqual
                     valuesToAggregate.Add(String.Format(" ({0} = {1}) ", indexTableName, pName))
-                Case FindCondition.multiplegreater
+                Case FindCondition.multipleGreater
                     valuesToAggregate.Add(String.Format(" ({0} > {1}) ", indexTableName, pName))
-                Case FindCondition.multipleless
+                Case FindCondition.multipleLess
                     valuesToAggregate.Add(String.Format(" ({0} < {1}) ", indexTableName, pName))
-                Case FindCondition.multiplenotEqual
+                Case FindCondition.multipleNotEqual
                     valuesToAggregate.Add(String.Format(" ({0} <> {1}) ", indexTableName, pName))
-                Case FindCondition.multiplelikeEqual
-                    valuesToAggregate.Add(String.Format(" ({0} LIKE {1}) ", indexTableName, pName))
-                Case FindCondition.multiplenotLikeEqual
-                    valuesToAggregate.Add(String.Format(" ({0} NOT LIKE {1}) ", indexTableName, pName))
-                Case FindCondition.multiplegreaterOrEqual
+                Case FindCondition.multipleLikeEqual
+                    valuesToAggregate.Add(String.Format(" ({0} SIMILAR TO {1}) ", indexTableName, pName))
+                Case FindCondition.multipleNotLikeEqual
+                    valuesToAggregate.Add(String.Format(" ({0} NOT SIMILAR TO {1}) ", indexTableName, pName))
+                Case FindCondition.multipleGreaterOrEqual
                     valuesToAggregate.Add(String.Format(" ({0} >= {1}) ", indexTableName, pName))
-                Case FindCondition.multiplelessOrEqual
+                Case FindCondition.multipleLessOrEqual
                     valuesToAggregate.Add(String.Format(" ({0} <= {1}) ", indexTableName, pName))
             End Select
             Dim dateResult As Date

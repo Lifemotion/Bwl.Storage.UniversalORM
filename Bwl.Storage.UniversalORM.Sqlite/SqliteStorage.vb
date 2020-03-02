@@ -6,7 +6,7 @@ Public Class SqliteStorage
     Private ReadOnly _name As String
     Private ReadOnly _dbPath As String
 
-    Private _syncObj As New Object
+    Private ReadOnly _syncObj As New Object
 
     Public Property ConnectionStringBld As SQLiteConnectionStringBuilder
 
@@ -100,7 +100,7 @@ Public Class SqliteStorage
             '		sortField = "value"
             '		sortColName = GetIndexName(indexInfo)
             '	Else
-            '		Throw New Exception("FBStorage.FindObj _ BadSortParam _ index " + searchParams.SortParam.Field + " not found.")
+            '		Throw New Exception("SqliteStorage.FindObj _ BadSortParam _ index " + searchParams.SortParam.Field + " not found.")
             '	End If
             'End If
 
@@ -138,7 +138,6 @@ Public Class SqliteStorage
         SyncLock _syncObj
             CheckDb()
 
-            ' TODO: надо сделать проверку типа данных, т.к. postgresql сильно к ним привязывается и ничего не исправляет сам
             '''' TOP
             Dim topSql = String.Empty
             If (searchParams IsNot Nothing) AndAlso (searchParams.SelectOptions IsNot Nothing) AndAlso (searchParams.SelectOptions.SelectMode = SelectMode.Top) Then
@@ -160,7 +159,7 @@ Public Class SqliteStorage
                 If (indexInfo IsNot Nothing) Then
                     sortField = GetIndexName(indexInfo)
                 Else
-                    Throw New Exception("FBStorage.FindObj _ BadSortParam _ index " + indexInfo.Name + " not found.")
+                    Throw New Exception("SqliteStorage.FindObj _ BadSortParam _ index " + indexInfo.Name + " not found.")
                 End If
             End If
 
@@ -293,7 +292,7 @@ Public Class SqliteStorage
                 If (indexInfo IsNot Nothing) Then
                     sortField = GetIndexName(indexInfo)
                 Else
-                    Throw New Exception("FBtorage.GetObjects _ BadSortParam _ index " + indexInfo.Name + " not found.")
+                    Throw New Exception("SqliteStorage.GetObjects _ BadSortParam _ index " + indexInfo.Name + " not found.")
                 End If
             End If
 
@@ -459,9 +458,9 @@ Public Class SqliteStorage
                                 Case FindCondition.notEqual
                                     str = String.Format(" ({0} <> {1}) ", QUOTE + indexName + QUOTE, pName)
                                 Case FindCondition.likeEqual
-                                    str = String.Format(" ({0} LIKE {1}) ", QUOTE + indexName + QUOTE, pName)
+                                    str = String.Format(" ({0} GLOB {1}) ", QUOTE + indexName + QUOTE, pName.Replace("%", "*")) ' Вместо % используется *, 
                                 Case FindCondition.notLikeEqual
-                                    str = String.Format(" ({0} NOT LIKE {1}) ", QUOTE + indexName + QUOTE, pName)
+                                    str = String.Format(" ({0} NOT GLOB {1}) ", QUOTE + indexName + QUOTE, pName.Replace("%", "*"))' как в регулярных выражениях UNIX
                                 Case FindCondition.greaterOrEqual
                                     str = String.Format(" ({0} >= {1}) ", QUOTE + indexName + QUOTE, pName)
                                 Case FindCondition.lessOrEqual
@@ -511,9 +510,9 @@ Public Class SqliteStorage
                 Case FindCondition.multipleNotEqual
                     valuesToAggregate.Add(String.Format(" ({0} <> {1}) ", indexTableName, pName))
                 Case FindCondition.multipleLikeEqual
-                    valuesToAggregate.Add(String.Format(" ({0} LIKE {1}) ", indexTableName, pName))
+                    valuesToAggregate.Add(String.Format(" ({0} GLOB {1}) ", indexTableName, pName))
                 Case FindCondition.multipleNotLikeEqual
-                    valuesToAggregate.Add(String.Format(" ({0} NOT LIKE {1}) ", indexTableName, pName))
+                    valuesToAggregate.Add(String.Format(" ({0} NOT GLOB {1}) ", indexTableName, pName))
                 Case FindCondition.multipleGreaterOrEqual
                     valuesToAggregate.Add(String.Format(" ({0} >= {1}) ", indexTableName, pName))
                 Case FindCondition.multipleLessOrEqual

@@ -93,7 +93,7 @@ Public Class PgStorage
         '		sortField = "value"
         '		sortColName = GetIndexName(indexInfo)
         '	Else
-        '		Throw New Exception("FBStorage.FindObj _ BadSortParam _ index " + searchParams.SortParam.Field + " not found.")
+        '		Throw New Exception("PgStorage.FindObj _ BadSortParam _ index " + searchParams.SortParam.Field + " not found.")
         '	End If
         'End If
 
@@ -150,7 +150,7 @@ Public Class PgStorage
             If (indexInfo IsNot Nothing) Then
                 sortField = GetIndexName(indexInfo)
             Else
-                Throw New Exception("FBStorage.FindObj _ BadSortParam _ index " + indexInfo.Name + " not found.")
+                Throw New Exception("PgStorage.FindObj _ BadSortParam _ index " + indexInfo.Name + " not found.")
             End If
         End If
 
@@ -278,7 +278,7 @@ Public Class PgStorage
             If (indexInfo IsNot Nothing) Then
                 sortField = GetIndexName(indexInfo)
             Else
-                Throw New Exception("FBtorage.GetObjects _ BadSortParam _ index " + indexInfo.Name + " not found.")
+                Throw New Exception("PgStorage.GetObjects _ BadSortParam _ index " + indexInfo.Name + " not found.")
             End If
         End If
 

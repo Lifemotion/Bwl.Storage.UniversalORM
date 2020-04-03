@@ -102,15 +102,26 @@ Public Class PgStorage
             crit = searchParams.FindCriterias
         End If
 
-        Dim sort As SortParam = Nothing
-        If (searchParams IsNot Nothing) Then
-            sort = searchParams.SortParam
+        Dim sortField = "guid"
+        'Dim sortTableName = Name
+        If (searchParams IsNot Nothing) AndAlso (searchParams.SortParam IsNot Nothing) Then
+            Dim indexInfo = _indexingMembers.FirstOrDefault(Function(indInf) indInf.Name = searchParams.SortParam.Field)
+            If (indexInfo IsNot Nothing) Then
+                sortField = GetIndexName(indexInfo)
+            Else
+                Throw New Exception("PgStorage.FindObj _ BadSortParam _ index " + indexInfo.Name + " not found.")
+            End If
         End If
+
+        'Dim sort As SortParam = Nothing
+        'If (searchParams IsNot Nothing) Then
+        '    sort = searchParams.SortParam
+        'End If
 
         '''' where
         Dim whereSql = String.Empty
         Dim parameters As NpgsqlParameter() = Nothing
-        Dim helper = GenerateWhereSql(crit, sort)
+        Dim helper = GenerateWhereSql(crit, sortField)
         If helper IsNot Nothing Then
             whereSql = helper.SQL
             parameters = helper.Parameters.ToArray
@@ -159,10 +170,10 @@ Public Class PgStorage
             crit = searchParams.FindCriterias
         End If
 
-        Dim sort As SortParam = Nothing
-        If (searchParams IsNot Nothing) Then
-            sort = searchParams.SortParam
-        End If
+        'Dim sort As SortParam = Nothing
+        'If (searchParams IsNot Nothing) Then
+        '    sort = searchParams.SortParam
+        'End If
 
         '''' from + where
         'Dim fromSql = GenerateFromSql(crit, sort)
@@ -170,7 +181,7 @@ Public Class PgStorage
         '''' where
         Dim whereSql = String.Empty
         Dim parameters As NpgsqlParameter() = Nothing
-        Dim helper = GenerateWhereSql(crit, sort)
+        Dim helper = GenerateWhereSql(crit, sortField)
         If helper IsNot Nothing Then
             whereSql = helper.SQL
             parameters = helper.Parameters.ToArray
@@ -399,7 +410,7 @@ Public Class PgStorage
         Return indexName
     End Function
 
-    Private Function GenerateWhereSql(criterias As IEnumerable(Of FindCriteria), sort As SortParam) As SqlHelper
+    Private Function GenerateWhereSql(criterias As IEnumerable(Of FindCriteria), sortField As String) As SqlHelper
         Dim where = String.Empty
         Dim parameters As New List(Of NpgsqlParameter)()
         Dim i = 0
@@ -427,6 +438,7 @@ Public Class PgStorage
                     End If
                     parameters.Add(New NpgsqlParameter(pName, value))
                 Else
+
                     Dim ind = _indexingMembers.FirstOrDefault(Function(f) f.Name = crit.Field)
                     If (ind IsNot Nothing) Then
                         Dim indexName = GetIndexName(ind)
@@ -475,6 +487,14 @@ Public Class PgStorage
                     End If
                 End If
             Next
+        End If
+
+        ' sorting field is not null
+        If Not sortField = "guid" Then
+            Dim indSort = _indexingMembers.FirstOrDefault(Function(f) f.Name = sortField)
+            If indSort Is Nothing Then Throw New Exception("Поле сортировки " + sortField + " не является индексируемым")
+            Dim strSort = String.Format(" ({0} IS NOT NULL) ", QUOTE + GetIndexName(indSort) + QUOTE)
+            where += If(String.IsNullOrEmpty(where), strSort, " AND " + strSort)
         End If
 
         If String.IsNullOrWhiteSpace(where) Then

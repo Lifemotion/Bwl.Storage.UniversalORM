@@ -16,8 +16,9 @@ Public Class PgStorageManager
 
         _connStringBld.Host = "localhost"
         _connStringBld.Database = databaseName
+        _connStringBld.Port = 5432
         _connStringBld.Username = "postgres"
-        _connStringBld.Password = "password"
+        _connStringBld.Password = "masterkey"
         _connStringBld.Timeout = 1
 
         _dbName = _connStringBld.Database

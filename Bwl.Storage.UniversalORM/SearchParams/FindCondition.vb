@@ -16,4 +16,6 @@ Public Enum FindCondition
     multipleLess
     multipleGreaterOrEqual
     multipleLessOrEqual
+    findCriteria
+    findCriteriaNegative
 End Enum

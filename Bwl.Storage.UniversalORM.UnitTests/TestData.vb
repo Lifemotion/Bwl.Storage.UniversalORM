@@ -3,40 +3,43 @@ Imports Bwl.Storage.UniversalORM
 Imports System.Drawing
 
 Public Class TestData
-	Implements ObjBase
+    Implements ObjBase
 
-	<Indexing>
-	Public Property Cat As String
+    <Indexing>
+    Public Property Cat As String
 
-	Public Property Dog As Integer
+    <Indexing>
+    Public Property Dog As String
 
-	<Indexing>
-	Public Property Timestamp As DateTime = DateTime.Now
+    Public Property Kitten As Integer
 
-	<Indexing> <BlobContainer>
-	Public Property Int As New TestDataInternal
+    <Indexing>
+    Public Property Timestamp As DateTime = DateTime.Now
 
-	Public Property BigData As Byte()
+    <Indexing> <BlobContainer>
+    Public Property Int As New TestDataInternal
 
-	Public Property ID As String Implements ObjBase.ID
+    Public Property BigData As Byte()
 
-	<Blob> <JsonIgnore>
-	Public Property Image As Bitmap
+    Public Property ID As String Implements ObjBase.ID
+
+    <Blob> <JsonIgnore>
+    Public Property Image As Bitmap
 End Class
 
 Public Class TestDataInternal
-	Implements ObjBase
+    Implements ObjBase
 
 
-	Public Property First As String
-	<Indexing> Public Property Second As Integer
+    Public Property First As String
+    <Indexing> Public Property Second As Integer
 
-	<JsonIgnore>
-	Public Property SomeData As String
+    <JsonIgnore>
+    Public Property SomeData As String
 
-	<JsonIgnore>
-	Public Property SomeBytes As Byte()
+    <JsonIgnore>
+    Public Property SomeBytes As Byte()
 
 
-	Public Property ID As String Implements ObjBase.ID
+    Public Property ID As String Implements ObjBase.ID
 End Class

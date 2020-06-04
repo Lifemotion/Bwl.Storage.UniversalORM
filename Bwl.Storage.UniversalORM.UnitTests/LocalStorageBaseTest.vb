@@ -30,6 +30,7 @@ Public MustInherit Class LocalStorageBaseTest
 
         _data1 = New TestData
         _data1.Cat = "happycat"
+        _data1.Dog = "happydog"
         _data1.ID = Guid.NewGuid.ToString("B")
         _data1.Image = New Bitmap(100, 100)
 
@@ -46,6 +47,7 @@ Public MustInherit Class LocalStorageBaseTest
 
         _data3 = New TestData
         _data3.Cat = "happycat"
+        _data3.Dog = "happydog"
         _data3.ID = Guid.NewGuid.ToString("B")
         _data3.Image = New Bitmap(67, 80)
 
@@ -402,6 +404,32 @@ Public MustInherit Class LocalStorageBaseTest
     End Sub
 
     <TestMethod()>
+    Public Sub FindObj_FindCriteriaCriteria()
+        _localStorage.RemoveAllObj(GetType(TestData))
+        _localStorage.AddObj(_data1)
+        _localStorage.AddObj(_data2)
+        _localStorage.AddObj(_data3)
+        _localStorage.AddObj(_data4)
+        _localStorage.AddObj(_data5)
+        _localStorage.AddObj(_data6)
+
+        ' Стандартное использование
+        Dim findCriteriaArray = New List(Of FindCriteria) From {New FindCriteria("Cat", FindCondition.equal, "happycat"),
+                                                           New FindCriteria("Dog", FindCondition.equal, "happydog")}.ToArray()
+        Dim serializedFindCriteria = CfJsonConverter.Serialize(findCriteriaArray)
+
+        Dim sp = New SearchParams({New FindCriteria("Cat", FindCondition.equal, "happycat"),
+                                   New FindCriteria("Cat", FindCondition.findCriteria, serializedFindCriteria)})
+        Dim p1 = _localStorage.FindObj(Of TestData)(sp)
+        Assert.AreEqual(p1.Count, 2)
+        ' То же, но negative
+        sp = New SearchParams({New FindCriteria("Cat", FindCondition.equal, "happycat"),
+                               New FindCriteria("Cat", FindCondition.findCriteriaNegative, serializedFindCriteria)})
+        p1 = _localStorage.FindObj(Of TestData)(sp)
+        Assert.AreEqual(p1.Count, 1)
+    End Sub
+
+    <TestMethod()>
     Public Sub FindObj_SelectOption()
         _localStorage.RemoveAllObj(GetType(TestData))
         _localStorage.AddObj(_data2)
@@ -554,7 +582,7 @@ Public MustInherit Class LocalStorageBaseTest
     Public Sub FindObjBetween()
         Dim td1 = New TestData
         td1.Cat = "td"
-        td1.Dog = 111
+        td1.Kitten = 111
         td1.ID = "{00000000-0000-0000-0000-000000000000}"
         td1.Int = New TestDataInternal
         td1.Int.First = "1111"
@@ -564,7 +592,7 @@ Public MustInherit Class LocalStorageBaseTest
 
         Dim td2 = New TestData
         td2.Cat = "td"
-        td2.Dog = 111
+        td2.Kitten = 111
         td2.ID = "{11111111-1111-1111-1111-111111111111}"
         td2.Int = New TestDataInternal
         td2.Int.First = "2221"
@@ -574,7 +602,7 @@ Public MustInherit Class LocalStorageBaseTest
 
         Dim td3 = New TestData
         td3.Cat = "td"
-        td3.Dog = 111
+        td3.Kitten = 111
         td3.ID = "{22222222-2222-2222-2222-222222222222}"
         td3.Int = New TestDataInternal
         td3.Int.First = "3331"
@@ -584,7 +612,7 @@ Public MustInherit Class LocalStorageBaseTest
 
         Dim td4 = New TestData
         td4.Cat = "td"
-        td4.Dog = 111
+        td4.Kitten = 111
         td4.ID = "{33333333-3333-3333-3333-333333333333}"
         td4.Int = New TestDataInternal
         td4.Int.First = "4441"
@@ -594,7 +622,7 @@ Public MustInherit Class LocalStorageBaseTest
 
         Dim td5 = New TestData
         td5.Cat = "td"
-        td5.Dog = 111
+        td5.Kitten = 111
         td5.ID = "{44444444-4444-4444-4444-444444444444}"
         td5.Int = New TestDataInternal
         td5.Int.First = "5551"
@@ -625,7 +653,7 @@ Public MustInherit Class LocalStorageBaseTest
 
         Dim data = New TestData()
         data.Cat = "111111"
-        data.Dog = "222222"
+        data.Kitten = "222222"
         data.Image = New Bitmap(33, 44)
         data.Int.SomeBytes = {1, 1, 1, 2, 2, 3, 3, 3, 44, 55, 23}
         data.Int.First = "44444444"
@@ -640,7 +668,7 @@ Public MustInherit Class LocalStorageBaseTest
 
         Assert.AreNotEqual(ob, Nothing)
         Assert.AreEqual(ob.Cat, data.Cat)
-        Assert.AreEqual(ob.Dog, data.Dog)
+        Assert.AreEqual(ob.Kitten, data.Kitten)
         Assert.AreEqual(ob.Image.Width, data.Image.Width)
         Assert.AreEqual(ob.Int.SomeData, Nothing)
         Assert.AreEqual(ob.Int.SomeBytes, Nothing)
@@ -651,7 +679,7 @@ Public MustInherit Class LocalStorageBaseTest
 
         Assert.AreNotEqual(obWithoutBlob, Nothing)
         Assert.AreEqual(obWithoutBlob.Cat, data.Cat)
-        Assert.AreEqual(obWithoutBlob.Dog, data.Dog)
+        Assert.AreEqual(obWithoutBlob.Kitten, data.Kitten)
         Assert.AreEqual(obWithoutBlob.Image, Nothing)
         Assert.AreEqual(obWithoutBlob.Int.SomeData, Nothing)
         Assert.AreEqual(obWithoutBlob.Int.SomeBytes, Nothing)

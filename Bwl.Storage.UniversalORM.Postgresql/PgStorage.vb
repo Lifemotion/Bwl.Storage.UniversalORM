@@ -410,10 +410,10 @@ Public Class PgStorage
         Return indexName
     End Function
 
-    Private Function GenerateWhereSql(criterias As IEnumerable(Of FindCriteria), sortField As String) As SqlHelper
+    Private Function GenerateWhereSql(criterias As IEnumerable(Of FindCriteria), sortField As String, Optional paramStartValue As Integer = 0) As SqlHelper
         Dim where = String.Empty
         Dim parameters As New List(Of NpgsqlParameter)()
-        Dim i = 0
+        Dim i = paramStartValue
         Const QUOTE As String = """"
         Dim multipleConditions = New FindCondition() {FindCondition.multipleEqual,
                                                       FindCondition.multipleLikeEqual,
@@ -423,7 +423,8 @@ Public Class PgStorage
                                                       FindCondition.multipleLess,
                                                       FindCondition.multipleGreaterOrEqual,
                                                       FindCondition.multipleLessOrEqual}
-
+        Dim findCriteriaConditions = New FindCondition() {FindCondition.findCriteria,
+                                                          FindCondition.findCriteriaNegative}
         If criterias IsNot Nothing Then
             For Each crit In criterias
                 Dim value = crit.Value
@@ -445,6 +446,12 @@ Public Class PgStorage
                         Dim str = String.Empty
                         If multipleConditions.Any(Function(f) f = crit.Condition) Then
                             str = GetMultipleConditionString(i, parameters, crit.Condition, QUOTE + indexName + QUOTE, value)
+                        ElseIf findCriteriaConditions.Any(Function(f) f = crit.Condition) Then
+                            Dim findCriteria = CfJsonConverter.Deserialize(Of FindCriteria())(value)
+                            Dim val = GenerateWhereSql(findCriteria, "guid", i)
+                            parameters.AddRange(val.Parameters)
+                            str = If(crit.Condition = FindCondition.findCriteriaNegative, " NOT (", " (") + val.SQL.Remove(0, 7) + ") "
+                            i += (val.Parameters.Count + 1)
                         Else
 
                             Dim pName = "@p" + i.ToString

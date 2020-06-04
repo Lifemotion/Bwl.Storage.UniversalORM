@@ -8,7 +8,8 @@
     ''' </summary>
     ''' <param name="field">Поле</param>
     ''' <param name="cond">Условие</param>
-    ''' <param name="value">При multiple-условии указать сериализованный в json массив строк</param>
+    ''' <param name="value">При multiple-условии указать сериализованный в json массив строк,
+    ''' При FindCriteria-условии - сериализованный в JSON массив FindCriteria</param>
     Public Sub New(field As String, cond As FindCondition, value As Object)
         _Field = field
         _Value = value

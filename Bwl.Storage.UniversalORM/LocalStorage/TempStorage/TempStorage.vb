@@ -3,8 +3,8 @@ Imports Newtonsoft.Json
 Imports Newtonsoft.Json.Linq
 
 Public Class TempStorage
-	Inherits Bwl.Storage.UniversalORM.CommonObjStorage
-	Implements Bwl.Storage.UniversalORM.IObjStorageManager
+    Inherits Bwl.Storage.UniversalORM.CommonObjStorage
+    Implements Bwl.Storage.UniversalORM.IObjStorageManager
     Implements Bwl.Storage.UniversalORM.IBlobFieldsWriter
 
     Public Property ObjDataInfo As ObjDataInfo
@@ -29,10 +29,10 @@ Public Class TempStorage
         ObjDataInfo.ObjBlobInfo = objBlobInfo
     End Sub
 
-	Public Overrides Sub AddObj(obj As ObjBase)
-		ObjDataInfo = New ObjDataInfo
+    Public Overrides Sub AddObj(obj As ObjBase)
+        ObjDataInfo = New ObjDataInfo
         ObjDataInfo.ObjInfo = New ObjInfo
-		ObjDataInfo.ObjInfo.ObjType = obj.GetType
+        ObjDataInfo.ObjInfo.ObjType = obj.GetType
         ObjDataInfo.ObjInfo.Obj = Bwl.Storage.UniversalORM.CfJsonConverter.Serialize(obj)
     End Sub
 
@@ -54,46 +54,54 @@ Public Class TempStorage
         Return obj
     End Function
 
-	Public Overrides Function GetSomeFieldDistinct(fieldName As String) As IEnumerable(Of String)
-		Return Nothing
-	End Function
+    Public Overrides Function GetSomeFieldDistinct(fieldName As String) As IEnumerable(Of String)
+        Return Nothing
+    End Function
 
-	Public Overrides Sub RemoveObj(id As String)
+    Public Overrides Sub RemoveObj(id As String)
 
-	End Sub
+    End Sub
 
-	Public Overrides Sub UpdateObj(obj As ObjBase)
+    Public Overrides Sub UpdateObj(obj As ObjBase)
 
-	End Sub
+    End Sub
 
-	Public Overrides Function GetObjects(objIds As String(), Optional sortParam As SortParam = Nothing) As IEnumerable(Of ObjBase)
-		Return Nothing
-	End Function
+    Public Overloads Overrides Function GetObjects(Of T As ObjBase)(searchParams As SearchParams) As IEnumerable(Of T)
+        Return Nothing
+    End Function
 
-	Public Overrides Function Contains(id As String) As Boolean
-		Return False
-	End Function
+    Public Overrides Function GetObjects(searchParams As SearchParams) As IEnumerable(Of ObjBase)
+        Return Nothing
+    End Function
+    Public Overloads Overrides Function GetObjects(Of T As ObjBase)(objIds As String(), Optional sortParam As SortParam = Nothing) As IEnumerable(Of T)
+        Return Nothing
+    End Function
 
-	Public Overloads Overrides Function GetObj(Of T As ObjBase)(id As String) As T
-		Return Nothing
-	End Function
+    Public Overrides Function GetObjects(objIds As String(), Optional sortParam As SortParam = Nothing) As IEnumerable(Of ObjBase)
+        Return Nothing
+    End Function
 
-	Public Overloads Overrides Function GetObjects(Of T As ObjBase)(objIds As String(), Optional sortParam As SortParam = Nothing) As IEnumerable(Of T)
-		Return Nothing
-	End Function
+    Public Overrides Function Contains(id As String) As Boolean
+        Return False
+    End Function
 
-	Public Function CreateStorage(name As String, type As Type) As IObjStorage Implements IObjStorageManager.CreateStorage
-		Return Me
-	End Function
+    Public Overloads Overrides Function GetObj(Of T As ObjBase)(id As String) As T
+        Return Nothing
+    End Function
 
-	Public Overrides Sub AddObjects(obj() As ObjBase)
-	End Sub
 
-	Public Overrides Sub RemoveAllObjects()
+    Public Function CreateStorage(name As String, type As Type) As IObjStorage Implements IObjStorageManager.CreateStorage
+        Return Me
+    End Function
 
-	End Sub
+    Public Overrides Sub AddObjects(obj() As ObjBase)
+    End Sub
 
-	Public Overrides Function FindObjCount(searchParams As SearchParams) As Long
-		Return 0
-	End Function
+    Public Overrides Sub RemoveAllObjects()
+
+    End Sub
+
+    Public Overrides Function FindObjCount(searchParams As SearchParams) As Long
+        Return 0
+    End Function
 End Class

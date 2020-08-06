@@ -452,20 +452,20 @@ Public Class FileObjStorage
         Return CType(GetObj(id), T)
     End Function
 
-    Public Overrides Function GetObjects(objIds As String(), Optional sortParam As SortParam = Nothing) As IEnumerable(Of ObjBase)
-        Dim res = New List(Of ObjBase)
-        For Each id In objIds
-            res.Add(GetObj(id))
-        Next
-        Return res
+    Public Overrides Function GetObjects(Of T As ObjBase)(searchParams As SearchParams) As IEnumerable(Of T)
+        Return GetObjects(searchParams).Select(Function(f) CType(f, T)).ToArray()
+    End Function
+
+    Public Overrides Function GetObjects(searchParams As SearchParams) As IEnumerable(Of ObjBase)
+        Return FindObj(searchParams).Select(Function(f) GetObj(f)).ToArray()
     End Function
 
     Public Overrides Function GetObjects(Of T As ObjBase)(objIds As String(), Optional sortParam As SortParam = Nothing) As IEnumerable(Of T)
-        Dim res = New List(Of T)
-        For Each id In objIds
-            res.Add(GetObj(Of T)(id))
-        Next
-        Return res
+        Return GetObjects(objIds, sortParam).Select(Function(f) CType(f, T)).ToArray()
+    End Function
+
+    Public Overrides Function GetObjects(objIds As String(), Optional sortParam As SortParam = Nothing) As IEnumerable(Of ObjBase)
+        Return objIds.Select(Function(f) GetObj(f)).ToArray()
     End Function
 
     Public Overrides Function Contains(id As String) As Boolean

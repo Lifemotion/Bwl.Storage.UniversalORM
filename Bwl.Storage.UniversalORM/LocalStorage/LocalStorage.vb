@@ -111,10 +111,38 @@ Public Class LocalStorage
         Return Contains(id, GetType(T))
     End Function
 
+    Public Overridable Function FindObj(Of T As ObjBase)(Optional searchParams As SearchParams = Nothing) As String() Implements ILocalStorage.FindObj
+        Return FindObj(GetType(T), searchParams)
+    End Function
+
     Public Overridable Function FindObj(type As Type, Optional searchParams As SearchParams = Nothing) As String() Implements ILocalStorage.FindObj
         Dim storage = GetStorage(type)
         If storage IsNot Nothing Then
             Return storage.FindObj(searchParams)
+        End If
+        Return Nothing
+    End Function
+
+    Public Overridable Function GetObjects(type As Type, Optional loadBlob As Boolean = True, Optional searchParams As SearchParams = Nothing) As IEnumerable(Of ObjBase) Implements ILocalStorage.GetObjects
+        Dim storage = GetStorage(type)
+        If storage IsNot Nothing Then
+            Dim objects = storage.GetObjects(searchParams)
+            If (loadBlob) Then
+                _blobStorage.LoadBlobs(objects.ToArray, objects.Select(Function(f) f.ID).ToArray)
+            End If
+            Return objects
+        End If
+        Return Nothing
+    End Function
+
+    Public Overridable Function GetObjects(Of T As ObjBase)(Optional loadBlob As Boolean = True, Optional searchParams As SearchParams = Nothing) As IEnumerable(Of T) Implements ILocalStorage.GetObjects
+        Dim storage = GetStorage(GetType(T))
+        If storage IsNot Nothing Then
+            Dim objects = storage.GetObjects(Of T)(searchParams)
+            If (loadBlob) Then
+                _blobStorage.LoadBlobs(objects.ToArray, objects.Select(Function(f) f.ID).ToArray)
+            End If
+            Return objects
         End If
         Return Nothing
     End Function
@@ -126,10 +154,6 @@ Public Class LocalStorage
             res = storage.FindObjCount(searchParams)
         End If
         Return res
-    End Function
-
-    Public Overridable Function FindObj(Of T As ObjBase)(Optional searchParams As SearchParams = Nothing) As String() Implements ILocalStorage.FindObj
-        Return FindObj(GetType(T), searchParams)
     End Function
 
     Public Overridable Function GetObj(id As String, type As Type, Optional loadBlob As Boolean = True) As ObjBase Implements ILocalStorage.GetObj

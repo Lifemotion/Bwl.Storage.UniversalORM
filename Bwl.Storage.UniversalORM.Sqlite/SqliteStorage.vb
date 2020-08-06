@@ -271,6 +271,92 @@ Public Class SqliteStorage
         End Get
     End Property
 
+    Public Overrides Function GetObjects(Of T As ObjBase)(searchParams As SearchParams) As IEnumerable(Of T)
+        Return GetObjects(searchParams).Select(Function(o) CType(o, T))
+    End Function
+
+    Public Overrides Function GetObjects(searchParams As SearchParams) As IEnumerable(Of ObjBase)
+        Dim resList = New List(Of ObjBase)
+        SyncLock _syncObj
+            CheckDb()
+
+            '''' TOP
+            Dim topSql = String.Empty
+            If (searchParams IsNot Nothing) AndAlso (searchParams.SelectOptions IsNot Nothing) AndAlso (searchParams.SelectOptions.SelectMode = SelectMode.Top) Then
+                If searchParams.SelectOptions.TopValue > 0 Then
+                    topSql = " LIMIT " + searchParams.SelectOptions.TopValue.ToString + " "
+                End If
+            End If
+
+            '''' sorting
+            Dim sortModeStr = "ASC"
+            Dim sortField = "guid"
+            'Dim sortTableName = Name
+            If (searchParams IsNot Nothing) AndAlso (searchParams.SortParam IsNot Nothing) Then
+                If searchParams.SortParam.SortMode = SortMode.Descending Then
+                    sortModeStr = "DESC"
+                End If
+
+                Dim indexInfo = _indexingMembers.FirstOrDefault(Function(indInf) indInf.Name = searchParams.SortParam.Field)
+                If (indexInfo IsNot Nothing) Then
+                    sortField = GetIndexName(indexInfo)
+                Else
+                    Throw New Exception("SqliteStorage.GetObjects _ BadSortParam _ index " + indexInfo.Name + " not found.")
+                End If
+            End If
+
+            Dim crit As IEnumerable(Of FindCriteria) = Nothing
+            If (searchParams IsNot Nothing) Then
+                crit = searchParams.FindCriterias
+            End If
+
+            Dim sort As SortParam = Nothing
+            If (searchParams IsNot Nothing) Then
+                sort = searchParams.SortParam
+            End If
+
+            '''' from + where
+            'Dim fromSql = GenerateFromSql(crit, sort)
+
+            '''' where
+            Dim whereSql = String.Empty
+            Dim parameters As SQLiteParameter() = Nothing
+            Dim helper = GenerateWhereSql(crit, sort)
+            If helper IsNot Nothing Then
+                whereSql = helper.Sql
+                parameters = helper.Parameters.ToArray
+            End If
+
+            Dim betweenSql = String.Empty
+            Dim mainSelect = String.Empty
+            If (searchParams IsNot Nothing) AndAlso (searchParams.SelectOptions IsNot Nothing) AndAlso (searchParams.SelectOptions.SelectMode = SelectMode.Between) Then
+                'BUG: 'mainSelect = String.Format("SELECT FIRST {1} SKIP {2} GUID FROM {0}", Name, searchParams.SelectOptions.EndValue - searchParams.SelectOptions.StartValue + 1, searchParams.SelectOptions.StartValue)
+                mainSelect = String.Format("SELECT GUID, JSON, TYPE FROM ""{0}"" {1} ORDER BY ""{4}"" {5} LIMIT {2} OFFSET {3}", Name, whereSql,
+                                           searchParams.SelectOptions.EndValue - searchParams.SelectOptions.StartValue + 1,
+                                           searchParams.SelectOptions.StartValue, sortField, sortModeStr)
+            Else
+                '''' main sql			
+                If (searchParams Is Nothing) Or ((searchParams IsNot Nothing) AndAlso (searchParams.SortParam Is Nothing)) Then
+                    mainSelect = String.Format("SELECT GUID, JSON, TYPE FROM ""{0}"" {1} {2}", Name, whereSql, topSql)
+                ElseIf (searchParams.SortParam IsNot Nothing) Then
+                    mainSelect = String.Format("SELECT GUID, JSON, TYPE FROM ""{0}"" {1} ORDER BY ""{3}"" {4} {2}", Name, whereSql, topSql, sortField, sortModeStr)
+                End If
+            End If
+            Dim valuesObjList = SqliteUtils.GetObjectList(ConnectionString, mainSelect, parameters)
+            If (valuesObjList IsNot Nothing) Then
+                Dim tmpList = valuesObjList.Select(Function(j)
+                                                       Dim typeName = j(2)
+                                                       If (typeName = "-") Or String.IsNullOrWhiteSpace(typeName) Then
+                                                           typeName = SupportedType.AssemblyQualifiedName
+                                                       End If
+
+                                                       Return CType(CfJsonConverter.Deserialize(j(1).ToString, Type.GetType(typeName)), ObjBase)
+                                                   End Function)
+                resList.AddRange(tmpList)
+            End If
+        End SyncLock
+        Return resList.ToArray()
+    End Function
 
     Public Overrides Function GetObjects(Of T As ObjBase)(objIds As String(), Optional sortParam As SortParam = Nothing) As IEnumerable(Of T)
         Return GetObjects(objIds, sortParam).Select(Function(o) CType(o, T))

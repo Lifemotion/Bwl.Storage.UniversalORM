@@ -1,29 +1,32 @@
 ﻿Public Interface ILocalStorage
-	Sub AddObj(obj As ObjBase, Optional type As Type = Nothing)
+    Sub AddObj(obj As ObjBase, Optional type As Type = Nothing)
 
-	''' <summary>Добоавление объектов одинакового типа в хранилище.</summary>
-	Sub AddObjects(obj As ObjBase(), Optional type As Type = Nothing)
+    ''' <summary>Добоавление объектов одинакового типа в хранилище.</summary>
+    Sub AddObjects(obj As ObjBase(), Optional type As Type = Nothing)
 
-	Sub UpdateObj(obj As ObjBase, Optional type As Type = Nothing)
+    Sub UpdateObj(obj As ObjBase, Optional type As Type = Nothing)
 
-	Sub RemoveObj(id As String, type As Type)
-	Sub RemoveObj(Of T As ObjBase)(id As String)
+    Sub RemoveObj(id As String, type As Type)
+    Sub RemoveObj(Of T As ObjBase)(id As String)
 
-	Sub RemoveAllObj(type As Type)
+    Sub RemoveAllObj(type As Type)
 
-	Function GetObj(Of T As ObjBase)(id As String, Optional loadBlob As Boolean = True) As T
-	Function GetObj(id As String, type As Type, Optional loadBlob As Boolean = True) As ObjBase
+    Function GetObj(Of T As ObjBase)(id As String, Optional loadBlob As Boolean = True) As T
+    Function GetObj(id As String, type As Type, Optional loadBlob As Boolean = True) As ObjBase
 
-	Function GetObjects(objIds As String(), type As Type, Optional loadBlob As Boolean = True, Optional sortParam As SortParam = Nothing) As IEnumerable(Of ObjBase)
-	Function GetObjects(Of T As ObjBase)(objIds As String(), Optional loadBlob As Boolean = True, Optional sortParam As SortParam = Nothing) As IEnumerable(Of T)
+    Function GetObjects(type As Type, Optional loadBlob As Boolean = True, Optional searchParams As SearchParams = Nothing) As IEnumerable(Of ObjBase)
+    Function GetObjects(Of T As ObjBase)(Optional loadBlob As Boolean = True, Optional searchParams As SearchParams = Nothing) As IEnumerable(Of T)
 
-	Function FindObj(type As Type, Optional searchParams As SearchParams = Nothing) As String()
-	Function FindObj(Of T As ObjBase)(Optional searchParams As SearchParams = Nothing) As String()
+    Function GetObjects(objIds As String(), type As Type, Optional loadBlob As Boolean = True, Optional sortParam As SortParam = Nothing) As IEnumerable(Of ObjBase)
+    Function GetObjects(Of T As ObjBase)(objIds As String(), Optional loadBlob As Boolean = True, Optional sortParam As SortParam = Nothing) As IEnumerable(Of T)
 
-	Function FindObjCount(type As Type, Optional searchParams As SearchParams = Nothing) As Long
+    Function FindObj(type As Type, Optional searchParams As SearchParams = Nothing) As String()
+    Function FindObj(Of T As ObjBase)(Optional searchParams As SearchParams = Nothing) As String()
 
-	Function Contains(id As String, type As Type) As Boolean
-	Function Contains(Of T As ObjBase)(id As String) As Boolean
+    Function FindObjCount(type As Type, Optional searchParams As SearchParams = Nothing) As Long
 
-	Function GetSomeFieldDistinct(fieldName As String, type As Type) As IEnumerable(Of String)
+    Function Contains(id As String, type As Type) As Boolean
+    Function Contains(Of T As ObjBase)(id As String) As Boolean
+
+    Function GetSomeFieldDistinct(fieldName As String, type As Type) As IEnumerable(Of String)
 End Interface

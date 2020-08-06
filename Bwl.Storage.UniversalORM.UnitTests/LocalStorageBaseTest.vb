@@ -329,7 +329,7 @@ Public MustInherit Class LocalStorageBaseTest
         _localStorage.AddObj(_data2)
         _localStorage.AddObj(_data3)
 
-        Dim ids = New String() {_data1.ID, _data2.ID, _data3.ID}
+        Dim ids = _localStorage.FindObj(Of TestData)()
         Dim p1 = _localStorage.GetObjects(Of TestData)(ids)
         Assert.AreEqual(p1.Count, 3)
 
@@ -337,6 +337,40 @@ Public MustInherit Class LocalStorageBaseTest
         Assert.AreEqual(idsNew.Contains(_data1.ID), True)
         Assert.AreEqual(idsNew.Contains(_data2.ID), True)
         Assert.AreEqual(idsNew.Contains(_data3.ID), True)
+    End Sub
+
+    <TestMethod()>
+    Public Sub GetObjectsDirect()
+        _localStorage.RemoveAllObj(GetType(TestData))
+        _localStorage.AddObj(_data1)
+        _localStorage.AddObj(_data2)
+        _localStorage.AddObj(_data3)
+
+        Dim p1 = _localStorage.GetObjects(Of TestData)()
+        Assert.AreEqual(p1.Count, 3)
+
+        Dim idsNew = p1.Select(Function(val) val.ID)
+        Assert.AreEqual(idsNew.Contains(_data1.ID), True)
+        Assert.AreEqual(idsNew.Contains(_data2.ID), True)
+        Assert.AreEqual(idsNew.Contains(_data3.ID), True)
+    End Sub
+
+    <TestMethod()>
+    Public Sub GetObjectsDirectVsClassic()
+        ' Cache
+        GetObjects()
+        GetObjectsDirect()
+
+        ' Test
+        Dim sw1 = Stopwatch.StartNew()
+        GetObjects()
+        sw1.Stop()
+
+        Dim sw2 = Stopwatch.StartNew()
+        GetObjectsDirect()
+        sw2.Stop()
+
+        Assert.IsTrue(sw2.ElapsedMilliseconds < sw1.ElapsedMilliseconds)
     End Sub
 
     <TestMethod()>

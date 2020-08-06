@@ -256,6 +256,103 @@ Public Class MSSQLSRVStorage
         End Set
     End Property
 
+    Public Overrides Function GetObjects(Of T As ObjBase)(searchParams As SearchParams) As IEnumerable(Of T)
+        Return GetObjects(searchParams).Select(Function(o) CType(o, T))
+    End Function
+
+    Public Overrides Function GetObjects(searchParams As SearchParams) As IEnumerable(Of ObjBase)
+        CheckDB()
+
+        '''' TOP
+        Dim topSql = String.Empty
+        If (searchParams IsNot Nothing) AndAlso (searchParams.SelectOptions IsNot Nothing) AndAlso (searchParams.SelectOptions.SelectMode = SelectMode.Top) Then
+            If searchParams.SelectOptions.TopValue > 0 Then
+                topSql = " TOP " + searchParams.SelectOptions.TopValue.ToString + " "
+            End If
+        End If
+
+        '''' sorting
+        Dim sortModeStr = "ASC"
+        Dim sortField = "id"
+        Dim sortTableName = Name
+        If (searchParams IsNot Nothing) AndAlso (searchParams.SortParam IsNot Nothing) Then
+            If searchParams.SortParam.SortMode = SortMode.Descending Then
+                sortModeStr = "DESC"
+            End If
+
+            Dim indexInfo = _indexingMembers.FirstOrDefault(Function(indInf) indInf.Name = searchParams.SortParam.Field)
+            If (indexInfo IsNot Nothing) Then
+                sortField = "value"
+                sortTableName = GetIndexTableName(indexInfo)
+            Else
+                Throw New Exception("MSSQLSRVStorage.GetObjects _ BadSortParam _ index " + indexInfo.Name + " not found.")
+            End If
+        End If
+
+        Dim crit As IEnumerable(Of FindCriteria) = Nothing
+        If (searchParams IsNot Nothing) Then
+            crit = searchParams.FindCriterias
+        End If
+
+        Dim sort As SortParam = Nothing
+        If (searchParams IsNot Nothing) Then
+            sort = searchParams.SortParam
+        End If
+
+        '''' from + where
+        Dim fromSql = GenerateFromSql(crit, sort)
+
+        '''' where
+        Dim whereSql = String.Empty
+        Dim parameters As SqlParameter() = Nothing
+        Dim helper = GenerateWhereSql(crit, sort)
+        If helper IsNot Nothing Then
+            whereSql = helper.SQL
+            parameters = helper.Parameters.ToArray
+        End If
+
+        Dim betweenSql = String.Empty
+        Dim mainSelect = String.Empty
+        If (searchParams IsNot Nothing) AndAlso (searchParams.SelectOptions IsNot Nothing) AndAlso (searchParams.SelectOptions.SelectMode = SelectMode.Between) Then
+            betweenSql = String.Format("OFFSET {2} ROWS FETCH NEXT {3} ROWS ONLY", Name, fromSql, searchParams.SelectOptions.StartValue, searchParams.SelectOptions.EndValue - searchParams.SelectOptions.StartValue + 1)
+        End If
+        mainSelect = String.Format("Select {0} [{1}].[guid], [{1}].[json], [{1}].[type] FROM {2} {3} ORDER BY [{4}].[{5}] {6} {7}", topSql, Name, fromSql, whereSql, sortTableName, sortField, sortModeStr, betweenSql)
+        If ((topSql <> "") And (searchParams IsNot Nothing AndAlso searchParams.SortParam Is Nothing)) Then
+            mainSelect = String.Format("Select {0} [{1}].[guid], [{1}].[json], [{1}].[type] FROM {2} {3}", topSql, Name, fromSql, whereSql)
+        End If
+        If (searchParams Is Nothing) Then 'Or ((searchParams IsNot Nothing) AndAlso (searchParams.SortParam Is Nothing)) Then
+            mainSelect = String.Format("SELECT {3} [{0}].[guid], [{0}].[json], [{0}].[type] FROM {1} {2}", Name, fromSql, whereSql, topSql)
+        End If
+
+        '''' main sql
+        Dim resList = New List(Of ObjBase)
+        Dim valuesObjList = MSSQLSRVUtils.GetObjectList(ConnectionString, mainSelect, parameters)
+        If (valuesObjList IsNot Nothing) Then
+            Dim tmpList = valuesObjList.Select(
+                Function(val)
+                    Dim jsonObj = val(1)
+                    Dim typeName = val(2)
+                    If (typeName = "-") Or String.IsNullOrWhiteSpace(typeName) Then
+                        typeName = SupportedType.AssemblyQualifiedName
+                    End If
+
+                    Dim res As ObjBase = Nothing
+                    If (jsonObj IsNot Nothing) Then
+                        Dim json = jsonObj.ToString
+                        Try
+                            res = CfJsonConverter.Deserialize(json, Type.GetType(typeName.ToString))
+                        Catch exc As Exception
+                            Dim polo = exc.Message
+                        End Try
+                    End If
+                    Return res
+                End Function)
+            resList.AddRange(tmpList.ToArray)
+        End If
+
+        Return resList
+    End Function
+
     Public Overrides Function GetObjects(Of T As ObjBase)(objIds As String(), Optional sortParam As SortParam = Nothing) As IEnumerable(Of T)
         Return GetObjects(objIds, sortParam).Select(Function(o) CType(o, T))
     End Function

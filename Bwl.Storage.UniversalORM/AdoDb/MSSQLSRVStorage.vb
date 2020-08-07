@@ -116,6 +116,10 @@ Public Class MSSQLSRVStorage
         Return res
     End Function
 
+    Public Overrides Function ExecSqlGetObjects(sqlString As String) As List(Of List(Of Object))
+        Return MSSQLSRVUtils.GetObjectList(ConnectionString, sqlString)
+    End Function
+
     Public Overrides Function FindObj(searchParams As SearchParams) As String()
         CheckDB()
 

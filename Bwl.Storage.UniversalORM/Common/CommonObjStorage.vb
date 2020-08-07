@@ -13,6 +13,8 @@
         End If
     End Sub
 
+    Public MustOverride Function ExecSqlGetObjects(sqlString As String) As List(Of List(Of Object)) Implements IObjStorage.ExecSqlGetObjects
+
     Public MustOverride Function FindObj(searchParams As SearchParams) As String() Implements IObjStorage.FindObj
 
     Public MustOverride Function GetObj(id As String) As ObjBase Implements IObjStorage.GetObj

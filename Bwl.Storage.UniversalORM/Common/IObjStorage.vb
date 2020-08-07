@@ -24,4 +24,7 @@
     Function Contains(id As String) As Boolean
 
     Function GetSomeFieldDistinct(fieldName As String) As IEnumerable(Of String)
+
+    <Obsolete("DO NOT use this method unless absolutely necessary", False)>
+    Function ExecSqlGetObjects(sqlString As String) As List(Of List(Of Object))
 End Interface

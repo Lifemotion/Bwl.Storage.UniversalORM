@@ -491,4 +491,8 @@ Public Class FileObjStorage
         Catch ex As Exception
         End Try
     End Sub
+
+    Public Overrides Function ExecSqlGetObjects(sqlString As String) As List(Of List(Of Object))
+        Return Nothing
+    End Function
 End Class

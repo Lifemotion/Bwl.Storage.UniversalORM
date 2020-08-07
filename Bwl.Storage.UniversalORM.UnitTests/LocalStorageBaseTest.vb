@@ -148,6 +148,17 @@ Public MustInherit Class LocalStorageBaseTest
         Assert.AreEqual(p2, 2L)
         Assert.AreEqual(p3, 3L)
     End Sub
+    <TestMethod()>
+    Public Sub PlainSqlGetObjCount()
+        _localStorage.RemoveAllObj(GetType(TestData))
+        _localStorage.AddObj(_data1)
+        _localStorage.AddObj(_data2)
+        _localStorage.AddObj(_data3)
+
+        Dim results = _localStorage.ExecSqlGetObjects(GetType(TestData), "SELECT Count(*) FROM TestData")
+
+        Assert.AreEqual(results(0)(0), 3L)
+    End Sub
 
     <TestMethod()>
     Public Sub GetSomeFieldDistinct()

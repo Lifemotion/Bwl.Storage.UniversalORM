@@ -239,4 +239,13 @@ Public Class LocalStorage
         End If
         Return res
     End Function
+
+    Public Function ExecSqlGetObjects(type As Type, sqlString As String) As List(Of List(Of Object)) Implements ILocalStorage.ExecSqlGetObjects
+        Dim storage = GetStorage(type)
+        If storage IsNot Nothing Then
+            Return storage.ExecSqlGetObjects(sqlString)
+        End If
+        Return Nothing
+    End Function
+
 End Class

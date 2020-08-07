@@ -693,4 +693,7 @@ Public Class SqliteStorage
         End SyncLock
     End Sub
 
+    Public Overrides Function ExecSqlGetObjects(sqlString As String) As List(Of List(Of Object))
+        Return SqliteUtils.GetObjectList(ConnectionString, sqlString)
+    End Function
 End Class

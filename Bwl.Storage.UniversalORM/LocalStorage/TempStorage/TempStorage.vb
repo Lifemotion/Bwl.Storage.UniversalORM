@@ -104,4 +104,8 @@ Public Class TempStorage
     Public Overrides Function FindObjCount(searchParams As SearchParams) As Long
         Return 0
     End Function
+
+    Public Overrides Function ExecSqlGetObjects(sqlString As String) As List(Of List(Of Object))
+        Return Nothing
+    End Function
 End Class

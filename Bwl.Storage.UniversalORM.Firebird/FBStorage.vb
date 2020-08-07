@@ -633,4 +633,7 @@ Public Class FBStorage
         FbUtils.ExecSQL(ConnectionString, sql)
     End Sub
 
+    Public Overrides Function ExecSqlGetObjects(sqlString As String) As List(Of List(Of Object))
+        Return FbUtils.GetObjectList(ConnectionString, sqlString)
+    End Function
 End Class

@@ -27,6 +27,15 @@ Public Class MemoryStorage
     Public Overrides Function FindObj(searchParams As SearchParams) As String()
         Return _objects.Keys.ToArray
     End Function
+    
+    Public Overrides Function StrToObj(jsonObj As String, typeName As String) As ObjBase
+        Dim res As ObjBase = Nothing
+        Return res
+    End Function
+
+    Public Overloads Overrides Function StrToObj(Of T As ObjBase)(jsonObj As String, typeName As String) As T
+        Return StrToObj(jsonObj, typeName)
+    End Function
 
     Public Overrides Function GetObj(id As String) As ObjBase
         Return _objects(id)
@@ -74,7 +83,12 @@ Public Class MemoryStorage
         Return Nothing
     End Function
 
+    <Obsolete("DO NOT use this method unless absolutely necessary", False)>
     Public Overrides Function ExecSqlGetObjects(sqlString As String) As List(Of List(Of Object))
         Return Nothing
     End Function
+    <Obsolete("DO NOT use this method unless absolutely necessary", False)>
+    Public Overrides Sub ExecSql(sqlString As String)
+
+    End Sub
 End Class

@@ -116,9 +116,15 @@ Public Class MSSQLSRVStorage
         Return res
     End Function
 
+    <Obsolete("DO NOT use this method unless absolutely necessary", False)>
     Public Overrides Function ExecSqlGetObjects(sqlString As String) As List(Of List(Of Object))
         Return MSSQLSRVUtils.GetObjectList(ConnectionString, sqlString)
     End Function
+
+    <Obsolete("DO NOT use this method unless absolutely necessary", False)>
+    Public Overrides Sub ExecSql(sqlString As String)
+        MSSQLSRVUtils.ExecSQL(ConnectionString, sqlString)
+    End Sub
 
     Public Overrides Function FindObj(searchParams As SearchParams) As String()
         CheckDB()
@@ -193,6 +199,22 @@ Public Class MSSQLSRVStorage
         Else
             Return {}
         End If
+    End Function
+
+    Public Overrides Function StrToObj(jsonObj As String, typeName As String) As ObjBase
+        Dim res As ObjBase = Nothing
+        If (typeName = "-") Or String.IsNullOrWhiteSpace(typeName) Then
+            typeName = SupportedType.AssemblyQualifiedName
+        End If
+        If (jsonObj IsNot Nothing) Then
+            Dim json = jsonObj.ToString
+            res = CfJsonConverter.Deserialize(json, Type.GetType(typeName.ToString))
+        End If
+        Return res
+    End Function
+
+    Public Overloads Overrides Function StrToObj(Of T As ObjBase)(jsonObj As String, typeName As String) As T
+        Return StrToObj(jsonObj, typeName)
     End Function
 
     Public Overrides Function GetObj(id As String) As ObjBase

@@ -156,6 +156,15 @@ Public Class LocalStorage
         Return res
     End Function
 
+    Public Overridable Function StrToObj(jsonObj As String, typeName As String, gotType As Type) As ObjBase Implements ILocalStorage.StrToObj
+        Dim storage = GetStorage(gotType)
+        Return storage.StrToObj(jsonObj, typeName)
+    End Function
+
+    Public Overridable Function StrToObj(Of T As ObjBase)(jsonObj As String, typeName As String) As T Implements ILocalStorage.StrToObj
+        Return StrToObj(jsonObj, typeName, GetType(T))
+    End Function
+
     Public Overridable Function GetObj(id As String, type As Type, Optional loadBlob As Boolean = True) As ObjBase Implements ILocalStorage.GetObj
         Dim storage = GetStorage(type)
         Dim obj = Nothing
@@ -171,6 +180,7 @@ Public Class LocalStorage
     Public Overridable Function GetObj(Of T As ObjBase)(id As String, Optional loadBlob As Boolean = True) As T Implements ILocalStorage.GetObj
         Return GetObj(id, GetType(T), loadBlob)
     End Function
+
 
     Public Overridable Function GetObjects(objIds As String(), type As Type, Optional loadBlob As Boolean = True, Optional sortParam As SortParam = Nothing) As IEnumerable(Of ObjBase) Implements ILocalStorage.GetObjects
         Dim storage = GetStorage(type)
@@ -240,6 +250,7 @@ Public Class LocalStorage
         Return res
     End Function
 
+    <Obsolete("DO NOT use this method unless absolutely necessary", False)>
     Public Function ExecSqlGetObjects(type As Type, sqlString As String) As List(Of List(Of Object)) Implements ILocalStorage.ExecSqlGetObjects
         Dim storage = GetStorage(type)
         If storage IsNot Nothing Then
@@ -247,5 +258,13 @@ Public Class LocalStorage
         End If
         Return Nothing
     End Function
+
+    <Obsolete("DO NOT use this method unless absolutely necessary", False)>
+    Public Sub ExecSql(type As Type, sqlString As String) Implements ILocalStorage.ExecSql
+        Dim storage = GetStorage(type)
+        If storage IsNot Nothing Then
+            storage.ExecSql(sqlString)
+        End If
+    End Sub
 
 End Class

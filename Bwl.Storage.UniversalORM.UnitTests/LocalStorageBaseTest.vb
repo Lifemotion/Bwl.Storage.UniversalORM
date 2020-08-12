@@ -148,6 +148,7 @@ Public MustInherit Class LocalStorageBaseTest
         Assert.AreEqual(p2, 2L)
         Assert.AreEqual(p3, 3L)
     End Sub
+
     <TestMethod()>
     Public Sub PlainSqlGetObjCount()
         _localStorage.RemoveAllObj(GetType(TestData))

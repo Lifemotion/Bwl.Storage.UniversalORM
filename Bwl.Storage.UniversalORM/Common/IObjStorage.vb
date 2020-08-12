@@ -7,6 +7,9 @@
     Sub RemoveObj(id As String)
     Sub RemoveAllObjects()
 
+    Function StrToObj(Of T As ObjBase)(str As String, type As String) As T
+    Function StrToObj(str As String, type As String) As ObjBase
+
     Function GetObj(Of T As ObjBase)(id As String) As T
     Function GetObj(id As String) As ObjBase
 
@@ -27,4 +30,7 @@
 
     <Obsolete("DO NOT use this method unless absolutely necessary", False)>
     Function ExecSqlGetObjects(sqlString As String) As List(Of List(Of Object))
+
+    <Obsolete("DO NOT use this method unless absolutely necessary", False)>
+    Sub ExecSql(sqlString As String)
 End Interface

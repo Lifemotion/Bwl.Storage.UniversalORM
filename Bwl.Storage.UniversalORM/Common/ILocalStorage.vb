@@ -11,6 +11,9 @@
 
     Sub RemoveAllObj(type As Type)
 
+    Function StrToObj(Of T As ObjBase)(jsonObj As String, typeName As String) As T
+    Function StrToObj(jsonObj As String, typeName As String, gotType As Type) As ObjBase
+
     Function GetObj(Of T As ObjBase)(id As String, Optional loadBlob As Boolean = True) As T
     Function GetObj(id As String, type As Type, Optional loadBlob As Boolean = True) As ObjBase
 
@@ -32,4 +35,7 @@
 
     <Obsolete("DO NOT use this method unless absolutely necessary", False)>
     Function ExecSqlGetObjects(type As Type, sqlString As String) As List(Of List(Of Object))
+
+    <Obsolete("DO NOT use this method unless absolutely necessary", False)>
+    Sub ExecSql(type As Type, sqlString As String)
 End Interface

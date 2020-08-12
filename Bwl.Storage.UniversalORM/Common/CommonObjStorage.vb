@@ -13,9 +13,16 @@
         End If
     End Sub
 
+    <Obsolete("DO NOT use this method unless absolutely necessary", False)>
     Public MustOverride Function ExecSqlGetObjects(sqlString As String) As List(Of List(Of Object)) Implements IObjStorage.ExecSqlGetObjects
+    <Obsolete("DO NOT use this method unless absolutely necessary", False)>
+    Public MustOverride Sub ExecSql(sqlString As String) Implements IObjStorage.ExecSql
 
     Public MustOverride Function FindObj(searchParams As SearchParams) As String() Implements IObjStorage.FindObj
+
+    Public MustOverride Function StrToObj(jsonObj As String, typeName As String) As ObjBase Implements IObjStorage.StrToObj
+
+    Public MustOverride Function StrToObj(Of T As ObjBase)(jsonObj As String, typeName As String) As T Implements IObjStorage.StrToObj
 
     Public MustOverride Function GetObj(id As String) As ObjBase Implements IObjStorage.GetObj
 

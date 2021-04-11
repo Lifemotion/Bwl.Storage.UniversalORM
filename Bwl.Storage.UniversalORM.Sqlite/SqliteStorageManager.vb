@@ -20,6 +20,10 @@ Public Class SqliteStorageManager
         _connStringBld.BinaryGUID = False
         _connStringBld.DateTimeFormat = SQLiteDateFormats.Ticks
 
+        ' Для ускорения работы - write-ahead и общий кэш
+        _connStringBld.JournalMode = SQLiteJournalModeEnum.Wal
+        _connStringBld.Add("cache", "shared")
+
         _dbPath = _connStringBld.DataSource
     End Sub
 

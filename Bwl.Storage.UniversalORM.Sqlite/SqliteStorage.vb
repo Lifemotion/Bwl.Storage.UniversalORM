@@ -117,7 +117,7 @@ Public Class SqliteStorage
             '''' where
             Dim whereSql = String.Empty
             Dim parameters As SQLiteParameter() = Nothing
-            Dim helper = GenerateWhereSql(crit, sort)
+            Dim helper = GenerateWhereSql(crit)
             If helper IsNot Nothing Then
                 whereSql = helper.Sql
                 parameters = helper.Parameters.ToArray
@@ -179,7 +179,7 @@ Public Class SqliteStorage
             '''' where
             Dim whereSql = String.Empty
             Dim parameters As SQLiteParameter() = Nothing
-            Dim helper = GenerateWhereSql(crit, sort)
+            Dim helper = GenerateWhereSql(crit)
             If helper IsNot Nothing Then
                 whereSql = helper.Sql
                 parameters = helper.Parameters.ToArray
@@ -207,7 +207,7 @@ Public Class SqliteStorage
         End SyncLock
         Return res.ToArray()
     End Function
-    
+
     Public Overrides Function StrToObj(jsonObj As String, typeName As String) As ObjBase
         Dim res As ObjBase = Nothing
         If (typeName = "-") Or String.IsNullOrWhiteSpace(typeName) Then
@@ -254,7 +254,16 @@ Public Class SqliteStorage
     Public Overrides Sub RemoveObj(id As String)
         SyncLock _syncObj
             CheckDb()
-            Dim sql = String.Format("DELETE FROM ""{0}"" WHERE guid like '{1}'", Name, id)
+            Dim sql = String.Format("DELETE FROM ""{0}"" WHERE guid = '{1}'", Name, id)
+            SqliteUtils.ExecSql(ConnectionString, sql)
+        End SyncLock
+    End Sub
+
+    Public Overrides Sub RemoveObjs(ids As String())
+        SyncLock _syncObj
+            CheckDb()
+            Dim strIds = " ( ( GUID = '" + String.Join("' ) or ( GUID = '", ids) + "' ) ) "
+            Dim sql = String.Format("DELETE FROM ""{0}"" WHERE {1}", Name, strIds)
             SqliteUtils.ExecSql(ConnectionString, sql)
         End SyncLock
     End Sub
@@ -337,7 +346,7 @@ Public Class SqliteStorage
             '''' where
             Dim whereSql = String.Empty
             Dim parameters As SQLiteParameter() = Nothing
-            Dim helper = GenerateWhereSql(crit, sort)
+            Dim helper = GenerateWhereSql(crit)
             If helper IsNot Nothing Then
                 whereSql = helper.Sql
                 parameters = helper.Parameters.ToArray
@@ -512,7 +521,7 @@ Public Class SqliteStorage
         Return indexName
     End Function
 
-    Private Function GenerateWhereSql(criterias As IEnumerable(Of FindCriteria), sort As SortParam, Optional paramStartValue As Integer = 0) As SqlHelper
+    Private Function GenerateWhereSql(criterias As IEnumerable(Of FindCriteria), Optional paramStartValue As Integer = 0) As SqlHelper
         Dim where = String.Empty
         Dim parameters As New List(Of SQLiteParameter)()
         Dim i = paramStartValue
@@ -548,7 +557,7 @@ Public Class SqliteStorage
                             str = GetMultipleConditionString(i, parameters, crit.Condition, QUOTE + indexName + QUOTE, value)
                         ElseIf findCriteriaConditions.Any(Function(f) f = crit.Condition) Then
                             Dim findCriteria = CfJsonConverter.Deserialize(Of FindCriteria())(value)
-                            Dim val = GenerateWhereSql(findCriteria, sort, i)
+                            Dim val = GenerateWhereSql(findCriteria, i)
                             parameters.AddRange(val.Parameters)
                             str = If(crit.Condition = FindCondition.findCriteriaNegative, " NOT (", " (") + val.Sql.Remove(0, 7) + ") "
                             i += (val.Parameters.Count + 1)

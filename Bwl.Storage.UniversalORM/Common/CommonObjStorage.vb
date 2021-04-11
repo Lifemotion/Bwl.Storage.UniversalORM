@@ -37,6 +37,7 @@
     Public MustOverride Function GetObjects(Of T As ObjBase)(objIds As String(), Optional sortParam As SortParam = Nothing) As IEnumerable(Of T) Implements IObjStorage.GetObjects
 
     Public MustOverride Sub RemoveObj(id As String) Implements IObjStorage.RemoveObj
+    Public MustOverride Sub RemoveObjs(ids As String()) Implements IObjStorage.RemoveObjs
 
     Public MustOverride Sub UpdateObj(obj As ObjBase) Implements IObjStorage.UpdateObj
 

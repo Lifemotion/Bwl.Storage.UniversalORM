@@ -109,7 +109,7 @@ Public Class FBStorage
         '''' where
         Dim whereSql = String.Empty
         Dim parameters As FbParameter() = Nothing
-        Dim helper = GenerateWhereSql(crit, sort)
+        Dim helper = GenerateWhereSql(crit)
         If helper IsNot Nothing Then
             whereSql = helper.SQL
             parameters = helper.Parameters.ToArray
@@ -168,7 +168,7 @@ Public Class FBStorage
         '''' where
         Dim whereSql = String.Empty
         Dim parameters As FbParameter() = Nothing
-        Dim helper = GenerateWhereSql(crit, sort)
+        Dim helper = GenerateWhereSql(crit)
         If helper IsNot Nothing Then
             whereSql = helper.SQL
             parameters = helper.Parameters.ToArray
@@ -246,6 +246,13 @@ Public Class FBStorage
         FbUtils.ExecSQL(ConnectionString, sql)
     End Sub
 
+    Public Overrides Sub RemoveObjs(ids As String())
+        CheckDB()
+        Dim strIds = " ( ( GUID = '" + String.Join("' ) or ( GUID = '", ids) + "' ) ) "
+        Dim sql = String.Format("DELETE FROM {0} WHERE {1}", Name, strIds)
+        FbUtils.ExecSQL(ConnectionString, sql)
+    End Sub
+
     Public Overrides Sub UpdateObj(obj As ObjBase)
         CheckDB()
         Dim json = CfJsonConverter.Serialize(obj)
@@ -319,7 +326,7 @@ Public Class FBStorage
         '''' where
         Dim whereSql = String.Empty
         Dim parameters As FbParameter() = Nothing
-        Dim helper = GenerateWhereSql(crit, sort)
+        Dim helper = GenerateWhereSql(crit)
         If helper IsNot Nothing Then
             whereSql = helper.SQL
             parameters = helper.Parameters.ToArray
@@ -505,7 +512,7 @@ Public Class FBStorage
         Return indexName
     End Function
 
-    Private Function GenerateWhereSql(criterias As IEnumerable(Of FindCriteria), sort As SortParam, Optional paramStartValue As Integer = 0) As SqlHelper
+    Private Function GenerateWhereSql(criterias As IEnumerable(Of FindCriteria), Optional paramStartValue As Integer = 0) As SqlHelper
         Dim where = String.Empty
         Dim parameters As New List(Of FbParameter)()
         Dim i = paramStartValue
@@ -541,7 +548,7 @@ Public Class FBStorage
                             str = GetMultipleConditionString(i, parameters, crit.Condition, quote + indexName + quote, value)
                         ElseIf findCriteriaConditions.Any(Function(f) f = crit.Condition) Then
                             Dim findCriteria = CfJsonConverter.Deserialize(Of FindCriteria())(value)
-                            Dim val = GenerateWhereSql(findCriteria, sort, i)
+                            Dim val = GenerateWhereSql(findCriteria, i)
                             parameters.AddRange(val.Parameters)
                             str = If(crit.Condition = FindCondition.findCriteriaNegative, " NOT (", " (") + val.SQL.Remove(0, 7) + ") "
                             i += (val.Parameters.Count + 1)

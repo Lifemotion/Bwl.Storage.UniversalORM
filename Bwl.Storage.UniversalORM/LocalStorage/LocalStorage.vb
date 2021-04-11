@@ -218,6 +218,20 @@ Public Class LocalStorage
         RemoveObj(id, GetType(T))
     End Sub
 
+    Public Sub RemoveObjs(ids() As String, type As Type) Implements ILocalStorage.RemoveObjs
+        Dim storage = GetStorage(type)
+        If storage IsNot Nothing Then
+            storage.RemoveObjs(ids)
+        End If
+        For Each id As String In ids
+            _blobStorage.Remove(id)
+        Next
+    End Sub
+
+    Public Sub RemoveObjs(Of T As ObjBase)(ids As String()) Implements ILocalStorage.RemoveObjs
+        RemoveObjs(ids, GetType(T))
+    End Sub
+
     Public ReadOnly Property BlobStorage As IBlobFiledsStorage
         Get
             Return _blobStorage

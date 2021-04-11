@@ -78,6 +78,10 @@ Public Class TempStorage
 
     End Sub
 
+    Public Overrides Sub RemoveObjs(ids As String())
+
+    End Sub
+
     Public Overrides Sub UpdateObj(obj As ObjBase)
 
     End Sub

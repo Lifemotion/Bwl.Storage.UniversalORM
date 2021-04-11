@@ -122,6 +122,12 @@ Public Class FileObjStorage
         End If
     End Sub
 
+    Public Overrides Sub RemoveObjs(ids As String())
+        For Each id As String In ids
+            RemoveObj(id)
+        Next
+    End Sub
+
     Private Sub CreateIndex(obj As ObjBase)
         If UseIndexing Then
             Dim res = String.Empty

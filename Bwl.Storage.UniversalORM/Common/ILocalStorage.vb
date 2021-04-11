@@ -8,6 +8,8 @@
 
     Sub RemoveObj(id As String, type As Type)
     Sub RemoveObj(Of T As ObjBase)(id As String)
+    Sub RemoveObjs(ids As String(), type As Type)
+    Sub RemoveObjs(Of T As ObjBase)(id As String())
 
     Sub RemoveAllObj(type As Type)
 

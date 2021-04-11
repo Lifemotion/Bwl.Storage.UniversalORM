@@ -24,10 +24,16 @@ Public Class MemoryStorage
         End If
     End Sub
 
+    Public Overrides Sub RemoveObjs(ids As String())
+        For Each id As String In ids
+            RemoveObj(id)
+        Next
+    End Sub
+
     Public Overrides Function FindObj(searchParams As SearchParams) As String()
         Return _objects.Keys.ToArray
     End Function
-    
+
     Public Overrides Function StrToObj(jsonObj As String, typeName As String) As ObjBase
         Dim res As ObjBase = Nothing
         Return res

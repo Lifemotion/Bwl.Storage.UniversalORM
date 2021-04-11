@@ -248,7 +248,14 @@ Public Class MSSQLSRVStorage
 
     Public Overrides Sub RemoveObj(id As String)
         CheckDB()
-        Dim sql = String.Format("DELETE FROM [dbo].[{0}] WHERE [guid] like '{1}'", Name, id)
+        Dim sql = String.Format("DELETE FROM [dbo].[{0}] WHERE [guid] = '{1}'", Name, id)
+        MSSQLSRVUtils.ExecSQL(ConnectionString, sql)
+    End Sub
+
+    Public Overrides Sub RemoveObjs(ids As String())
+        CheckDB()
+        Dim strIds = " ( ( [guid] = '" + String.Join("' ) or ( [guid] = '", ids) + "' ) ) "
+        Dim sql = String.Format("DELETE FROM [dbo].[{0}] WHERE {1}", Name, strIds)
         MSSQLSRVUtils.ExecSQL(ConnectionString, sql)
     End Sub
 

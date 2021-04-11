@@ -5,6 +5,7 @@
     Sub UpdateObj(obj As ObjBase)
 
     Sub RemoveObj(id As String)
+    Sub RemoveObjs(ids As String())
     Sub RemoveAllObjects()
 
     Function StrToObj(Of T As ObjBase)(str As String, type As String) As T

@@ -258,6 +258,13 @@ Public Class PgStorage
         Dim sql = String.Format("DELETE FROM ""{0}"" WHERE guid like '{1}'", Name, id)
         PgUtils.ExecSql(ConnectionString, sql)
     End Sub
+    
+    Public Overrides Sub RemoveObjs(ids As String())
+        CheckDb()
+        Dim strIds = " ( ( GUID = '" + String.Join("' ) or ( GUID = '", ids) + "' ) ) "
+        Dim sql = String.Format("DELETE FROM ""{0}"" WHERE {1}", Name, strIds)
+        PgUtils.ExecSql(ConnectionString, sql)
+    End Sub
 
     Public Overrides Sub UpdateObj(obj As ObjBase)
         CheckDb()

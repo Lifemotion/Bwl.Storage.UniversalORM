@@ -319,6 +319,27 @@ Public MustInherit Class LocalStorageBaseTest
     End Sub
 
     <TestMethod()>
+    Public Sub RemoveObjs()
+        Dim objsToAdd = New TestData() {_data1, _data2, _data3, _data4, _data5, _data6}
+        Dim objsToRemove = New String() {_data1.ID, _data4.ID, _data5.ID, _data6.ID}
+        Dim objsShouldLeft = objsToAdd.Where(Function(f) Not objsToRemove.Contains(f.ID)).Select(Function(f) f.ID).ToArray()
+
+        _localStorage.RemoveAllObj(GetType(TestData))
+        Dim p1 = _localStorage.FindObjCount(GetType(TestData), Nothing)
+        _localStorage.AddObjects(objsToAdd)
+        Dim p2 = _localStorage.FindObjCount(GetType(TestData), Nothing)
+        _localStorage.RemoveObjs(Of TestData)(objsToRemove)
+        Dim objsLeft = _localStorage.FindObj(GetType(TestData), Nothing)
+        Dim p3 As Long = objsLeft.Count()
+        Dim p4 = (objsLeft.Count() = objsShouldLeft.Where(Function(f) objsShouldLeft.Contains(f)).Count())
+
+        Assert.AreEqual(p1, 0L)
+        Assert.AreEqual(p2, 6L)
+        Assert.AreEqual(p3, 2L)
+        Assert.AreEqual(p4, True)
+    End Sub
+
+    <TestMethod()>
     Public Sub GetObj()
         _localStorage.RemoveAllObj(GetType(TestData))
         _localStorage.AddObj(_data1)

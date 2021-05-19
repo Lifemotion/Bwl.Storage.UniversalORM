@@ -61,17 +61,17 @@ Public Class PgUtils
         Dim connStr = String.Format("Server={0};Port={1};User Id={2};Password={3};",
                                     connStringBld.Host, connStringBld.Port, connStringBld.Username, connStringBld.Password)
         Dim mConn = New NpgsqlConnection(connStr)
-        Dim mCreatedbCmd = New NpgsqlCommand(String.Format("CREATE DATABASE ""{0}"" WITH OWNER = '{1}' ENCODING = 'UTF8' CONNECTION LIMIT = {2};",
+        Dim mCreateDbCmd = New NpgsqlCommand(String.Format("CREATE DATABASE ""{0}"" WITH OWNER = '{1}' ENCODING = 'UTF8' CONNECTION LIMIT = {2};",
                                                            connStringBld.Database, connStringBld.Username, -1), mConn)
         mConn.Open()
-        mCreatedbCmd.ExecuteNonQuery()
+        mCreateDbCmd.ExecuteNonQuery()
         mConn.Close()
         connStr = String.Format("Server={0};Port={1};User Id={2};Password={3};Database={4}",
                                 connStringBld.Host, connStringBld.Port, connStringBld.Username, connStringBld.Password, connStringBld.Database)
         mConn = New NpgsqlConnection(connStr)
-        Dim mCreatetblCmd = New NpgsqlCommand("CREATE TABLE table1(ID CHAR(256) CONSTRAINT id PRIMARY KEY, Title CHAR)", mConn)
+        Dim mCreateTblCmd = New NpgsqlCommand("CREATE TABLE table1(ID CHAR(256) CONSTRAINT id PRIMARY KEY, Title CHAR)", mConn)
         mConn.Open()
-        mCreatetblCmd.ExecuteNonQuery()
+        mCreateTblCmd.ExecuteNonQuery()
         mConn.Close()
 
     End Sub

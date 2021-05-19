@@ -17,7 +17,7 @@ Public Class SqliteUtils
             cmd.ExecuteNonQuery()
             cmd.Dispose()
         Catch ex As Exception
-            Throw New Exception(String.Format("PgUtils.ExecSQL({0}, {1}) - {2})", connString, ex.Message, sql))
+            Throw New Exception(String.Format("SqliteUtils.ExecSQL({0}, {1}) - {2})", connString, ex.Message, sql))
         Finally
             con.Close()
             con.Dispose()
@@ -39,7 +39,7 @@ Public Class SqliteUtils
             res = cmd.ExecuteScalar()
             cmd.Dispose()
         Catch ex As Exception
-            Throw New Exception(String.Format("PgUtils.ExecSQLScalar({0}, {1}) - {2})", connString, sql, ex.Message))
+            Throw New Exception(String.Format("SqliteUtils.ExecSQLScalar({0}, {1}) - {2})", connString, sql, ex.Message))
         Finally
             con.Close()
             con.Dispose()
@@ -62,17 +62,17 @@ Public Class SqliteUtils
     '    Dim connStr = String.Format("Server={0};Port={1};User Id={2};Password={3};",
     '                                connStringBld.Host, connStringBld.Port, connStringBld.Username, connStringBld.Password)
     '    Dim mConn = New SQLiteConnection(connStr)
-    '    Dim mCreatedbCmd = New SQLiteCommand(String.Format("CREATE DATABASE ""{0}"" WITH OWNER = '{1}' ENCODING = 'UTF8' CONNECTION LIMIT = {2};",
+    '    Dim mCreateDbCmd = New SQLiteCommand(String.Format("CREATE DATABASE ""{0}"" WITH OWNER = '{1}' ENCODING = 'UTF8' CONNECTION LIMIT = {2};",
     '                                                       connStringBld.Database, connStringBld.Username, -1), mConn)
     '    mConn.Open()
-    '    mCreatedbCmd.ExecuteNonQuery()
+    '    mCreateDbCmd.ExecuteNonQuery()
     '    mConn.Close()
     '    connStr = String.Format("Server={0};Port={1};User Id={2};Password={3};Database={4}",
     '                            connStringBld.Host, connStringBld.Port, connStringBld.Username, connStringBld.Password, connStringBld.Database)
     '    mConn = New SQLiteConnection(connStr)
-    '    Dim mCreatetblCmd = New SQLiteCommand("CREATE TABLE table1(ID CHAR(256) CONSTRAINT id PRIMARY KEY, Title CHAR)", mConn)
+    '    Dim mCreateTblCmd = New SQLiteCommand("CREATE TABLE table1(ID CHAR(256) CONSTRAINT id PRIMARY KEY, Title CHAR)", mConn)
     '    mConn.Open()
-    '    mCreatetblCmd.ExecuteNonQuery()
+    '    mCreateTblCmd.ExecuteNonQuery()
     '    mConn.Close()
 
     'End Sub
@@ -118,7 +118,7 @@ Public Class SqliteUtils
             reader = New SqlReaderHelper(sr, cmd, con)
             list = reader.GetObjectList
         Catch ex As Exception
-            Throw New Exception(String.Format("PgUtils.ExecSQL({0}, {1}) - {2})", connString, sql, ex.ToString))
+            Throw New Exception(String.Format("SqliteUtils.ExecSQL({0}, {1}) - {2})", connString, sql, ex.ToString))
         Finally
             If reader IsNot Nothing Then
                 reader.Close()

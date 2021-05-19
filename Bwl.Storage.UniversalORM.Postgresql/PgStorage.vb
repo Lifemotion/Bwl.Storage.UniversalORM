@@ -70,6 +70,7 @@ Public Class PgStorage
     Public Overrides Function FindObjCount(searchParams As SearchParams) As Long
         Dim res As Long = 0
         CheckDb()
+        GenerateMultiColumnIndexFromSearchParams(searchParams)
 
         '''' TOP
         Dim topSql = String.Empty
@@ -138,6 +139,7 @@ Public Class PgStorage
 
     Public Overrides Function FindObj(searchParams As SearchParams) As String()
         CheckDb()
+        GenerateMultiColumnIndexFromSearchParams(searchParams)
 
         ' TODO: надо сделать проверку типа данных, т.к. postgresql сильно к ним привязывается и ничего не исправляет сам
         '''' TOP
@@ -258,7 +260,7 @@ Public Class PgStorage
         Dim sql = String.Format("DELETE FROM ""{0}"" WHERE guid like '{1}'", Name, id)
         PgUtils.ExecSql(ConnectionString, sql)
     End Sub
-    
+
     Public Overrides Sub RemoveObjs(ids As String())
         CheckDb()
         Dim strIds = " ( ( GUID = '" + String.Join("' ) or ( GUID = '", ids) + "' ) ) "
@@ -298,6 +300,7 @@ Public Class PgStorage
 
     Public Overrides Function GetObjects(searchParams As SearchParams) As IEnumerable(Of ObjBase)
         CheckDb()
+        GenerateMultiColumnIndexFromSearchParams(searchParams)
 
         ' TODO: надо сделать проверку типа данных, т.к. postgresql сильно к ним привязывается и ничего не исправляет сам
         '''' TOP
@@ -510,7 +513,7 @@ Public Class PgStorage
                     End If
             End Select
             listQuery.SqlStatements.Add(sql)
-            listQuery.SqlStatements.Add(String.Format("CREATE INDEX ""IX_{0}_{1}"" ON ""{0}""(""{1}"")", Name, indexName))
+            listQuery.SqlStatements.Add(String.Format("CREATE INDEX IF NOT EXISTS ""IX_{0}_{1}"" ON ""{0}""(""{1}"")", Name, indexName))
 
             listQuery.Execute()
         End If
@@ -518,7 +521,43 @@ Public Class PgStorage
         Return indexName
     End Function
 
-    Private Function GenerateWhereSql(criterias As IEnumerable(Of FindCriteria), sortField As String, Optional paramStartValue As Integer = 0) As SqlHelper
+    Private Sub GenerateMultiColumnIndexFromSearchParams(sp As SearchParams)
+        If Not sp.GenerateIndex Then Exit Sub ' Генерируем индекс только если указано что это надо делать, т.к. это может сильно нагрузить БД и не для всех случаев это вообще надо
+
+        ' Поле для сортировки
+        Dim sortField = "guid"
+        'Dim sortTableName = Name
+        If (sp IsNot Nothing) AndAlso (sp.SortParam IsNot Nothing) Then
+            Dim indexInfo = _indexingMembers.FirstOrDefault(Function(indInf) indInf.Name = sp.SortParam.Field)
+            If (indexInfo IsNot Nothing) Then
+                sortField = GetIndexName(indexInfo)
+            Else
+                Throw New Exception("PgStorage.FindObj _ BadSortParam _ index " + indexInfo.Name + " not found.")
+            End If
+        End If
+
+        Dim fields = New List(Of String)
+        If sp.FindCriterias.Any() Then
+            GenerateWhereSql(sp.FindCriterias, sortField,, fields)
+        End If
+        If sp.SortParam IsNot Nothing Then
+            fields.Add(sp.SortParam.Field)
+        End If
+        Dim allFieldsArray = fields.Select(Function(f) f.Trim()).Distinct().OrderBy(Function(f) f).ToList()
+        Dim indexes = allFieldsArray.Select(Function(f) _indexingMembers.First(Function(t) f = t.Name)).ToArray()
+        If indexes.Count <= 1 Then Exit Sub
+        CreateMultiColumnIndex(indexes)
+    End Sub
+
+    Private Sub CreateMultiColumnIndex(indexing As IndexInfo())
+        Dim indexingFieldsAsName = indexing.Select(Function(f) f.Name.Replace(".", "_")).Aggregate(Function(f, t) f + "-" + t)
+        Dim indexingFields = indexing.Select(Function(f) """" + f.Name.Replace(".", "_") + """").Aggregate(Function(f, t) f + "," + t)
+
+        Dim sql = String.Format("CREATE INDEX IF NOT EXISTS ""MULTI_IX_{0}_{1}"" ON ""{0}""({2})", Name, indexingFieldsAsName, indexingFields)
+        PgUtils.ExecSql(ConnectionString, sql)
+    End Sub
+
+    Private Function GenerateWhereSql(criterias As IEnumerable(Of FindCriteria), sortField As String, Optional paramStartValue As Integer = 0, Optional ByRef indexList As List(Of String) = Nothing) As SqlHelper
         Dim where = String.Empty
         Dim parameters As New List(Of NpgsqlParameter)()
         Dim i = paramStartValue
@@ -547,16 +586,16 @@ Public Class PgStorage
                     End If
                     parameters.Add(New NpgsqlParameter(pName, value))
                 Else
-
                     Dim ind = _indexingMembers.FirstOrDefault(Function(f) f.Name = crit.Field)
                     If (ind IsNot Nothing) Then
                         Dim indexName = GetIndexName(ind)
+                        If indexList IsNot Nothing Then indexList.Add(indexName)
                         Dim str = String.Empty
                         If multipleConditions.Any(Function(f) f = crit.Condition) Then
                             str = GetMultipleConditionString(i, parameters, crit.Condition, QUOTE + indexName + QUOTE, value)
                         ElseIf findCriteriaConditions.Any(Function(f) f = crit.Condition) Then
                             Dim findCriteria = CfJsonConverter.Deserialize(Of FindCriteria())(value)
-                            Dim val = GenerateWhereSql(findCriteria, "guid", i)
+                            Dim val = GenerateWhereSql(findCriteria, "guid", i, indexList)
                             parameters.AddRange(val.Parameters)
                             str = If(crit.Condition = FindCondition.findCriteriaNegative, " NOT (", " (") + val.SQL.Remove(0, 7) + ") "
                             i += (val.Parameters.Count + 1)

@@ -1,5 +1,4 @@
-﻿Imports System.IO
-Imports Npgsql
+﻿Imports Npgsql
 Imports NpgsqlTypes
 
 Public Class PgStorage
@@ -28,7 +27,7 @@ Public Class PgStorage
     Public Overrides Sub AddObj(obj As ObjBase)
         CheckDb()
         Dim json = CfJsonConverter.Serialize(obj)
-        Save(ConnectionString, obj.ID, json, obj.GetType)
+        Save(obj.ID, json, obj.GetType)
 
         For Each indexing In _indexingMembers
             Dim indexName = GetIndexName(indexing)
@@ -124,7 +123,7 @@ Public Class PgStorage
         Dim parameters As NpgsqlParameter() = Nothing
         Dim helper = GenerateWhereSql(crit, sortField)
         If helper IsNot Nothing Then
-            whereSql = helper.SQL
+            whereSql = helper.Sql
             parameters = helper.Parameters.ToArray
         End If
 
@@ -141,7 +140,7 @@ Public Class PgStorage
         CheckDb()
         GenerateMultiColumnIndexFromSearchParams(searchParams)
 
-        ' TODO: надо сделать проверку типа данных, т.к. postgresql сильно к ним привязывается и ничего не исправляет сам
+        ' TODO: надо сделать проверку типа данных, т.к. PostgreSQL сильно к ним привязывается и ничего не исправляет сам
         '''' TOP
         Dim topSql = String.Empty
         If (searchParams IsNot Nothing) AndAlso (searchParams.SelectOptions IsNot Nothing) AndAlso (searchParams.SelectOptions.SelectMode = SelectMode.Top) Then
@@ -185,11 +184,10 @@ Public Class PgStorage
         Dim parameters As NpgsqlParameter() = Nothing
         Dim helper = GenerateWhereSql(crit, sortField)
         If helper IsNot Nothing Then
-            whereSql = helper.SQL
+            whereSql = helper.Sql
             parameters = helper.Parameters.ToArray
         End If
 
-        Dim betweenSql = String.Empty
         Dim mainSelect = String.Empty
         If (searchParams IsNot Nothing) AndAlso (searchParams.SelectOptions IsNot Nothing) AndAlso (searchParams.SelectOptions.SelectMode = SelectMode.Between) Then
             'BUG: 'mainSelect = String.Format("SELECT FIRST {1} SKIP {2} GUID FROM {0}", Name, searchParams.SelectOptions.EndValue - searchParams.SelectOptions.StartValue + 1, searchParams.SelectOptions.StartValue)
@@ -234,10 +232,10 @@ Public Class PgStorage
 
         Dim res As ObjBase = Nothing
         Dim sql = String.Format("SELECT json, type FROM ""{0}"" WHERE guid = '{1}'", Name, id)
-        Dim vals = PgUtils.GetObjectList(ConnectionString, sql)
-        If vals IsNot Nothing AndAlso vals.Any Then
-            Dim jsonObj = vals(0)(0)
-            Dim typeName = vals(0)(1)
+        Dim values = PgUtils.GetObjectList(ConnectionString, sql)
+        If values IsNot Nothing AndAlso values.Any Then
+            Dim jsonObj = values(0)(0)
+            Dim typeName = values(0)(1)
 
             If (typeName = "-") Or String.IsNullOrWhiteSpace(typeName) Then
                 typeName = SupportedType.AssemblyQualifiedName
@@ -271,7 +269,7 @@ Public Class PgStorage
     Public Overrides Sub UpdateObj(obj As ObjBase)
         CheckDb()
         Dim json = CfJsonConverter.Serialize(obj)
-        Update(ConnectionString, obj.ID, json)
+        Update(obj.ID, json)
 
         For Each indexing In _indexingMembers
             Dim indexName = GetIndexName(indexing)
@@ -302,7 +300,7 @@ Public Class PgStorage
         CheckDb()
         GenerateMultiColumnIndexFromSearchParams(searchParams)
 
-        ' TODO: надо сделать проверку типа данных, т.к. postgresql сильно к ним привязывается и ничего не исправляет сам
+        ' TODO: надо сделать проверку типа данных, т.к. PostgreSQL сильно к ним привязывается и ничего не исправляет сам
         '''' TOP
         Dim topSql = String.Empty
         If (searchParams IsNot Nothing) AndAlso (searchParams.SelectOptions IsNot Nothing) AndAlso (searchParams.SelectOptions.SelectMode = SelectMode.Top) Then
@@ -346,11 +344,10 @@ Public Class PgStorage
         Dim parameters As NpgsqlParameter() = Nothing
         Dim helper = GenerateWhereSql(crit, sortField)
         If helper IsNot Nothing Then
-            whereSql = helper.SQL
+            whereSql = helper.Sql
             parameters = helper.Parameters.ToArray
         End If
 
-        Dim betweenSql = String.Empty
         Dim mainSelect = String.Empty
         If (searchParams IsNot Nothing) AndAlso (searchParams.SelectOptions IsNot Nothing) AndAlso (searchParams.SelectOptions.SelectMode = SelectMode.Between) Then
             'BUG: 'mainSelect = String.Format("SELECT FIRST {1} SKIP {2} GUID FROM {0}", Name, searchParams.SelectOptions.EndValue - searchParams.SelectOptions.StartValue + 1, searchParams.SelectOptions.StartValue)
@@ -474,17 +471,17 @@ Public Class PgStorage
 
         Dim t = indexing.Type
         Dim indexesSql = String.Format(My.Resources.GetIndexesSql, Name)
-        Dim sqLfields = String.Format("select R.column_name from
+        Dim sqlFields = String.Format("select R.column_name from
                                             information_schema.columns as F, 
                                             ({2}) as R 
                                         where (F.column_name = R.column_name 
                                             and R.table_name = '{0}' 
                                             and R.column_name = '{1}')",
                                       Name, indexName, indexesSql)
-        Dim fields = PgUtils.ExecSqlScalar(ConnectionString, sqLfields)
+        Dim fields = PgUtils.ExecSqlScalar(ConnectionString, sqlFields)
         If fields Is Nothing Then
             Dim listQuery As New PgBatchExecution(New NpgsqlConnection(ConnectionString))
-            Dim sql = String.Empty
+            Dim sql As String
             Select Case (t)
                 Case GetType(String)
                     Dim len = Byte.MaxValue.ToString
@@ -557,6 +554,33 @@ Public Class PgStorage
         PgUtils.ExecSql(ConnectionString, sql)
     End Sub
 
+    Public Overrides Function GetNullDataIds() As String()
+        CheckDb()
+        Dim resDataList = New List(Of String)
+        For Each indexingMember As IndexInfo In _indexingMembers
+            resDataList.AddRange(GetObjsWithFieldNull(indexingMember.Name))
+        Next
+        Return resDataList.Distinct().ToArray()
+    End Function
+
+    Private Function GetObjsWithFieldNull(fieldName As String) As String()
+        Dim sql = String.Format($"SELECT GUID FROM  ""{Name}"" WHERE ""{fieldName}"" is NULL")
+        Dim list = PgUtils.GetObjectList(ConnectionString, sql)
+        If (list IsNot Nothing AndAlso list.Any) Then
+            Return list.Select(Function(d) d(0).ToString).ToArray()
+        End If
+        Return Nothing
+    End Function
+
+    Public Overrides Sub CleanNullData()
+        CheckDb()
+        Dim listQuery As New PgBatchExecution(New NpgsqlConnection(ConnectionString))
+        For Each indexingMember As IndexInfo In _indexingMembers
+            listQuery.SqlStatements.Add($"DELETE FROM ""{Name}"" WHERE ""{indexingMember.Name}"" is null")
+        Next
+        listQuery.Execute()
+    End Sub
+
     Private Function GenerateWhereSql(criterias As IEnumerable(Of FindCriteria), sortField As String, Optional paramStartValue As Integer = 0, Optional ByRef indexList As List(Of String) = Nothing) As SqlHelper
         Dim where = String.Empty
         Dim parameters As New List(Of NpgsqlParameter)()
@@ -597,7 +621,7 @@ Public Class PgStorage
                             Dim findCriteria = CfJsonConverter.Deserialize(Of FindCriteria())(value)
                             Dim val = GenerateWhereSql(findCriteria, "guid", i, indexList)
                             parameters.AddRange(val.Parameters)
-                            str = If(crit.Condition = FindCondition.findCriteriaNegative, " NOT (", " (") + val.SQL.Remove(0, 7) + ") "
+                            str = If(crit.Condition = FindCondition.findCriteriaNegative, " NOT (", " (") + val.Sql.Remove(0, 7) + ") "
                             i += (val.Parameters.Count + 1)
                         Else
 
@@ -663,7 +687,7 @@ Public Class PgStorage
                                                        condition As FindCondition,
                                                        indexTableName As String,
                                                        jsonValues As String) As String
-        Dim res = ""
+        Dim res As String
         Dim valuesFromArrayOfStrings = CfJsonConverter.Deserialize(Of String())(jsonValues)
         Dim valuesToAggregate = New List(Of String)
         Dim multipleNegativeConditions = New FindCondition() {FindCondition.multipleNotEqual,
@@ -744,14 +768,14 @@ Public Class PgStorage
         Return param
     End Function
 
-    Private Sub Save(connStr As String, id As String, json As String, type As Type)
-        Dim rtype = IIf(type.AssemblyQualifiedName = SupportedType.AssemblyQualifiedName, "-", type.AssemblyQualifiedName)
-        Dim parameters = {New NpgsqlParameter("@p1", id), New NpgsqlParameter("@p2", json), New NpgsqlParameter("@p3", rtype)}
+    Private Sub Save(id As String, json As String, type As Type)
+        Dim rType = IIf(type.AssemblyQualifiedName = SupportedType.AssemblyQualifiedName, "-", type.AssemblyQualifiedName)
+        Dim parameters = {New NpgsqlParameter("@p1", id), New NpgsqlParameter("@p2", json), New NpgsqlParameter("@p3", rType)}
         Dim sql = String.Format("INSERT INTO ""{0}""(GUID ,JSON, TYPE) VALUES(@p1, @p2, @p3)", Name)
         PgUtils.ExecSql(ConnectionString, sql, parameters)
     End Sub
 
-    Private Sub Update(connStr As String, id As String, json As String)
+    Private Sub Update(id As String, json As String)
         Dim sql = String.Format("UPDATE ""{0}"" SET JSON = @p1 WHERE guid = @p2", Name)
         PgUtils.ExecSql(ConnectionString, sql, {New NpgsqlParameter("@p1", json), New NpgsqlParameter("@p2", id)})
     End Sub

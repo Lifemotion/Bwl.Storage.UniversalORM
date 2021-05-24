@@ -514,13 +514,22 @@ Public Class FileObjStorage
         End Try
     End Sub
 
+    ' Следующие поля - только для SQL, в FileStorage они бесполезны
     <Obsolete("DO NOT use this method unless absolutely necessary", False)>
     Public Overrides Function ExecSqlGetObjects(sqlString As String) As List(Of List(Of Object))
-        Return Nothing
+        Throw New NotImplementedException()
     End Function
 
     <Obsolete("DO NOT use this method unless absolutely necessary", False)>
     Public Overrides Sub ExecSql(sqlString As String)
+        Throw New NotImplementedException()
+    End Sub
 
+    Public Overrides Function GetNullDataIds() As String()
+        Throw New NotImplementedException()
+    End Function
+
+    Public Overrides Sub CleanNullData()
+        Throw New NotImplementedException()
     End Sub
 End Class

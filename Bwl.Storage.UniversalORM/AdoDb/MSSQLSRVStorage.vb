@@ -708,6 +708,31 @@ Public Class MSSQLSRVStorage
         Return res
     End Function
 
+    Public Overrides Function GetNullDataIds() As String()
+        CheckDB()
+        Dim resDataList = New List(Of String)
+        For Each indexingMember As IndexInfo In _indexingMembers
+            resDataList.AddRange(GetObjsWithFieldNull(indexingMember.Name))
+        Next
+        Return resDataList.Distinct().ToArray()
+    End Function
+
+    Private Function GetObjsWithFieldNull(fieldName As String) As String()
+        Dim sql = $"SELECT [guid] FROM [dbo].[{Name}] WHERE [{fieldName}].[value] IS NULL"
+        Dim list = MSSQLSRVUtils.GetObjectList(ConnectionString, sql)
+        If (list IsNot Nothing AndAlso list.Any) Then
+            Return list.Select(Function(d) d(0).ToString).ToArray()
+        End If
+        Return Nothing
+    End Function
+
+    Public Overrides Sub CleanNullData()
+        CheckDB()
+        For Each indexingMember As IndexInfo In _indexingMembers
+            MSSQLSRVUtils.ExecSQL(ConnectionString, $"DELETE FROM [dbo].[{Name}] WHERE [{indexingMember.Name}].[value] IS NULL")
+        Next
+    End Sub
+
     Private Sub Save(connStr As String, id As String, json As String, type As Type)
         Dim rtype = IIf(type.AssemblyQualifiedName = SupportedType.AssemblyQualifiedName, "-", type.AssemblyQualifiedName)
         Dim parameters = {New SqlParameter("@p1", id), New SqlParameter("@p2", json), New SqlParameter("@p3", rtype)}

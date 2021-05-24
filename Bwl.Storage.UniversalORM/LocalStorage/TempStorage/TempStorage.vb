@@ -4,6 +4,7 @@ Imports Newtonsoft.Json.Linq
 
 Public Class TempStorage
     Inherits Bwl.Storage.UniversalORM.CommonObjStorage
+
     Implements Bwl.Storage.UniversalORM.IObjStorageManager
     Implements Bwl.Storage.UniversalORM.IBlobFieldsWriter
 
@@ -125,12 +126,21 @@ Public Class TempStorage
         Return 0
     End Function
 
+    ' Следующие поля - только для SQL, в TempStorage они бесполезны
     <Obsolete("DO NOT use this method unless absolutely necessary", False)>
     Public Overrides Function ExecSqlGetObjects(sqlString As String) As List(Of List(Of Object))
-        Return Nothing
+        Throw New NotImplementedException()
     End Function
     <Obsolete("DO NOT use this method unless absolutely necessary", False)>
     Public Overrides Sub ExecSql(sqlString As String)
+        Throw New NotImplementedException()
+    End Sub
 
+    Public Overrides Function GetNullDataIds() As String()
+        Throw New NotImplementedException()
+    End Function
+
+    Public Overrides Sub CleanNullData()
+        Throw New NotImplementedException()
     End Sub
 End Class

@@ -4,7 +4,6 @@ Public Class SqliteStorage
     Inherits CommonObjStorage
 
     Private ReadOnly _name As String
-    Private ReadOnly _dbPath As String
 
     Public Property ConnectionStringBld As SQLiteConnectionStringBuilder
 
@@ -14,10 +13,9 @@ Public Class SqliteStorage
         End Get
     End Property
 
-    Public Sub New(connStringBld As SQLiteConnectionStringBuilder, type As Type, dbPath As String)
+    Public Sub New(connStringBld As SQLiteConnectionStringBuilder, type As Type)
         MyBase.New(type)
         _name = type.Name
-        _dbPath = dbPath
         ConnectionStringBld = connStringBld
 
         CheckDb()
@@ -26,7 +24,7 @@ Public Class SqliteStorage
     Public Overrides Sub AddObj(obj As ObjBase)
         CheckDb()
         Dim json = CfJsonConverter.Serialize(obj)
-        Save(ConnectionString, obj.ID, json, obj.GetType)
+        Save(obj.ID, json, obj.GetType)
 
         For Each indexing In _indexingMembers
             Dim indexName = GetIndexName(indexing)
@@ -78,32 +76,9 @@ Public Class SqliteStorage
             End If
         End If
 
-        ' '''' sorting
-        'Dim sortModeStr = "ASC"
-        'Dim sortField = "guid"
-        'Dim sortColName = Name
-        'If (searchParams IsNot Nothing) AndAlso (searchParams.SortParam IsNot Nothing) Then
-        '	If searchParams.SortParam.SortMode = SortMode.Descending Then
-        '		sortModeStr = "DESC"
-        '	End If
-
-        '	Dim indexInfo = _indexingMembers.FirstOrDefault(Function(indInf) indInf.Name = searchParams.SortParam.Field)
-        '	If (indexInfo IsNot Nothing) Then
-        '		sortField = "value"
-        '		sortColName = GetIndexName(indexInfo)
-        '	Else
-        '		Throw New Exception("SqliteStorage.FindObj _ BadSortParam _ index " + searchParams.SortParam.Field + " not found.")
-        '	End If
-        'End If
-
         Dim crit As IEnumerable(Of FindCriteria) = Nothing
         If (searchParams IsNot Nothing) Then
             crit = searchParams.FindCriterias
-        End If
-
-        Dim sort As SortParam = Nothing
-        If (searchParams IsNot Nothing) Then
-            sort = searchParams.SortParam
         End If
 
         '''' where
@@ -159,14 +134,6 @@ Public Class SqliteStorage
             crit = searchParams.FindCriterias
         End If
 
-        Dim sort As SortParam = Nothing
-        If (searchParams IsNot Nothing) Then
-            sort = searchParams.SortParam
-        End If
-
-        '''' from + where
-        'Dim fromSql = GenerateFromSql(crit, sort)
-
         '''' where
         Dim whereSql = String.Empty
         Dim parameters As SQLiteParameter() = Nothing
@@ -176,7 +143,6 @@ Public Class SqliteStorage
             parameters = helper.Parameters.ToArray
         End If
 
-        Dim betweenSql = String.Empty
         Dim mainSelect = String.Empty
         If (searchParams IsNot Nothing) AndAlso (searchParams.SelectOptions IsNot Nothing) AndAlso (searchParams.SelectOptions.SelectMode = SelectMode.Between) Then
             'BUG: 'mainSelect = String.Format("SELECT FIRST {1} SKIP {2} GUID FROM {0}", Name, searchParams.SelectOptions.EndValue - searchParams.SelectOptions.StartValue + 1, searchParams.SelectOptions.StartValue)
@@ -218,10 +184,10 @@ Public Class SqliteStorage
         Dim res As ObjBase = Nothing
         CheckDb()
         Dim sql = String.Format("SELECT json, type FROM ""{0}"" WHERE guid = '{1}'", Name, id)
-        Dim vals = SqliteUtils.GetObjectList(ConnectionString, sql)
-        If vals IsNot Nothing AndAlso vals.Any Then
-            Dim jsonObj = vals(0)(0)
-            Dim typeName = vals(0)(1)
+        Dim values = SqliteUtils.GetObjectList(ConnectionString, sql)
+        If values IsNot Nothing AndAlso values.Any Then
+            Dim jsonObj = values(0)(0)
+            Dim typeName = values(0)(1)
 
             If (typeName = "-") Or String.IsNullOrWhiteSpace(typeName) Then
                 typeName = SupportedType.AssemblyQualifiedName
@@ -255,7 +221,7 @@ Public Class SqliteStorage
     Public Overrides Sub UpdateObj(obj As ObjBase)
         CheckDb()
         Dim json = CfJsonConverter.Serialize(obj)
-        Update(ConnectionString, obj.ID, json)
+        Update(obj.ID, json)
 
         For Each indexing In _indexingMembers
             Dim indexName = GetIndexName(indexing)
@@ -317,14 +283,6 @@ Public Class SqliteStorage
             crit = searchParams.FindCriterias
         End If
 
-        Dim sort As SortParam = Nothing
-        If (searchParams IsNot Nothing) Then
-            sort = searchParams.SortParam
-        End If
-
-        '''' from + where
-        'Dim fromSql = GenerateFromSql(crit, sort)
-
         '''' where
         Dim whereSql = String.Empty
         Dim parameters As SQLiteParameter() = Nothing
@@ -334,7 +292,6 @@ Public Class SqliteStorage
             parameters = helper.Parameters.ToArray
         End If
 
-        Dim betweenSql = String.Empty
         Dim mainSelect = String.Empty
         If (searchParams IsNot Nothing) AndAlso (searchParams.SelectOptions IsNot Nothing) AndAlso (searchParams.SelectOptions.SelectMode = SelectMode.Between) Then
             'BUG: 'mainSelect = String.Format("SELECT FIRST {1} SKIP {2} GUID FROM {0}", Name, searchParams.SelectOptions.EndValue - searchParams.SelectOptions.StartValue + 1, searchParams.SelectOptions.StartValue)
@@ -424,7 +381,7 @@ Public Class SqliteStorage
     End Function
 
     Private Sub CheckDb()
-        SqliteUtils.CreateDb(ConnectionStringBld, _dbPath)
+        SqliteUtils.CreateDb(ConnectionStringBld)
         CreateMainTable(ConnectionString, Name)
     End Sub
 
@@ -452,16 +409,16 @@ Public Class SqliteStorage
         Dim indexName = indexing.Name.Replace(".", "_")
 
         Dim t = indexing.Type
-        Dim sqLfields = String.Format("select name from
+        Dim sqlFields = String.Format("select name from
                                             sqlite_master 
                                         where (type = 'index' 
                                             and tbl_name = '{0}' 
                                             and name = 'IX_{0}_{1}')",
                                       Name, indexName)
-        Dim fields = SqliteUtils.ExecSqlScalar(ConnectionString, sqLfields)
+        Dim fields = SqliteUtils.ExecSqlScalar(ConnectionString, sqlFields)
         If fields Is Nothing Then
             Dim listQuery As New SqliteBatchExecution(New SQLiteConnection(ConnectionString))
-            Dim sql = String.Empty
+            Dim sql As String
             Select Case (t)
                 Case GetType(String)
                     Dim len = Byte.MaxValue.ToString
@@ -516,9 +473,35 @@ Public Class SqliteStorage
     Private Sub CreateMultiColumnIndex(indexing As IndexInfo())
         Dim indexingFieldsAsName = indexing.Select(Function(f) f.Name.Replace(".", "_")).Aggregate(Function(f, t) f + "-" + t)
         Dim indexingFields = indexing.Select(Function(f) """" + f.Name.Replace(".", "_") + """").Aggregate(Function(f, t) f + "," + t)
-
         Dim sql = String.Format("CREATE INDEX IF NOT EXISTS ""MULTI_IX_{0}_{1}"" ON ""{0}""({2})", Name, indexingFieldsAsName, indexingFields)
         SqliteUtils.ExecSql(ConnectionString, sql)
+    End Sub
+
+    Public Overrides Function GetNullDataIds() As String()
+        CheckDb()
+        Dim resDataList = New List(Of String)
+        For Each indexingMember As IndexInfo In _indexingMembers
+            resDataList.AddRange(GetObjsWithFieldNull(indexingMember.Name))
+        Next
+        Return resDataList.Distinct().ToArray()
+    End Function
+
+    Private Function GetObjsWithFieldNull(fieldName As String) As String()
+        Dim sql = String.Format($"SELECT GUID FROM  ""{Name}"" WHERE ""{fieldName}"" is NULL")
+        Dim list = SqliteUtils.GetObjectList(ConnectionString, sql)
+        If (list IsNot Nothing AndAlso list.Any) Then
+            Return list.Select(Function(d) d(0).ToString).ToArray()
+        End If
+        Return Nothing
+    End Function
+
+    Public Overrides Sub CleanNullData()
+        CheckDb()
+        Dim listQuery As New SqliteBatchExecution(New SQLiteConnection(ConnectionString))
+        For Each indexingMember As IndexInfo In _indexingMembers
+            listQuery.SqlStatements.Add($"DELETE FROM ""{Name}"" WHERE ""{indexingMember.Name}"" is null")
+        Next
+        listQuery.Execute()
     End Sub
 
     Private Function GenerateWhereSql(criterias As IEnumerable(Of FindCriteria), Optional paramStartValue As Integer = 0, Optional ByRef indexList As List(Of String) = Nothing) As SqlHelper
@@ -616,7 +599,7 @@ Public Class SqliteStorage
     End Function
 
     Private Shared Function GetMultipleConditionString(ByRef i As Integer, ByRef parameters As List(Of SQLiteParameter), condition As FindCondition, indexTableName As String, jsonValues As String) As String
-        Dim res = ""
+        Dim res As String
         Dim valuesFromArrayOfStrings = CfJsonConverter.Deserialize(Of String())(jsonValues)
         Dim valuesToAggregate = New List(Of String)
         Dim multipleNegativeConditions = New FindCondition() {FindCondition.multipleNotEqual,
@@ -699,14 +682,14 @@ Public Class SqliteStorage
         Return param
     End Function
 
-    Private Sub Save(connStr As String, id As String, json As String, type As Type)
-        Dim rtype = IIf(type.AssemblyQualifiedName = SupportedType.AssemblyQualifiedName, "-", type.AssemblyQualifiedName)
-        Dim parameters = {New SQLiteParameter("@p1", id), New SQLiteParameter("@p2", json), New SQLiteParameter("@p3", rtype)}
+    Private Sub Save(id As String, json As String, type As Type)
+        Dim rType = IIf(type.AssemblyQualifiedName = SupportedType.AssemblyQualifiedName, "-", type.AssemblyQualifiedName)
+        Dim parameters = {New SQLiteParameter("@p1", id), New SQLiteParameter("@p2", json), New SQLiteParameter("@p3", rType)}
         Dim sql = String.Format("INSERT INTO ""{0}""(GUID ,JSON, TYPE) VALUES(@p1, @p2, @p3)", Name)
         SqliteUtils.ExecSql(ConnectionString, sql, parameters)
     End Sub
 
-    Private Sub Update(connStr As String, id As String, json As String)
+    Private Sub Update(id As String, json As String)
         Dim sql = String.Format("UPDATE ""{0}"" SET JSON = @p1 WHERE guid = @p2", Name)
         SqliteUtils.ExecSql(ConnectionString, sql, {New SQLiteParameter("@p1", json), New SQLiteParameter("@p2", id)})
     End Sub

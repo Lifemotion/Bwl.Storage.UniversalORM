@@ -4,8 +4,8 @@ Public Class SqlReaderHelper
 
     Public Sub New(reader As SQLiteDataReader, cmd As SQLiteCommand, conn As SQLiteConnection)
         Me.Cmd = cmd
-        Me.Connection = conn
         Me.Reader = reader
+        Connection = conn
     End Sub
 
     Public Property Reader As SQLiteDataReader

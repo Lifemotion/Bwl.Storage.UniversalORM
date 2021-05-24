@@ -511,6 +511,34 @@ Public Class FBStorage
 
         Return indexName
     End Function
+    
+    Public Overrides Function GetNullDataIds() As String()
+        CheckDb()
+        Dim resDataList = New List(Of String)
+        For Each indexingMember As IndexInfo In _indexingMembers
+            resDataList.AddRange(GetObjsWithFieldNull(indexingMember.Name))
+        Next
+        Return resDataList.Distinct().ToArray()
+    End Function
+
+    Private Function GetObjsWithFieldNull(fieldName As String) As String()
+        Dim sql = String.Format($"SELECT GUID FROM  ""{Name}"" WHERE ""{fieldName}"" is NULL")
+        Dim list = FbUtils.GetObjectList(ConnectionString, sql)
+        If (list IsNot Nothing AndAlso list.Any) Then
+            Return list.Select(Function(d) d(0).ToString).ToArray()
+        End If
+        Return Nothing
+    End Function
+
+    Public Overrides Sub CleanNullData()
+        CheckDb()
+        Dim listQuery As New FbBatchExecution(New FbConnection(ConnectionString))
+        For Each indexingMember As IndexInfo In _indexingMembers
+            listQuery.SqlStatements.Add($"DELETE FROM ""{Name}"" WHERE ""{indexingMember.Name}"" is null")
+        Next
+        listQuery.Execute()
+    End Sub
+
 
     Private Function GenerateWhereSql(criterias As IEnumerable(Of FindCriteria), Optional paramStartValue As Integer = 0) As SqlHelper
         Dim where = String.Empty

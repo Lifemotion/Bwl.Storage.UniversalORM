@@ -8,6 +8,9 @@
     Sub RemoveObjs(ids As String())
     Sub RemoveAllObjects()
 
+    Function GetNullDataIds() As String()
+    Sub CleanNullData()
+
     Function StrToObj(Of T As ObjBase)(str As String, type As String) As T
     Function StrToObj(str As String, type As String) As ObjBase
 

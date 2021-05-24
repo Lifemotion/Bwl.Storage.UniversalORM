@@ -59,4 +59,7 @@
 
     Public MustOverride Function GetSomeFieldDistinct(fieldName As String) As IEnumerable(Of String) Implements IObjStorage.GetSomeFieldDistinct
 
+    Public MustOverride Function GetNullDataIds() As String() Implements IObjStorage.GetNullDataIds
+    Public MustOverride Sub CleanNullData() Implements IObjStorage.CleanNullData
+
 End Class

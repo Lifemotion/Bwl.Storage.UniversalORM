@@ -211,10 +211,10 @@ Public Class SqliteStorage
         SqliteUtils.ExecSql(ConnectionString, sql)
     End Sub
 
-    Public Overrides Sub RemoveObjs(ids As String())
+    Public Overrides Sub RemoveObjs(objIds As String())
         CheckDb()
-        Dim strIds = " ( ( GUID = '" + String.Join("' ) or ( GUID = '", ids) + "' ) ) "
-        Dim sql = String.Format("DELETE FROM ""{0}"" WHERE {1}", Name, strIds)
+        Dim whereStrIds = $"GUID IN ({objIds.Select(Function(f) $"""{f}""").Aggregate(Function(f, t) $"{f},{t}")})"
+        Dim sql = String.Format("DELETE FROM ""{0}"" WHERE {1}", Name, whereStrIds)
         SqliteUtils.ExecSql(ConnectionString, sql)
     End Sub
 
@@ -345,8 +345,8 @@ Public Class SqliteStorage
         End If
 
         If (objIds IsNot Nothing AndAlso objIds.Any) Then
-            Dim strIds = " ( ( t.GUID = '" + String.Join("' ) or ( t.GUID = '", objIds) + "' ) ) "
-            Dim sql = String.Format("SELECT JSON, TYPE {1} FROM ""{0}"" t  WHERE {2}", Name, If(Not String.IsNullOrWhiteSpace(sortField), ", """ + sortField + """", ""), strIds)
+            Dim whereStrIds = $"t.GUID IN ({objIds.Select(Function(f) $"""{f}""").Aggregate(Function(f, t) $"{f},{t}")})"
+            Dim sql = String.Format("SELECT JSON, TYPE {1} FROM ""{0}"" t  WHERE {2}", Name, If(Not String.IsNullOrWhiteSpace(sortField), ", """ + sortField + """", ""), whereStrIds)
 
             If (sortField <> "") Then
                 'sql += " and  (s.GUID = t.GUID) "
@@ -417,7 +417,7 @@ Public Class SqliteStorage
                                       Name, indexName)
         Dim fields = SqliteUtils.ExecSqlScalar(ConnectionString, sqlFields)
         If fields Is Nothing Then
-            Dim listQuery As New SqliteBatchExecution(New SQLiteConnection(ConnectionString))
+            Dim listQuery As New List(Of String)
             Dim sql As String
             Select Case (t)
                 Case GetType(String)
@@ -446,10 +446,11 @@ Public Class SqliteStorage
                         Throw New Exception("Обнаружен не поддерживаемый тип индексируемого поля " + indexName + " _ " + t.FullName)
                     End If
             End Select
-            listQuery.SqlStatements.Add(sql)
-            listQuery.SqlStatements.Add(String.Format("CREATE INDEX IF NOT EXISTS ""IX_{0}_{1}"" ON ""{0}""(""{1}"")", Name, indexName))
-
-            listQuery.Execute()
+            listQuery.Add(sql)
+            listQuery.Add(String.Format("CREATE INDEX IF NOT EXISTS ""IX_{0}_{1}"" ON ""{0}""(""{1}"")", Name, indexName))
+            For Each sqlStr As String In listQuery
+                SqliteUtils.ExecSql(ConnectionString, sqlStr)
+            Next
         End If
 
         Return indexName
@@ -474,7 +475,7 @@ Public Class SqliteStorage
         Dim indexingFieldsAsName = indexing.Select(Function(f) f.Name.Replace(".", "_")).Aggregate(Function(f, t) f + "-" + t)
         Dim indexingFields = indexing.Select(Function(f) """" + f.Name.Replace(".", "_") + """").Aggregate(Function(f, t) f + "," + t)
         Dim sql = String.Format("CREATE INDEX IF NOT EXISTS ""MULTI_IX_{0}_{1}"" ON ""{0}""({2})", Name, indexingFieldsAsName, indexingFields)
-        SqliteUtils.ExecSql(ConnectionString, sql)
+        SqliteUtils.ExecSql(ConnectionString, sql,, True)
     End Sub
 
     Public Overrides Function GetNullDataIds() As String()
@@ -497,11 +498,10 @@ Public Class SqliteStorage
 
     Public Overrides Sub CleanNullData()
         CheckDb()
-        Dim listQuery As New SqliteBatchExecution(New SQLiteConnection(ConnectionString))
-        For Each indexingMember As IndexInfo In _indexingMembers
-            listQuery.SqlStatements.Add($"DELETE FROM ""{Name}"" WHERE ""{indexingMember.Name}"" is null")
+        Dim listQuery = _indexingMembers.Select(Function(f) $"DELETE FROM ""{Name}"" WHERE ""{f.Name}"" is null").ToArray()
+        For Each sqlStr As String In listQuery
+            SqliteUtils.ExecSql(ConnectionString, sqlStr)
         Next
-        listQuery.Execute()
     End Sub
 
     Private Function GenerateWhereSql(criterias As IEnumerable(Of FindCriteria), Optional paramStartValue As Integer = 0, Optional ByRef indexList As List(Of String) = Nothing) As SqlHelper

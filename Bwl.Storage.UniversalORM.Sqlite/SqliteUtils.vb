@@ -4,38 +4,46 @@ Imports System.Threading
 Public Class SqliteUtils
 
     ''' <summary>
-    ''' Пустой объект для синхронизации потоков
-    ''' </summary>
-    Private Shared ReadOnly SyncObj As New Object
-
-    ''' <summary>
     ''' Выполнение SQL-запроса без результата
     ''' </summary>
     ''' <param name="connString">Строка подключения</param>
     ''' <param name="sql">SQL-запрос</param>
     ''' <param name="parameters">Параметры запроса</param>
-    Public Shared Sub ExecSql(connString As String, sql As String, Optional parameters As SQLiteParameter() = Nothing)
-        SyncLock SyncObj
-            Dim con = New SQLiteConnection(connString)
-            Try
-                con.Open()
+    ''' <param name="veryTimeConsumingTask">Задача может выполняться долго (ОПАСНО! Выполнение без таймаута!)</param>
+    Public Shared Sub ExecSql(connString As String, sql As String, Optional parameters As SQLiteParameter() = Nothing, Optional veryTimeConsumingTask As Boolean = False)
+        Using con = New SQLiteConnection(connString)
+            con.Open()
+            Using proc = con.BeginTransaction()
+                Try
+                    Using cmd = New SQLiteCommand(con)
+                        cmd.Transaction = proc
 
-                Dim cmd = New SQLiteCommand(sql, con)
-                If parameters IsNot Nothing Then
-                    Dim params As IEnumerable(Of SQLiteParameter)
-                    ' ???
-                    params = parameters
-                    cmd.Parameters.AddRange(params.ToArray())
-                End If
-                cmd.ExecuteNonQuery()
-                cmd.Dispose()
-            Catch ex As Exception
-                Throw New Exception(String.Format("SqliteUtils.ExecSQL({0}, {1}) - {2})", connString, ex.Message, sql))
-            Finally
-                con.Close()
-                con.Dispose()
-            End Try
-        End SyncLock
+                        cmd.CommandText = "PRAGMA temp_store = MEMORY;"
+                        cmd.ExecuteNonQuery()
+
+                        If parameters IsNot Nothing Then
+                            cmd.Parameters.AddRange(parameters.ToArray())
+                        End If
+                        cmd.CommandText = $"{sql};"
+                        If veryTimeConsumingTask Then
+                            cmd.CommandTimeout = 0 ' Опасно! 0 означает что задача может выполняться бесконечно! 
+                        End If
+                        cmd.ExecuteNonQuery()
+
+                        If veryTimeConsumingTask Then
+                            cmd.Parameters.Clear()
+                            cmd.CommandTimeout = 30
+                            cmd.CommandText = "PRAGMA temp_store = DEFAULT;"
+                            cmd.ExecuteNonQuery()
+                        End If
+                    End Using
+                    proc.Commit()
+                Catch ex As Exception
+                    proc.Rollback()
+                    Throw New Exception(String.Format("SqliteUtils.ExecSQL({0}, {1}) - {2})", connString, ex.ToString(), sql))
+                End Try
+            End Using
+        End Using
     End Sub
 
     ''' <summary>
@@ -46,26 +54,22 @@ Public Class SqliteUtils
     ''' <param name="parameters">Параметры запроса</param>
     ''' <returns>Объект</returns>
     Public Shared Function ExecSqlScalar(connString As String, sql As String, Optional parameters As SQLiteParameter() = Nothing) As Object
-        Dim res As Object
-        Dim con = New SQLiteConnection(connString)
-        Try
+        Using con = New SQLiteConnection(connString)
             con.Open()
-            Dim cmd = New SQLiteCommand(sql, con)
-            If parameters IsNot Nothing Then
-                Dim params As IEnumerable(Of SQLiteParameter)
-                ' ???
-                params = parameters
-                cmd.Parameters.AddRange(params.ToArray())
-            End If
-            res = cmd.ExecuteScalar()
-            cmd.Dispose()
-        Catch ex As Exception
-            Throw New Exception(String.Format("SqliteUtils.ExecSQLScalar({0}, {1}) - {2})", connString, sql, ex.Message))
-        Finally
-            con.Close()
-            con.Dispose()
-        End Try
-        Return res
+            Try
+                Dim result As Object
+                Using cmd = New SQLiteCommand(con)
+                    If parameters IsNot Nothing Then
+                        cmd.Parameters.AddRange(parameters.ToArray())
+                    End If
+                    cmd.CommandText = sql
+                    result = cmd.ExecuteScalar()
+                End Using
+                Return result
+            Catch ex As Exception
+                Throw New Exception(String.Format("SqliteUtils.ExecSQLScalar({0}, {1}) - {2})", connString, sql, ex.ToString))
+            End Try
+        End Using
     End Function
 
     ''' <summary>
@@ -73,14 +77,12 @@ Public Class SqliteUtils
     ''' </summary>
     ''' <param name="connStringBld">Строка подключения</param>
     Public Shared Sub CreateDb(connStringBld As SQLiteConnectionStringBuilder)
-        SyncLock SyncObj
+        If (Not CheckConnection(connStringBld.ConnectionString)) Then
+            Thread.Sleep(2000)
             If (Not CheckConnection(connStringBld.ConnectionString)) Then
-                Thread.Sleep(2000)
-                If (Not CheckConnection(connStringBld.ConnectionString)) Then
-                    Throw New Exception("Could not create SQLite database") ' База создаётся автоматически при обращении к ней
-                End If
+                Throw New Exception("Could not create SQLite database") ' База создаётся автоматически при обращении к ней
             End If
-        End SyncLock
+        End If
     End Sub
 
     ''' <summary>
@@ -90,16 +92,12 @@ Public Class SqliteUtils
     ''' <param name="tableName">Имя таблицы</param>
     ''' <returns>Таблица существует</returns>
     Public Shared Function TableExists(connString As String, tableName As String) As Boolean
-        Dim res As Boolean
-        SyncLock SyncObj
-            Try
-                Dim sql = String.Format("SELECT COUNT(name) FROM sqlite_master WHERE type='table' AND name='{0}';", tableName)
-                res = CType(ExecSqlScalar(connString, sql), Integer) > 0
-            Catch ex As Exception
-                res = False
-            End Try
-        End SyncLock
-        Return res
+        Try
+            Dim sql = String.Format("SELECT COUNT(name) FROM sqlite_master WHERE type='table' AND name='{0}';", tableName)
+            Return CType(ExecSqlScalar(connString, sql), Integer) > 0
+        Catch ex As Exception
+            Return False
+        End Try
     End Function
 
     ''' <summary>
@@ -107,20 +105,15 @@ Public Class SqliteUtils
     ''' </summary>
     ''' <param name="connString">Строка подключения</param>
     ''' <returns>Соединение ОК</returns>
-    Public Shared Function CheckConnection(connString As String) As Boolean
-        Dim res As Boolean
-        SyncLock SyncObj
-            Try
-                Dim con = New SQLiteConnection(connString)
+    Private Shared Function CheckConnection(connString As String) As Boolean
+        Try
+            Using con = New SQLiteConnection(connString)
                 con.Open()
-                res = con.State = ConnectionState.Open
-                con.Close()
-                con.Dispose()
-            Catch ex As Exception
-                res = False
-            End Try
-        End SyncLock
-        Return res
+                Return con.State = ConnectionState.Open
+            End Using
+        Catch ex As Exception
+            Return False
+        End Try
     End Function
 
     ''' <summary>
@@ -131,32 +124,26 @@ Public Class SqliteUtils
     ''' <param name="parameters">Параметры запроса</param>
     ''' <returns>Список объектов</returns>
     Public Shared Function GetObjectList(connString As String, sql As String, Optional parameters As SQLiteParameter() = Nothing) As List(Of List(Of Object))
-        Dim list As List(Of List(Of Object))
-        Dim reader As SqlReaderHelper = Nothing
-        SyncLock SyncObj
+        Using con = New SQLiteConnection(connString)
+            con.Open()
             Try
-                Dim con = New SQLiteConnection(connString)
-                con.Open()
-                Dim cmd = New SQLiteCommand(sql, con)
-                If parameters IsNot Nothing Then
-                    Dim params As IEnumerable(Of SQLiteParameter)
-                    params = parameters
-                    cmd.Parameters.AddRange(params.ToArray())
-                End If
-                Dim sr = cmd.ExecuteReader()
-                reader = New SqlReaderHelper(sr, cmd, con)
-                list = reader.GetObjectList
+                Dim result As List(Of List(Of Object))
+                Using cmd = New SQLiteCommand(con)
+                    If parameters IsNot Nothing AndAlso parameters.Any() Then
+                        cmd.Parameters.AddRange(parameters.ToArray())
+                    End If
+                    cmd.CommandText = sql
+                    Using sr = cmd.ExecuteReader()
+                        Dim reader = New SqlReaderHelper(sr, cmd, con)
+                        result = reader.GetObjectList()
+                        reader.Close()
+                    End Using
+                End Using
+                Return result
             Catch ex As Exception
                 Throw New Exception(String.Format("SqliteUtils.ExecSQL({0}, {1}) - {2})", connString, sql, ex.ToString))
-            Finally
-                If reader IsNot Nothing Then
-                    reader.Close()
-                End If
             End Try
-        End SyncLock
-        Return list
+        End Using
     End Function
 
 End Class
-
-

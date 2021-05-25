@@ -259,10 +259,10 @@ Public Class PgStorage
         PgUtils.ExecSql(ConnectionString, sql)
     End Sub
 
-    Public Overrides Sub RemoveObjs(ids As String())
+    Public Overrides Sub RemoveObjs(objIds As String())
         CheckDb()
-        Dim strIds = " ( ( GUID = '" + String.Join("' ) or ( GUID = '", ids) + "' ) ) "
-        Dim sql = String.Format("DELETE FROM ""{0}"" WHERE {1}", Name, strIds)
+        Dim whereStrIds = $"GUID IN ({objIds.Select(Function(f) $"'{f}'").Aggregate(Function(f, t) $"{f},{t}")})"
+        Dim sql = String.Format("DELETE FROM ""{0}"" WHERE {1}", Name, whereStrIds)
         PgUtils.ExecSql(ConnectionString, sql)
     End Sub
 
@@ -403,8 +403,9 @@ Public Class PgStorage
 
         Dim resList = New List(Of ObjBase)
         If (objIds IsNot Nothing AndAlso objIds.Any) Then
-            Dim strIds = " ( ( t.GUID = '" + String.Join("' ) or ( t.GUID = '", objIds) + "' ) ) "
-            Dim sql = String.Format("SELECT JSON, TYPE {1} FROM ""{0}"" t  WHERE {2}", Name, If(Not String.IsNullOrWhiteSpace(sortField), ", """ + sortField + """", ""), strIds)
+
+            Dim whereStrIds = $"t.GUID IN ({objIds.Select(Function(f) $"'{f}'").Aggregate(Function(f, t) $"{f},{t}")})"
+            Dim sql = String.Format("SELECT JSON, TYPE {1} FROM ""{0}"" t  WHERE {2}", Name, If(Not String.IsNullOrWhiteSpace(sortField), ", """ + sortField + """", ""), whereStrIds)
 
             If (sortField <> "") Then
                 'sql += " and  (s.GUID = t.GUID) "

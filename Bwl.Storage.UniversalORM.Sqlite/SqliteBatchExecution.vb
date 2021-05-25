@@ -1,29 +1,28 @@
-﻿Imports System.Data.SQLite
+﻿'Imports System.Data.SQLite
 
-Public Class SqliteBatchExecution
+'Public Class SqliteBatchExecution
 
-    Private ReadOnly _connection As SQLiteConnection
-    Public SqlStatements As New List(Of String)
+'    Public SqlStatements As New List(Of String)
 
-    Public Sub New(conn As SQLiteConnection)
-        _connection = conn
-    End Sub
+'    Public Sub New()
+'    End Sub
 
-    ''' <summary>
-    ''' Executing commands. Results may vary
-    ''' </summary>
-    Public Sub Execute()
-        Try
-            If _connection IsNot Nothing AndAlso SqlStatements.Any() Then
-                _connection.Open()
-                Using cmd = New SQLiteCommand(SqlStatements.Aggregate(Function(f, t) f + "; " + t), _connection)
-                    cmd.ExecuteNonQuery()
-                End Using
-                _connection.Close()
-            End If
-        Catch ex As Exception
-            Throw
-        End Try
-    End Sub
+'    ''' <summary>
+'    ''' Executing commands. Results may vary
+'    ''' </summary>
+'    Public Sub Execute(connString As String)
+'        Try
 
-End Class
+'            If SqlStatements.Any() Then
+'                Using con As New SQLiteConnection(connString)
+'                    Using cmd = New SQLiteCommand(SqlStatements.Aggregate(Function(f, t) f + "; " + t), con)
+'                        cmd.ExecuteNonQuery()
+'                    End Using
+'                End Using
+'            End If
+'        Catch ex As Exception
+'            Throw
+'        End Try
+'    End Sub
+
+'End Class

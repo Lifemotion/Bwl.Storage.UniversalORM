@@ -40,7 +40,10 @@ Public Class SqliteUtils
                     proc.Commit()
                 Catch ex As Exception
                     proc.Rollback()
-                    Throw New Exception(String.Format("SqliteUtils.ExecSQL({0}, {1}) - {2})", connString, ex.ToString(), sql))
+                    Dim readableParams = If(parameters IsNot Nothing AndAlso parameters.Any(),
+                                             parameters.Select(Function(f) $"{f.ParameterName}, type {f.TypeName}, value {f.Value}").Aggregate(Function(f, t) f + vbNewLine + t),
+                                            "None")
+                    Throw New Exception($"SqliteUtils.ExecSQL. Connection string: {connString}{vbNewLine}SQL: {sql}{vbNewLine} Params: {readableParams}{vbNewLine} ERR: {ex.ToString()}")
                 End Try
             End Using
         End Using
@@ -67,7 +70,10 @@ Public Class SqliteUtils
                 End Using
                 Return result
             Catch ex As Exception
-                Throw New Exception(String.Format("SqliteUtils.ExecSQLScalar({0}, {1}) - {2})", connString, sql, ex.ToString))
+                Dim readableParams = If(parameters IsNot Nothing AndAlso parameters.Any(),
+                                        parameters.Select(Function(f) $"{f.ParameterName}, type {f.TypeName}, value {f.Value}").Aggregate(Function(f, t) f + vbNewLine + t),
+                                        "None")
+                Throw New Exception($"SqliteUtils.ExecSQLScalar. Connection string: {connString}{vbNewLine}SQL: {sql}{vbNewLine} Params: {readableParams}{vbNewLine} ERR: {ex.ToString()}")
             End Try
         End Using
     End Function
@@ -141,7 +147,10 @@ Public Class SqliteUtils
                 End Using
                 Return result
             Catch ex As Exception
-                Throw New Exception(String.Format("SqliteUtils.ExecSQL({0}, {1}) - {2})", connString, sql, ex.ToString))
+                Dim readableParams = If(parameters IsNot Nothing AndAlso parameters.Any(),
+                                        parameters.Select(Function(f) $"{f.ParameterName}, type {f.TypeName}, value {f.Value}").Aggregate(Function(f, t) f + vbNewLine + t),
+                                        "None")
+                Throw New Exception($"SqliteUtils.GetObjectList. Connection string: {connString}{vbNewLine}SQL: {sql}{vbNewLine} Params: {readableParams}{vbNewLine} ERR: {ex.ToString()}")
             End Try
         End Using
     End Function

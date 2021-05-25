@@ -17,7 +17,10 @@ Public Class PgUtils
             cmd.ExecuteNonQuery()
             cmd.Dispose()
         Catch ex As Exception
-            Throw New Exception(String.Format("PgUtils.ExecSQL({0}, {1}) - {2})", connString, ex.Message, sql))
+            Dim readableParams = If(parameters IsNot Nothing AndAlso parameters.Any(),
+                                    parameters.Select(Function(f) $"{f.ParameterName}, type {f.DbType}, value {f.Value}").Aggregate(Function(f, t) f + vbNewLine + t),
+                                    "None")
+            Throw New Exception($"PgUtils.ExecSQL. Connection string: {connString}{vbNewLine}SQL: {sql}{vbNewLine} Params: {readableParams}{vbNewLine} ERR: {ex.ToString()}")
         Finally
             con.Close()
             con.Dispose()
@@ -39,7 +42,10 @@ Public Class PgUtils
             res = cmd.ExecuteScalar()
             cmd.Dispose()
         Catch ex As Exception
-            Throw New Exception(String.Format("PgUtils.ExecSQLScalar({0}, {1}) - {2})", connString, sql, ex.Message))
+            Dim readableParams = If(parameters IsNot Nothing AndAlso parameters.Any(),
+                                    parameters.Select(Function(f) $"{f.ParameterName}, type {f.DbType}, value {f.Value}").Aggregate(Function(f, t) f + vbNewLine + t),
+                                    "None")
+            Throw New Exception($"PgUtils.ExecSQLScalar. Connection string: {connString}{vbNewLine}SQL: {sql}{vbNewLine} Params: {readableParams}{vbNewLine} ERR: {ex.ToString()}")
         Finally
             con.Close()
             con.Dispose()
@@ -117,7 +123,10 @@ Public Class PgUtils
             reader = New SqlReaderHelper(sr, cmd, con)
             list = reader.GetObjectList
         Catch ex As Exception
-            Throw New Exception(String.Format("PgUtils.ExecSQL({0}, {1}) - {2})", connString, sql, ex.ToString))
+            Dim readableParams = If(parameters IsNot Nothing AndAlso parameters.Any(),
+                                    parameters.Select(Function(f) $"{f.ParameterName}, type {f.DbType}, value {f.Value}").Aggregate(Function(f, t) f + vbNewLine + t),
+                                    "None")
+            Throw New Exception($"PgUtils.GetObjectList. Connection string: {connString}{vbNewLine}SQL: {sql}{vbNewLine} Params: {readableParams}{vbNewLine} ERR: {ex.ToString()}")
         Finally
             If reader IsNot Nothing Then
                 reader.Close()

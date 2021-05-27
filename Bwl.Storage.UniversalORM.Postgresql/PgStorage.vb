@@ -565,12 +565,13 @@ Public Class PgStorage
     End Function
 
     Private Function GetObjsWithFieldNull(fieldName As String) As String()
+        Dim res = New List(Of String)
         Dim sql = String.Format($"SELECT GUID FROM  ""{Name}"" WHERE ""{fieldName}"" is NULL")
         Dim list = PgUtils.GetObjectList(ConnectionString, sql)
         If (list IsNot Nothing AndAlso list.Any) Then
-            Return list.Select(Function(d) d(0).ToString).ToArray()
+            res.AddRange(list.Select(Function(d) d(0).ToString).ToArray())
         End If
-        Return Nothing
+        Return res.ToArray()
     End Function
 
     Public Overrides Sub CleanNullData()

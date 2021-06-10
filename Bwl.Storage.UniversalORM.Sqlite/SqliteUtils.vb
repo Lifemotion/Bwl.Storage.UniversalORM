@@ -9,8 +9,8 @@ Public Class SqliteUtils
     ''' <param name="connString">Строка подключения</param>
     ''' <param name="sql">SQL-запрос</param>
     ''' <param name="parameters">Параметры запроса</param>
-    ''' <param name="veryTimeConsumingTask">Задача может выполняться долго (ОПАСНО! Выполнение без таймаута!)</param>
-    Public Shared Sub ExecSql(connString As String, sql As String, Optional parameters As SQLiteParameter() = Nothing, Optional veryTimeConsumingTask As Boolean = False)
+    ''' <param name="longTask">Задача может выполняться долго (ОПАСНО! Выполнение без таймаута!)</param>
+    Public Shared Sub ExecSql(connString As String, sql As String, Optional parameters As SQLiteParameter() = Nothing, Optional longTask As Boolean = False)
         Using con = New SQLiteConnection(connString)
             con.Open()
             Using proc = con.BeginTransaction()
@@ -18,24 +18,25 @@ Public Class SqliteUtils
                     Using cmd = New SQLiteCommand(con)
                         cmd.Transaction = proc
 
-                        cmd.CommandText = "PRAGMA temp_store = MEMORY;"
-                        cmd.ExecuteNonQuery()
-
-                        If parameters IsNot Nothing Then
-                            cmd.Parameters.AddRange(parameters.ToArray())
+                        ' Для больших и долгих задач лучше всего использовать память, чтобы избежать ошибок доступа
+                        If longTask Then
+                            cmd.CommandText = "PRAGMA temp_store = MEMORY;"
+                            cmd.ExecuteNonQuery()
                         End If
+
+                        If parameters IsNot Nothing Then cmd.Parameters.AddRange(parameters.ToArray())
                         cmd.CommandText = $"{sql};"
-                        If veryTimeConsumingTask Then
-                            cmd.CommandTimeout = 0 ' Опасно! 0 означает что задача может выполняться бесконечно! 
-                        End If
+                        If longTask Then cmd.CommandTimeout = 0 ' Опасно! 0 означает что задача может выполняться бесконечно! 
                         cmd.ExecuteNonQuery()
 
-                        If veryTimeConsumingTask Then
-                            cmd.Parameters.Clear()
+                        ' После долгой задачи возвращаем дефолты
+                        If longTask Then
                             cmd.CommandTimeout = 30
+                            cmd.Parameters.Clear()
                             cmd.CommandText = "PRAGMA temp_store = DEFAULT;"
                             cmd.ExecuteNonQuery()
                         End If
+
                     End Using
                     proc.Commit()
                 Catch ex As Exception
@@ -112,14 +113,14 @@ Public Class SqliteUtils
     ''' <param name="connString">Строка подключения</param>
     ''' <returns>Соединение ОК</returns>
     Private Shared Function CheckConnection(connString As String) As Boolean
-        Try
-            Using con = New SQLiteConnection(connString)
-                con.Open()
+        Using con = New SQLiteConnection(connString)
+            con.Open()
+            Try
                 Return con.State = ConnectionState.Open
-            End Using
-        Catch ex As Exception
-            Return False
-        End Try
+            Catch ex As Exception
+                Return False
+            End Try
+        End Using
     End Function
 
     ''' <summary>

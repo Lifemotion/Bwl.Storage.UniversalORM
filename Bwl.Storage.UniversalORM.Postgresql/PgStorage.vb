@@ -71,39 +71,13 @@ Public Class PgStorage
         CheckDb()
         GenerateMultiColumnIndexFromSearchParams(searchParams)
 
-        '''' TOP
-        Dim topSql = String.Empty
-        If (searchParams IsNot Nothing) AndAlso (searchParams.SelectOptions IsNot Nothing) Then
-            If searchParams.SelectOptions.TopValue > 0 Then
-                topSql = " LIMIT " + searchParams.SelectOptions.TopValue.ToString + " "
-            End If
-        End If
-
-        ' '''' sorting
-        'Dim sortModeStr = "ASC"
-        'Dim sortField = "guid"
-        'Dim sortColName = Name
-        'If (searchParams IsNot Nothing) AndAlso (searchParams.SortParam IsNot Nothing) Then
-        '	If searchParams.SortParam.SortMode = SortMode.Descending Then
-        '		sortModeStr = "DESC"
-        '	End If
-
-        '	Dim indexInfo = _indexingMembers.FirstOrDefault(Function(indInf) indInf.Name = searchParams.SortParam.Field)
-        '	If (indexInfo IsNot Nothing) Then
-        '		sortField = "value"
-        '		sortColName = GetIndexName(indexInfo)
-        '	Else
-        '		Throw New Exception("PgStorage.FindObj _ BadSortParam _ index " + searchParams.SortParam.Field + " not found.")
-        '	End If
-        'End If
-
         Dim crit As IEnumerable(Of FindCriteria) = Nothing
         If (searchParams IsNot Nothing) Then
             crit = searchParams.FindCriterias
         End If
 
+        '''' sorting
         Dim sortField = "guid"
-        'Dim sortTableName = Name
         If (searchParams IsNot Nothing) AndAlso (searchParams.SortParam IsNot Nothing) Then
             Dim indexInfo = _indexingMembers.FirstOrDefault(Function(indInf) indInf.Name = searchParams.SortParam.Field)
             If (indexInfo IsNot Nothing) Then
@@ -112,11 +86,6 @@ Public Class PgStorage
                 Throw New Exception("PgStorage.FindObj _ BadSortParam _ index " + indexInfo.Name + " not found.")
             End If
         End If
-
-        'Dim sort As SortParam = Nothing
-        'If (searchParams IsNot Nothing) Then
-        '    sort = searchParams.SortParam
-        'End If
 
         '''' where
         Dim whereSql = String.Empty
@@ -127,11 +96,20 @@ Public Class PgStorage
             parameters = helper.Parameters.ToArray
         End If
 
-        '''' main sql
-        Dim mainSelect = String.Format("SELECT COUNT(*) FROM (SELECT GUID FROM ""{0}"" {1} {2}) AS PSEUDONYM", Name, whereSql, topSql)
-        Dim count = PgUtils.ExecSqlScalar(ConnectionString, mainSelect, parameters)
+        Dim mainSelect = String.Format("SELECT COUNT(*) FROM ""{0}"" {1}", Name, whereSql)
+        Dim countLimit As Long
+        If searchParams.SelectOptions IsNot Nothing Then
+            countLimit = If(searchParams.SelectOptions.SelectMode = SelectMode.Top, searchParams.SelectOptions.TopValue, searchParams.SelectOptions.EndValue - searchParams.SelectOptions.StartValue + 1)
+        Else
+            countLimit = 0
+        End If
+
+        Dim count = PgUtils.GetObjectList(ConnectionString, mainSelect, parameters)
         If count IsNot Nothing Then
-            res = Convert.ToInt64(count)
+            res = Convert.ToInt64(count(0)(0))
+            If countLimit > 0 AndAlso res > countLimit Then
+                res = countLimit
+            End If
         End If
         Return res
     End Function
@@ -520,7 +498,7 @@ Public Class PgStorage
     End Function
 
     Private Sub GenerateMultiColumnIndexFromSearchParams(sp As SearchParams)
-        If Not sp.GenerateIndex Then Exit Sub ' Генерируем индекс только если указано что это надо делать, т.к. это может сильно нагрузить БД и не для всех случаев это вообще надо
+        If sp Is Nothing OrElse Not sp.GenerateIndex Then Exit Sub ' Генерируем индекс только если указано что это надо делать, т.к. это может сильно нагрузить БД и не для всех случаев это вообще надо
 
         ' Поле для сортировки
         Dim sortField = "guid"

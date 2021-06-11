@@ -68,14 +68,6 @@ Public Class SqliteStorage
         CheckDb()
         GenerateMultiColumnIndexFromSearchParams(searchParams)
 
-        '''' TOP
-        Dim topSql = String.Empty
-        If (searchParams IsNot Nothing) AndAlso (searchParams.SelectOptions IsNot Nothing) Then
-            If searchParams.SelectOptions.TopValue > 0 Then
-                topSql = " LIMIT " + searchParams.SelectOptions.TopValue.ToString + " "
-            End If
-        End If
-
         Dim crit As IEnumerable(Of FindCriteria) = Nothing
         If (searchParams IsNot Nothing) Then
             crit = searchParams.FindCriterias
@@ -91,10 +83,20 @@ Public Class SqliteStorage
         End If
 
         '''' main sql
-        Dim mainSelect = String.Format("SELECT COUNT(*) FROM (SELECT GUID FROM ""{0}"" {1} {2}) AS PSEUDONYM", Name, whereSql, topSql)
-        Dim count = SqliteUtils.ExecSqlScalar(ConnectionString, mainSelect, parameters)
+        Dim mainSelect = String.Format("SELECT COUNT(*) FROM ""{0}"" {1}", Name, whereSql)
+        Dim countLimit As Long
+        If searchParams.SelectOptions IsNot Nothing Then
+            countLimit = If(searchParams.SelectOptions.SelectMode = SelectMode.Top, searchParams.SelectOptions.TopValue, searchParams.SelectOptions.EndValue - searchParams.SelectOptions.StartValue + 1)
+        Else
+            countLimit = 0
+        End If
+
+        Dim count = SqliteUtils.GetObjectList(ConnectionString, mainSelect, parameters)
         If count IsNot Nothing Then
-            res = Convert.ToInt64(count)
+            res = Convert.ToInt64(count(0)(0))
+            If countLimit > 0 AndAlso res > countLimit Then
+                res = countLimit
+            End If
         End If
         Return res
     End Function
@@ -457,7 +459,7 @@ Public Class SqliteStorage
     End Function
 
     Private Sub GenerateMultiColumnIndexFromSearchParams(sp As SearchParams)
-        If Not sp.GenerateIndex Then Exit Sub ' Генерируем индекс только если указано что это надо делать, т.к. это может сильно нагрузить БД и не для всех случаев это вообще надо
+        If sp Is Nothing OrElse Not sp.GenerateIndex Then Exit Sub ' Генерируем индекс только если указано что это надо делать, т.к. это может сильно нагрузить БД и не для всех случаев это вообще надо
         Dim fields = New List(Of String)
         If sp.FindCriterias.Any() Then
             GenerateWhereSql(sp.FindCriterias,, fields)

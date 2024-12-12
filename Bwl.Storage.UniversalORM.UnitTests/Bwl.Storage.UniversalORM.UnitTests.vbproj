@@ -28,24 +28,6 @@
     <Reference Include="FirebirdSql.Data.FirebirdClient">
       <HintPath>..\refs\FirebirdSql.Data.FirebirdClient.dll</HintPath>
     </Reference>
-    <Reference Include="Newtonsoft.Json">
-      <HintPath>..\refs\Newtonsoft.Json.dll</HintPath>
-    </Reference>
-  </ItemGroup>
-  <Choose>
-    <When Condition="('$(VisualStudioVersion)' == '10.0' or '$(VisualStudioVersion)' == '') and '$(TargetFrameworkVersion)' == 'v3.5'">
-      <ItemGroup>
-        <Reference Include="Microsoft.VisualStudio.QualityTools.UnitTestFramework, Version=10.1.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL" />
-      </ItemGroup>
-    </When>
-    <Otherwise>
-      <ItemGroup>
-        <Reference Include="Microsoft.VisualStudio.QualityTools.UnitTestFramework" />
-      </ItemGroup>
-    </Otherwise>
-  </Choose>
-  <ItemGroup>
-    <Import Include="Microsoft.VisualStudio.TestTools.UnitTesting" />
   </ItemGroup>
   <ItemGroup>
     <Compile Update="My Project\Application.Designer.vb">
@@ -72,34 +54,6 @@
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>
-    <None Include="..\refs\fbe32\aliases.conf">
-      <Link>fbe32\aliases.conf</Link>
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="..\refs\fbe32\firebird.conf">
-      <Link>fbe32\firebird.conf</Link>
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="..\refs\fbe32\firebird.msg">
-      <Link>fbe32\firebird.msg</Link>
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="..\refs\fbe64\aliases.conf">
-      <Link>fbe64\aliases.conf</Link>
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="..\refs\fbe64\firebird.conf">
-      <Link>fbe64\firebird.conf</Link>
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="..\refs\fbe64\firebird.log">
-      <Link>fbe64\firebird.log</Link>
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="..\refs\fbe64\firebird.msg">
-      <Link>fbe64\firebird.msg</Link>
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
     <None Update="My Project\Application.myapp">
       <Generator>MyApplicationCodeGenerator</Generator>
       <LastGenOutput>Application.Designer.vb</LastGenOutput>
@@ -111,83 +65,175 @@
     </None>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Bwl.Storage.UniversalORM.Firebird\Bwl.Storage.UniversalORM.Firebird.vbproj" />
-    <ProjectReference Include="..\Bwl.Storage.UniversalORM.Postgresql\Bwl.Storage.UniversalORM.Postgresql.vbproj" />
-    <ProjectReference Include="..\Bwl.Storage.UniversalORM.Sqlite\Bwl.Storage.UniversalORM.Sqlite.vbproj" />
+    <ProjectReference
+      Include="..\Bwl.Storage.UniversalORM.Firebird\Bwl.Storage.UniversalORM.Firebird.vbproj" />
+    <ProjectReference
+      Include="..\Bwl.Storage.UniversalORM.Postgresql\Bwl.Storage.UniversalORM.Postgresql.vbproj" />
+    <ProjectReference
+      Include="..\Bwl.Storage.UniversalORM.Sqlite\Bwl.Storage.UniversalORM.Sqlite.vbproj" />
     <ProjectReference Include="..\Bwl.Storage.UniversalORM\Bwl.Storage.UniversalORM.vbproj" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="..\refs\fbe32\fbembed.dll">
-      <Link>fbe32\fbembed.dll</Link>
+    <Content Include="..\refs\fbe32\fbclient.dll">
+      <Link>fbe32\fbclient.dll</Link>
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="..\refs\fbe32\ib_util.dll">
-      <Link>fbe32\ib_util.dll</Link>
+    <Content Include="..\refs\fbe32\firebird.conf">
+      <Link>fbe32\firebird.conf</Link>
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="..\refs\fbe32\icudt30.dll">
-      <Link>fbe32\icudt30.dll</Link>
+    <Content Include="..\refs\fbe32\icudt63.dll">
+      <Link>fbe32\icudt63.dll</Link>
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="..\refs\fbe32\icuin30.dll">
-      <Link>fbe32\icuin30.dll</Link>
+    <Content Include="..\refs\fbe32\icudt63l.dat">
+      <Link>fbe32\icudt63l.dat</Link>
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="..\refs\fbe32\icuuc30.dll">
-      <Link>fbe32\icuuc30.dll</Link>
+    <Content Include="..\refs\fbe32\icuin63.dll">
+      <Link>fbe32\icuin63.dll</Link>
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="..\refs\fbe32\msvcp80.dll">
-      <Link>fbe32\msvcp80.dll</Link>
+    <Content Include="..\refs\fbe32\icuuc63.dll">
+      <Link>fbe32\icuuc63.dll</Link>
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="..\refs\fbe32\msvcr80.dll">
-      <Link>fbe32\msvcr80.dll</Link>
+    <Content Include="..\refs\fbe32\plugins\chacha.dll">
+      <Link>fbe32\plugins\chacha.dll</Link>
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="..\refs\fbe64\fbembed.dll">
-      <Link>fbe64\fbembed.dll</Link>
+    <Content Include="..\refs\fbe32\plugins\default_profiler.dll">
+      <Link>fbe32\plugins\default_profiler.dll</Link>
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="..\refs\fbe64\ib_util.dll">
-      <Link>fbe64\ib_util.dll</Link>
+    <Content Include="..\refs\fbe32\plugins\engine13.dll">
+      <Link>fbe32\plugins\engine13.dll</Link>
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="..\refs\fbe64\icudt30.dll">
-      <Link>fbe64\icudt30.dll</Link>
+    <Content Include="..\refs\fbe32\plugins\fbtrace.dll">
+      <Link>fbe32\plugins\fbtrace.dll</Link>
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="..\refs\fbe64\icuin30.dll">
-      <Link>fbe64\icuin30.dll</Link>
+    <Content Include="..\refs\fbe32\plugins\legacy_auth.dll">
+      <Link>fbe32\plugins\legacy_auth.dll</Link>
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="..\refs\fbe64\icuuc30.dll">
-      <Link>fbe64\icuuc30.dll</Link>
+    <Content Include="..\refs\fbe32\plugins\legacy_usermanager.dll">
+      <Link>fbe32\plugins\legacy_usermanager.dll</Link>
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="..\refs\fbe64\msvcp80.dll">
-      <Link>fbe64\msvcp80.dll</Link>
+    <Content Include="..\refs\fbe32\plugins\srp.dll">
+      <Link>fbe32\plugins\srp.dll</Link>
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="..\refs\fbe64\msvcr80.dll">
-      <Link>fbe64\msvcr80.dll</Link>
+    <Content Include="..\refs\fbe32\plugins\udr_engine.conf">
+      <Link>fbe32\plugins\udr_engine.conf</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="..\refs\fbe32\plugins\udr_engine.dll">
+      <Link>fbe32\plugins\udr_engine.dll</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="..\refs\fbe32\plugins\udr\udf_compat.dll">
+      <Link>fbe32\plugins\udr\udf_compat.dll</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="..\refs\fbe32\plugins\udr\UdfBackwardCompatibility.sql">
+      <Link>fbe32\plugins\udr\UdfBackwardCompatibility.sql</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="..\refs\fbe32\plugins\udr\udrcpp_example.dll">
+      <Link>fbe32\plugins\udr\udrcpp_example.dll</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="..\refs\fbe64\fbclient.dll">
+      <Link>fbe64\fbclient.dll</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="..\refs\fbe64\firebird.conf">
+      <Link>fbe64\firebird.conf</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="..\refs\fbe64\icudt63.dll">
+      <Link>fbe64\icudt63.dll</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="..\refs\fbe64\icudt63l.dat">
+      <Link>fbe64\icudt63l.dat</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="..\refs\fbe64\icuin63.dll">
+      <Link>fbe64\icuin63.dll</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="..\refs\fbe64\icuuc63.dll">
+      <Link>fbe64\icuuc63.dll</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="..\refs\fbe64\plugins\chacha.dll">
+      <Link>fbe64\plugins\chacha.dll</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="..\refs\fbe64\plugins\default_profiler.dll">
+      <Link>fbe64\plugins\default_profiler.dll</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="..\refs\fbe64\plugins\engine13.dll">
+      <Link>fbe64\plugins\engine13.dll</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="..\refs\fbe64\plugins\fbtrace.dll">
+      <Link>fbe64\plugins\fbtrace.dll</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="..\refs\fbe64\plugins\legacy_auth.dll">
+      <Link>fbe64\plugins\legacy_auth.dll</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="..\refs\fbe64\plugins\legacy_usermanager.dll">
+      <Link>fbe64\plugins\legacy_usermanager.dll</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="..\refs\fbe64\plugins\srp.dll">
+      <Link>fbe64\plugins\srp.dll</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="..\refs\fbe64\plugins\udr_engine.conf">
+      <Link>fbe64\plugins\udr_engine.conf</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="..\refs\fbe64\plugins\udr_engine.dll">
+      <Link>fbe64\plugins\udr_engine.dll</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="..\refs\fbe64\plugins\udr\udf_compat.dll">
+      <Link>fbe64\plugins\udr\udf_compat.dll</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="..\refs\fbe64\plugins\udr\UdfBackwardCompatibility.sql">
+      <Link>fbe64\plugins\udr\UdfBackwardCompatibility.sql</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="..\refs\fbe64\plugins\udr\udrcpp_example.dll">
+      <Link>fbe64\plugins\udr\udrcpp_example.dll</Link>
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="EntityFramework" Version="6.5.1" />
-    <PackageReference Include="Npgsql" Version="4.1.14" />
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
+    <PackageReference Include="Npgsql" Version="8.0.6" />
     <PackageReference Include="NUnit" Version="4.2.2" />
     <PackageReference Include="NUnit3TestAdapter" Version="4.6.0" />
-    <PackageReference Include="System.Buffers" Version="4.5.1" />
+    <PackageReference Include="System.Buffers" Version="4.6.0" />
     <PackageReference Include="System.ComponentModel.Annotations" Version="5.0.0" />
-    <PackageReference Include="System.Data.SQLite" Version="1.0.111.0" />
-    <PackageReference Include="System.Data.SQLite.Core" Version="1.0.111.0" />
-    <PackageReference Include="System.Data.SQLite.EF6" Version="1.0.111.0" />
-    <PackageReference Include="System.Data.SQLite.Linq" Version="1.0.111.0" />
-    <PackageReference Include="System.Memory" Version="4.5.5" />
-    <PackageReference Include="System.Runtime.CompilerServices.Unsafe" Version="6.0.0" />
-    <PackageReference Include="System.Threading.Tasks.Extensions" Version="4.5.4" />
+    <PackageReference Include="System.Data.SQLite" Version="1.0.119.0" />
+    <PackageReference Include="System.Data.SQLite.Core" Version="1.0.119.0" />
+    <PackageReference Include="System.Data.SQLite.EF6" Version="1.0.119.0" />
+    <PackageReference Include="System.Data.SQLite.Linq" Version="1.0.119.0" />
+    <PackageReference Include="System.Memory" Version="4.6.0" />
+    <PackageReference Include="System.Runtime.CompilerServices.Unsafe" Version="6.1.0" />
+    <PackageReference Include="System.Threading.Tasks.Extensions" Version="4.6.0" />
     <PackageReference Include="System.ValueTuple" Version="4.5.0" />
   </ItemGroup>
   <ItemGroup>
@@ -196,16 +242,20 @@
   <Choose>
     <When Condition="'$(VisualStudioVersion)' == '10.0' And '$(IsCodedUITest)' == 'True'">
       <ItemGroup>
-        <Reference Include="Microsoft.VisualStudio.QualityTools.CodedUITestFramework, Version=10.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
+        <Reference
+          Include="Microsoft.VisualStudio.QualityTools.CodedUITestFramework, Version=10.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
           <Private>False</Private>
         </Reference>
-        <Reference Include="Microsoft.VisualStudio.TestTools.UITest.Common, Version=10.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
+        <Reference
+          Include="Microsoft.VisualStudio.TestTools.UITest.Common, Version=10.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
           <Private>False</Private>
         </Reference>
-        <Reference Include="Microsoft.VisualStudio.TestTools.UITest.Extension, Version=10.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
+        <Reference
+          Include="Microsoft.VisualStudio.TestTools.UITest.Extension, Version=10.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
           <Private>False</Private>
         </Reference>
-        <Reference Include="Microsoft.VisualStudio.TestTools.UITesting, Version=10.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
+        <Reference
+          Include="Microsoft.VisualStudio.TestTools.UITesting, Version=10.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
           <Private>False</Private>
         </Reference>
       </ItemGroup>

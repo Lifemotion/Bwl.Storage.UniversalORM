@@ -22,10 +22,10 @@ Public Class FbStorageManager
         _connStringBld.ServerType = FbServerType.Embedded
         _connStringBld.ConnectionTimeout = 1
         If Environment.Is64BitOperatingSystem Then
-            _connStringBld.ClientLibrary = "fbe64\fbembed.dll"
-        Else
-            _connStringBld.ClientLibrary = "fbe32\fbembed.dll"
-        End If
+			_connStringBld.ClientLibrary = "fbe64\fbclient.dll"
+		Else
+			_connStringBld.ClientLibrary = "fbe32\fbclient.dll"
+		End If
 
         _dbName = _connStringBld.Database
     End Sub

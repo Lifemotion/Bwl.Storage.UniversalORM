@@ -26,13 +26,6 @@
     <Reference Include="Bwl.Framework">
       <HintPath>..\refs\Bwl.Framework.dll</HintPath>
     </Reference>
-    <Reference Include="FirebirdSql.Data.FirebirdClient">
-      <HintPath>..\refs\FirebirdSql.Data.FirebirdClient.dll</HintPath>
-    </Reference>
-    <Reference Include="Newtonsoft.Json, Version=4.5.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\refs\Newtonsoft.Json.dll</HintPath>
-    </Reference>
   </ItemGroup>
   <ItemGroup>
     <Import Include="System.Drawing" />
@@ -55,34 +48,6 @@
     </Compile>
   </ItemGroup>
   <ItemGroup>
-    <None Include="..\refs\fbe32\aliases.conf">
-      <Link>fbe32\aliases.conf</Link>
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="..\refs\fbe32\firebird.conf">
-      <Link>fbe32\firebird.conf</Link>
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="..\refs\fbe32\firebird.msg">
-      <Link>fbe32\firebird.msg</Link>
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="..\refs\fbe64\aliases.conf">
-      <Link>fbe64\aliases.conf</Link>
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="..\refs\fbe64\firebird.conf">
-      <Link>fbe64\firebird.conf</Link>
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="..\refs\fbe64\firebird.log">
-      <Link>fbe64\firebird.log</Link>
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="..\refs\fbe64\firebird.msg">
-      <Link>fbe64\firebird.msg</Link>
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
     <None Update="My Project\Application.myapp">
       <Generator>MyApplicationCodeGenerator</Generator>
       <LastGenOutput>Application.Designer.vb</LastGenOutput>
@@ -93,61 +58,11 @@
     <ProjectReference Include="..\Bwl.Storage.UniversalORM\Bwl.Storage.UniversalORM.vbproj" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="..\refs\fbe32\fbembed.dll">
-      <Link>fbe32\fbembed.dll</Link>
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="..\refs\fbe32\ib_util.dll">
-      <Link>fbe32\ib_util.dll</Link>
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="..\refs\fbe32\icudt30.dll">
-      <Link>fbe32\icudt30.dll</Link>
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="..\refs\fbe32\icuin30.dll">
-      <Link>fbe32\icuin30.dll</Link>
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="..\refs\fbe32\icuuc30.dll">
-      <Link>fbe32\icuuc30.dll</Link>
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="..\refs\fbe32\msvcp80.dll">
-      <Link>fbe32\msvcp80.dll</Link>
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="..\refs\fbe32\msvcr80.dll">
-      <Link>fbe32\msvcr80.dll</Link>
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="..\refs\fbe64\fbembed.dll">
-      <Link>fbe64\fbembed.dll</Link>
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="..\refs\fbe64\ib_util.dll">
-      <Link>fbe64\ib_util.dll</Link>
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="..\refs\fbe64\icudt30.dll">
-      <Link>fbe64\icudt30.dll</Link>
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="..\refs\fbe64\icuin30.dll">
-      <Link>fbe64\icuin30.dll</Link>
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="..\refs\fbe64\icuuc30.dll">
-      <Link>fbe64\icuuc30.dll</Link>
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="..\refs\fbe64\msvcp80.dll">
-      <Link>fbe64\msvcp80.dll</Link>
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="..\refs\fbe64\msvcr80.dll">
-      <Link>fbe64\msvcr80.dll</Link>
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
+    <PackageReference Include="FirebirdSql.Data.FirebirdClient" Version="10.3.2" />
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
+    <PackageReference Include="System.Buffers" Version="4.6.0" />
+    <PackageReference Include="System.Memory" Version="4.6.0" />
+    <PackageReference Include="System.Runtime.CompilerServices.Unsafe" Version="6.1.0" />
+    <PackageReference Include="System.Threading.Tasks.Extensions" Version="4.6.0" />
   </ItemGroup>
 </Project>

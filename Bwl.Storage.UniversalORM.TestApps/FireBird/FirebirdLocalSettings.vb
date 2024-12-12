@@ -30,7 +30,7 @@ Public Class FirebirdLocalSettings
         Dim databaseSetting_service = dbStorage.CreateStringSetting("DatabaseSetting_Service", DBPathDef_service)
 
         Dim dbTimeout = dbStorage.CreateIntegerSetting("dbTimeout", 1)
-        Dim clientDllPathDef = IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "fbe32" + pathSep + "fbembed.dll")
+        Dim clientDllPathDef = IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "fbe32" + pathSep + "fbclient.dll")
         Dim clientDllPathSetting = dbStorage.CreateStringSetting("clientDllPathSetting", clientDllPathDef)
 
         _connStrBld_embed = New FbConnectionStringBuilder()

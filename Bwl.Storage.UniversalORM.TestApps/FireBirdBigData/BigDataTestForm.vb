@@ -17,14 +17,15 @@ Public Class FormBigDataTest
 	Private _timespan As TimeSpan
 
 	Private Sub InitFirebird()
-		_conStrBld = New FbConnectionStringBuilder()
-		_conStrBld.Database = "D:\CleverFlow\FirebirdBigDataTest\FirebirdBigDataTest\data\BigData.fdb"
-		_conStrBld.UserID = "sysdba"
-		_conStrBld.Password = "masterkey"
-		_conStrBld.Dialect = 3
-		_conStrBld.ServerType = FbServerType.Default
-		_conStrBld.ConnectionTimeout = 1
-		_conStrBld.ClientLibrary = "D:\CleverFlow\FirebirdBigDataTest\refs\fbe32\fbembed.dll"
+		_conStrBld = New FbConnectionStringBuilder With {
+			.Database = "D:\CleverFlow\FirebirdBigDataTest\FirebirdBigDataTest\data\BigData.fdb",
+			.UserID = "sysdba",
+			.Password = "masterkey",
+			.Dialect = 3,
+			.ServerType = FbServerType.Default,
+			.ConnectionTimeout = 1,
+			.ClientLibrary = "D:\CleverFlow\FirebirdBigDataTest\refs\fbe64\fbclient.dll"
+		}
 		_manager = New FbStorageManager(_conStrBld)
 		_storage = _manager.CreateStorage(Of BigData)("BigData")
 		_bigDataList = New List(Of BigData)()

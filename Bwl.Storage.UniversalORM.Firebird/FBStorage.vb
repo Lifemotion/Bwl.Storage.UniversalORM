@@ -475,7 +475,6 @@ Public Class FBStorage
         Dim SQLfields = String.Format("SELECT R.RDB$FIELD_NAME FROM RDB$FIELDS F, RDB$RELATION_FIELDS R WHERE F.RDB$FIELD_NAME = R.RDB$FIELD_SOURCE AND R.RDB$SYSTEM_FLAG = 0 AND RDB$RELATION_NAME = '{0}' AND R.RDB$FIELD_NAME = '{1}'", Name.ToUpper(), indexName)
         Dim fields = FbUtils.ExecSQLScalar(ConnectionString, SQLfields)
         If fields Is Nothing Then
-            Dim ListQuery As New FbBatchExecution(New FbConnection(ConnectionString))
             Dim sql = String.Empty
             Select Case (t)
                 Case GetType(String)
@@ -503,14 +502,26 @@ Public Class FBStorage
                         Throw New Exception("Обнаружен не поддерживаемый тип индексируемого поля " + indexName + " _ " + t.FullName)
                     End If
             End Select
-            ListQuery.SqlStatements.Add(sql)
-            ListQuery.SqlStatements.Add(String.Format("CREATE ASCENDING INDEX ""IX_{0}_{1}"" ON {0}(""{1}"")", Name, indexName))
-
-            ListQuery.Execute()
+            Dim commandList = New String() {sql, $"CREATE ASCENDING INDEX ""IX_{Name}_{indexName}"" ON {Name}(""{indexName}"")"}
+            ExecuteBatchCommands(commandList)
         End If
 
         Return indexName
     End Function
+
+    Friend Sub ExecuteBatchCommands(fbCmdList As IEnumerable(Of String))
+        Using fbConn As New FbConnection(ConnectionString)
+            fbConn.Open()
+            Using fbTransaction = fbConn.BeginTransaction()
+                For Each fbCmd In fbCmdList
+                    Using fbCommand = New FbCommand(fbCmd, fbConn, fbTransaction)
+                        fbCommand.ExecuteNonQuery()
+                    End Using
+                Next
+                fbTransaction.Commit()
+            End Using
+        End Using
+    End Sub
 
     Public Overrides Function GetNullDataIds() As String()
         CheckDB()
@@ -533,11 +544,8 @@ Public Class FBStorage
 
     Public Overrides Sub CleanNullData()
         CheckDB()
-        Dim listQuery As New FbBatchExecution(New FbConnection(ConnectionString))
-        For Each indexingMember As IndexInfo In _indexingMembers
-            listQuery.SqlStatements.Add($"DELETE FROM ""{Name}"" WHERE ""{indexingMember.Name}"" is null")
-        Next
-        listQuery.Execute()
+        Dim cmdList = _indexingMembers.Select(Function(f) $"DELETE FROM ""{Name}"" WHERE ""{f.Name}"" is null")
+        ExecuteBatchCommands(cmdList)
     End Sub
 
 

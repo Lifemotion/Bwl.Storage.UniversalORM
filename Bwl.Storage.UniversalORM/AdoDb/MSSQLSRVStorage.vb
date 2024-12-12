@@ -1,4 +1,5 @@
-﻿Imports System.Data.SqlClient
+﻿
+Imports Microsoft.Data.SqlClient
 
 Public Class MSSQLSRVStorage
     Inherits CommonObjStorage
@@ -735,7 +736,7 @@ Public Class MSSQLSRVStorage
     End Sub
 
     Private Sub Save(connStr As String, id As String, json As String, type As Type)
-        Dim rtype = IIf(type.AssemblyQualifiedName = SupportedType.AssemblyQualifiedName, "-", type.AssemblyQualifiedName)
+        Dim rtype = If(type.AssemblyQualifiedName = SupportedType.AssemblyQualifiedName, "-", type.AssemblyQualifiedName)
         Dim parameters = {New SqlParameter("@p1", id), New SqlParameter("@p2", json), New SqlParameter("@p3", rtype)}
         Dim sql = String.Format("INSERT INTO [dbo].[{0}] ([guid] ,[json], [type]) VALUES(@p1, @p2, @p3)", Name)
         MSSQLSRVUtils.ExecSQL(ConnectionString, sql, parameters)

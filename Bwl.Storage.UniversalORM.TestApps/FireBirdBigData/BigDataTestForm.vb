@@ -1,6 +1,6 @@
 ﻿Imports FirebirdSql.Data.FirebirdClient
 Imports Bwl.Storage.UniversalORM
-Imports System.Data.SqlClient
+Imports Microsoft.Data.SqlClient
 
 Public Class FormBigDataTest
 	Private _conStrBld As FbConnectionStringBuilder

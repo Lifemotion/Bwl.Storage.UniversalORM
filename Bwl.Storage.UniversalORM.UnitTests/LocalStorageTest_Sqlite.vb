@@ -1,13 +1,14 @@
 ﻿Imports Bwl.Framework
 Imports Bwl.Storage.UniversalORM
 Imports Bwl.Storage.UniversalORM.Sqlite
+Imports NUnit.Framework
 
-<TestClass()>
+<TestFixture>
 Public Class LocalStorageTest_Sqlite
     Inherits LocalStorageBaseTest
 
     Protected Overrides Function CreateLocalStorage() As ILocalStorage
-        Dim app = New Bwl.Framework.AppBase()
+        Dim app = New AppBase()
         Dim settings = New LocalSettings_Sqlite(app.RootStorage, app.DataFolder)
         Dim manager = New SqliteStorageManager(settings.ConnectionStringBuilder)
 

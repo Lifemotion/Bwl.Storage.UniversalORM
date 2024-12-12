@@ -1,17 +1,18 @@
 ﻿Imports System.Text
 Imports Microsoft.VisualStudio.TestTools.UnitTesting
-Imports System.Data.SqlClient
+Imports Microsoft.Data.SqlClient
 Imports System.IO
 Imports Bwl.Storage.UniversalORM
 Imports System.Drawing
 Imports Bwl.Storage.UniversalORM.LocalStorage
 Imports Bwl.Framework
+Imports NUnit.Framework
 
-<TestClass()> Public Class LocalStorageTest_SqlSrv
+<TestFixture> Public Class LocalStorageTest_SqlSrv
     Inherits LocalStorageBaseTest
 
     Protected Overrides Function CreateLocalStorage() As ILocalStorage
-        Dim app = New Bwl.Framework.AppBase()
+        Dim app = New AppBase()
         Dim settings = New LocalSettings_SqlSrv(app.RootStorage)
         Dim manager = New MSSQLSRVStorageManager(settings.SqlConnectionStringBuilder)
         Dim blobSaverDir = IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "..\BlobData")

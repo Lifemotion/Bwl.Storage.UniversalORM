@@ -1,18 +1,20 @@
 ﻿Imports System.Text
 Imports Microsoft.VisualStudio.TestTools.UnitTesting
-Imports System.Data.SqlClient
+Imports Microsoft.Data.SqlClient
 Imports System.IO
 Imports Bwl.Storage.UniversalORM
 Imports System.Drawing
 Imports Bwl.Storage.UniversalORM.LocalStorage
 Imports Bwl.Storage.UniversalORM.Postgresql
 Imports Npgsql
+Imports NUnit.Framework
+Imports Bwl.Framework
 
-<TestClass()> Public Class LocalStorageTest_Postgresql
+<TestFixture> Public Class LocalStorageTest_Postgresql
     Inherits LocalStorageBaseTest
 
     Protected Overrides Function CreateLocalStorage() As ILocalStorage
-        Dim app = New Bwl.Framework.AppBase()
+        Dim app = New AppBase()
         Dim settings = New LocalSettings_Postgresql(app.RootStorage)
         Dim manager = New PgStorageManager(settings.ConnectionStringBuilder)
 

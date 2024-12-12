@@ -8,18 +8,18 @@ Bwl.Framework
 <members>
 <member name="T:Bwl.Framework.My.Resources.Resources">
 <summary>
-  Класс ресурса со строгой типизацией для поиска локализованных строк и т.д.
+  A strongly-typed resource class, for looking up localized strings, etc.
 </summary>
 </member>
 <member name="P:Bwl.Framework.My.Resources.Resources.ResourceManager">
 <summary>
-  Возвращает кэшированный экземпляр ResourceManager, использованный этим классом.
+  Returns the cached ResourceManager instance used by this class.
 </summary>
 </member>
 <member name="P:Bwl.Framework.My.Resources.Resources.Culture">
 <summary>
-  Перезаписывает свойство CurrentUICulture текущего потока для всех
-  обращений к ресурсу с помощью этого класса ресурса со строгой типизацией.
+  Overrides the current thread's CurrentUICulture property for all
+  resource lookups using this strongly typed resource class.
 </summary>
 </member>
 <member name="M:Bwl.Framework.CryptoTools.Des3Encode(System.String,System.Byte[])">
@@ -97,6 +97,11 @@ Bwl.Framework
  <returns></returns>
  <remarks></remarks>
 </member>
+<member name="T:Bwl.Framework.RunLimiter">
+ <summary>
+ Periodic code run limiter with automatic internal memory clean.
+ </summary>
+</member>
 <member name="T:Bwl.Framework.ImageAttr">
  <summary>
  Отображаемое поле или свойтсво объекта
@@ -135,8 +140,129 @@ Bwl.Framework
 </member>
 <member name="P:Bwl.Framework.PasswordSetting.Value">
  <summary>
- Не является парллем, используйте поле Pass.
+ Do not use, not implemented in this setting
  </summary>
+ <returns>Encoded password</returns>
+</member>
+<member name="P:Bwl.Framework.TextFileContentSetting.DefaultDirectoryPath">
+ <summary>
+ Get the default directory path from SettingsStorage's DefaultWriter
+ </summary>
+ <returns>Default directory path</returns>
+</member>
+<member name="P:Bwl.Framework.TextFileContentSetting.DirectoryPath">
+ <summary>
+ Get the path to the directory
+ </summary>
+ <returns>Path to the directory</returns>
+</member>
+<member name="P:Bwl.Framework.TextFileContentSetting.FileName">
+ <summary>
+ Get the name of the file
+ </summary>
+ <returns>Filename</returns>
+</member>
+<member name="P:Bwl.Framework.TextFileContentSetting.FilePath">
+ <summary>
+ Get a full path to the file
+ </summary>
+ <returns>Full path to the file</returns>
+</member>
+<member name="P:Bwl.Framework.TextFileContentSetting.FileExtension">
+ <summary>
+ File extension
+ </summary>
+ <returns>File extension</returns>
+</member>
+<member name="P:Bwl.Framework.TextFileContentSetting.FileEncoding">
+ <summary>
+ File encoding
+ </summary>
+ <returns>File encoding</returns>
+</member>
+<member name="P:Bwl.Framework.TextFileContentSetting.OverwriteExistingFileOnFilePathChange">
+ <summary>
+ If we change the file name of file directory we switch to file if false or replace the file if true
+ </summary>
+ <returns>Should the file be overwritten?</returns>
+</member>
+<member name="M:Bwl.Framework.TextFileContentSetting.#ctor(Bwl.Framework.SettingsStorageBase,System.String,System.String[],System.String,System.String,System.String,System.Text.Encoding,System.Boolean,System.String,System.String,System.String[],System.Boolean)">
+ <summary>
+ Setting that allows writing to the file (for example, configuration files for external software)
+ </summary>
+ <param name="storage">Settings storage</param>
+ <param name="name">Setting name</param>
+ <param name="defaultValue">Default content of the file</param>
+ <param name="defaultFilename">Custom file name (with extension)</param>
+ <param name="defaultDirectory">Directory where the file should be saved (if not specified - next to the settings file)</param>
+ <param name="filenameExtension">Extension for the file (in case file name is generated)</param>
+ <param name="fileEncoding">File encoding (UTF-8 if not specified)</param>
+ <param name="overwriteExistingFileOnFilePathChange">If we change the file name of file directory we switch to file if false or replace the file if true</param>
+ <param name="friendlyName">Setting the name to show to the user</param>
+ <param name="description">Description of a setting to show to the user</param>
+ <param name="userGroups">User groups who have access to the setting</param>
+ <param name="readOnlyField">Value cannot be changed</param>
+ 
+</member>
+<member name="M:Bwl.Framework.TextFileContentSetting.op_Explicit(Bwl.Framework.TextFileContentSetting)~System.String[]">
+ <summary>
+ Converts a TextFileContentSetting object to an array of strings representing the file content.
+ </summary>
+ <param name="value">The TextFileContentSetting object to convert.</param>
+ <returns>An array of strings containing the content of the text file.</returns>
+</member>
+<member name="P:Bwl.Framework.TextFileContentSetting.Value">
+ <summary>
+ Returns content of a file (or sets it)
+ </summary>
+ <returns>Content of a text file</returns>
+</member>
+<member name="M:Bwl.Framework.TextFileContentSetting.EnsureDirectoryAndFileExist(System.String)">
+ <summary>
+ Ensures that the directory and file exist.
+ </summary>
+ <param name="filePath">The file path to check.</param>
+</member>
+<member name="P:Bwl.Framework.TextFileContentSetting.DefaultValueAsString">
+ <summary>
+ Default filename
+ </summary>
+ <returns>Default filename</returns>
+</member>
+<member name="M:Bwl.Framework.TextFileContentSetting.GenerateRandomFileName">
+ <summary>
+ Generates a random file name based on the setting's name and a random number.
+ </summary>
+ <returns>Random file name</returns>
+</member>
+<member name="M:Bwl.Framework.TextFileContentSetting.SetFilePath(System.String,System.String,System.Boolean)">
+ <summary>
+ Set the file path with an option to overwrite existing files.
+ </summary>
+ <param name="directory">New directory path</param>
+ <param name="filename">New file name</param>
+ <param name="overwriteExisting">If true, overwrite existing files</param>
+</member>
+<member name="M:Bwl.Framework.TextFileContentSetting.HandleFileMoveOrDelete(System.String,System.String,System.Boolean)">
+ <summary>
+ Handle file move or delete based on the overwriteExisting flag.
+ </summary>
+ <param name="originalFilePath">Original file path</param>
+ <param name="newFilePath">New file path</param>
+ <param name="overwriteExisting">If true, overwrite existing files</param>
+</member>
+<member name="P:Bwl.Framework.TextFileContentSetting.ValueAsString">
+ <summary>
+ Filename, does not change the content of a file
+ </summary>
+ <returns>Filename</returns>
+</member>
+<member name="M:Bwl.Framework.TextFileContentSetting.IsValueCorrect(System.String)">
+ <summary>
+ Check the file
+ </summary>
+ <param name="str">Not used</param>
+ <returns>Always returns true due to how this setting has to work</returns>
 </member>
 <member name="P:Bwl.Framework.SettingsStorageBackup.BackupAtStart">
  <summary>Включить архивацию при старте. По-умолчанию включено.</summary>
@@ -176,6 +302,7 @@ Bwl.Framework
  </summary>
  <param name="iniFileName">Имя ini-файла с настройками.</param>
  <param name="rootCategoryName">Имя корневой категории настроек.</param>
+ <param name="isReadOnly">Данные в хранилище только для чтения.</param>
  <remarks></remarks>
 </member>
 <member name="P:Bwl.Framework.SettingsStorageRoot.AutoSave">
@@ -236,7 +363,11 @@ Bwl.Framework
  <summary>
  Базовый класс хранилища настроек.
  </summary>
- <remarks></remarks>
+</member>
+<member name="T:Bwl.Framework.SettingsStorageBase.DictionaryWithKeyFlt`1">
+ <summary>
+ Обвязка словаря с фильтром на ключ.
+ </summary>
 </member>
 <member name="P:Bwl.Framework.SettingsStorageBase.IsReadOnly">
  <summary>
@@ -252,13 +383,20 @@ Bwl.Framework
  </summary>
  <remarks></remarks>
 </member>
-<member name="M:Bwl.Framework.SettingsStorageBufferedRoot.#ctor(System.String,System.String,System.Boolean)">
+<member name="M:Bwl.Framework.SettingsStorageBufferedRoot.#ctor(System.String,System.String,System.Boolean,System.Boolean,System.Boolean)">
  <summary>
  Создать новое хранилище настроек, являющееся корневым.
  </summary>
  <param name="iniFileName">Имя ini-файла с настройками.</param>
  <param name="rootName">Имя.</param>
- <param name="logAllEvents">Логировать все события, связанные ini-файлом?</param>
+ <param name="checkHash">Проверять хэш настроек.</param>
+ <param name="isReadOnly">Данные в хранилище только для чтения.</param>
+ <param name="onlyActiveSettings">Пишем только активные (используемые) настройки.</param>
+</member>
+<member name="T:Bwl.Framework.SettingTools">
+ <summary>
+ Набор методов для упрощения работы с настройками.
+ </summary>
 </member>
 </members>
 </doc>

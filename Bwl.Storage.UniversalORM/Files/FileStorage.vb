@@ -147,7 +147,7 @@ Public Class FileObjStorage
 
                 Dim existsID As Boolean = False
                 If File.Exists(path) Then
-                    Dim fileReader = My.Computer.FileSystem.OpenTextFileReader(path)
+                    Dim fileReader As New StreamReader(path)
                     Dim lineVal As String()
                     While fileReader.Peek <> -1
                         lineVal = fileReader.ReadLine().Split(" "c)
@@ -168,7 +168,7 @@ Public Class FileObjStorage
             For Each Indexing In _indexingMembers
                 Dim path = GetIndexFileName(obj.GetType, Indexing.Name)
 
-                Dim fileReader = My.Computer.FileSystem.OpenTextFileReader(path)
+                Dim fileReader As New StreamReader(path)
                 Dim stringReader = String.Empty
                 While fileReader.Peek <> -1
                     stringReader = fileReader.ReadLine()
@@ -224,7 +224,7 @@ Public Class FileObjStorage
             Dim indexInfo = _indexingMembers.Find(Function(x) x.Name = sortParam.Field)
             If indexInfo IsNot Nothing Then
                 Dim indexFileName = GetIndexFileName(Type.GetType(SupportedType.AssemblyQualifiedName), indexInfo.Name)
-                Dim fileReader = My.Computer.FileSystem.OpenTextFileReader(indexFileName)
+                Dim fileReader As New StreamReader(indexFileName)
                 Try
                     Dim stringReader = String.Empty
                     While fileReader.Peek <> -1
@@ -243,7 +243,7 @@ Public Class FileObjStorage
                                     If indexInfo.Type = GetType(DateTime) Then
                                         value = New DateTime(Convert.ToInt64(valueStr))
                                     Else
-                                        value = CTypeDynamic(valueStr, indexInfo.Type)
+                                        value = Convert.ChangeType(valueStr, indexInfo.Type)
                                     End If
                                     dictionary.Add(idStr, value)
                                 Catch ex As Exception
@@ -282,7 +282,7 @@ Public Class FileObjStorage
                     Dim indexInfo = _indexingMembers.Find(Function(x) x.Name = crit.Field)
                     If indexInfo IsNot Nothing Then
                         indexFileName = GetIndexFileName(Type.GetType(SupportedType.AssemblyQualifiedName), indexInfo.Name)
-                        Dim fileReader = My.Computer.FileSystem.OpenTextFileReader(indexFileName)
+                        Dim fileReader As New StreamReader(indexFileName)
                         Try
                             Dim stringReader = String.Empty
                             While fileReader.Peek <> -1
@@ -301,7 +301,7 @@ Public Class FileObjStorage
                                         If indexInfo.Type = GetType(DateTime) Then
                                             value = New DateTime(Convert.ToInt64(valueStr))
                                         Else
-                                            value = CTypeDynamic(valueStr, indexInfo.Type)
+                                            value = Convert.ChangeType(valueStr, indexInfo.Type)
                                         End If
 
                                         Select Case (crit.Condition)

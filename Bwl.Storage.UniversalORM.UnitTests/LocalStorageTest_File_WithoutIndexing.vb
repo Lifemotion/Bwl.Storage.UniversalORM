@@ -3,17 +3,18 @@ Imports Microsoft.VisualStudio.TestTools.UnitTesting
 Imports System.Drawing
 Imports System.Threading
 Imports Bwl.Storage.UniversalORM
+Imports NUnit.Framework
 
-<TestClass()> Public Class LocalStorageTest_File_WithoutIndexing
-	Inherits LocalStorageBaseTest
+<TestFixture> Public Class LocalStorageTest_File_WithoutIndexing
+    Inherits LocalStorageBaseTest
 
-	Protected Overrides Function CreateLocalStorage() As ILocalStorage
-		Dim path = IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "..\Data")
-		Dim manager As New FileStorageManager(path)
-		manager.UseIndexing = False
-		Dim blobSaverDir = IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "..\BlobData")
+    Protected Overrides Function CreateLocalStorage() As ILocalStorage
+        Dim path = IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "..\Data")
+        Dim manager As New FileStorageManager(path)
+        manager.UseIndexing = False
+        Dim blobSaverDir = IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "..\BlobData")
         Dim blobFileSaver = New FileBlobFieldsWriter(blobSaverDir)
         Dim localStorage = New Bwl.Storage.UniversalORM.LocalStorage(manager, blobFileSaver)
-		Return localStorage
-	End Function
+        Return localStorage
+    End Function
 End Class

@@ -1,4 +1,5 @@
-﻿Imports System.Data.SqlClient
+﻿
+Imports Microsoft.Data.SqlClient
 
 Public Class MSSQLSRVUtils
     Public Shared Sub ExecSQL(connString As String, sql As String, Optional parameters As SqlParameter() = Nothing)
@@ -77,7 +78,7 @@ Public Class MSSQLSRVUtils
         Try
             Dim con = New SqlConnection(connString)
             con.Open()
-            res = con.State = ConnectionState.Open
+            res = (con.State = Data.ConnectionState.Open)
             con.Close()
             con.Dispose()
         Catch ex As Exception

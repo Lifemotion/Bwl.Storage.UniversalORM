@@ -1,52 +1,23 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
-<Project ToolsVersion="12.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
-    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{B52CCE47-2DD9-4A31-90FD-DAA8C1FCA141}</ProjectGuid>
+    <TargetFramework>net48</TargetFramework>
     <OutputType>WinExe</OutputType>
     <StartupObject>Bwl.Storage.UniversalORM.Examples.My.MyApplication</StartupObject>
-    <RootNamespace>Bwl.Storage.UniversalORM.Examples</RootNamespace>
-    <AssemblyName>Bwl.Storage.UniversalORM.Examples</AssemblyName>
-    <FileAlignment>512</FileAlignment>
     <MyType>WindowsForms</MyType>
-    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
-    <TargetFrameworkProfile />
+    <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+    <UseWindowsForms>true</UseWindowsForms>
+    <ImportWindowsDesktopTargets>true</ImportWindowsDesktopTargets>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
-    <PlatformTarget>AnyCPU</PlatformTarget>
-    <DebugSymbols>true</DebugSymbols>
-    <DebugType>full</DebugType>
-    <DefineDebug>true</DefineDebug>
-    <DefineTrace>true</DefineTrace>
     <OutputPath>..\debug\Examples\bin\</OutputPath>
     <DocumentationFile>Bwl.Storage.UniversalORM.Examples.xml</DocumentationFile>
     <NoWarn>42016,41999,42017,42018,42019,42032,42036,42020,42021,42022</NoWarn>
-    <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
-    <PlatformTarget>AnyCPU</PlatformTarget>
-    <DebugType>pdbonly</DebugType>
     <DefineDebug>false</DefineDebug>
-    <DefineTrace>true</DefineTrace>
-    <Optimize>true</Optimize>
     <OutputPath>..\debug\Examples\bin\</OutputPath>
     <DocumentationFile>Bwl.Storage.UniversalORM.Examples.xml</DocumentationFile>
     <NoWarn>42016,41999,42017,42018,42019,42032,42036,42020,42021,42022</NoWarn>
-    <Prefer32Bit>false</Prefer32Bit>
-  </PropertyGroup>
-  <PropertyGroup>
-    <OptionExplicit>On</OptionExplicit>
-  </PropertyGroup>
-  <PropertyGroup>
-    <OptionCompare>Binary</OptionCompare>
-  </PropertyGroup>
-  <PropertyGroup>
-    <OptionStrict>Off</OptionStrict>
-  </PropertyGroup>
-  <PropertyGroup>
-    <OptionInfer>On</OptionInfer>
   </PropertyGroup>
   <PropertyGroup>
     <RunPostBuildEvent>Always</RunPostBuildEvent>
@@ -62,57 +33,26 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\refs\Newtonsoft.Json.dll</HintPath>
     </Reference>
-    <Reference Include="System" />
-    <Reference Include="System.Data" />
-    <Reference Include="System.Drawing" />
-    <Reference Include="System.Windows.Forms" />
-    <Reference Include="System.Core" />
   </ItemGroup>
   <ItemGroup>
-    <Import Include="Microsoft.VisualBasic" />
-    <Import Include="System" />
-    <Import Include="System.Collections" />
-    <Import Include="System.Collections.Generic" />
     <Import Include="System.Drawing" />
-    <Import Include="System.Diagnostics" />
     <Import Include="System.Windows.Forms" />
-    <Import Include="System.Linq" />
-    <Import Include="System.Threading.Tasks" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="ExamplesApp.vb">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="ExamplesApp.Designer.vb">
-      <DependentUpon>ExamplesApp.vb</DependentUpon>
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="My Project\AssemblyInfo.vb" />
-    <Compile Include="My Project\Application.Designer.vb">
+    <Compile Update="My Project\Application.Designer.vb">
       <AutoGen>True</AutoGen>
       <DependentUpon>Application.myapp</DependentUpon>
     </Compile>
-    <Compile Include="My Project\Resources.Designer.vb">
+    <Compile Update="My Project\Resources.Designer.vb">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
       <DependentUpon>Resources.resx</DependentUpon>
     </Compile>
-    <Compile Include="My Project\Settings.Designer.vb">
+    <Compile Update="My Project\Settings.Designer.vb">
       <AutoGen>True</AutoGen>
       <DependentUpon>Settings.settings</DependentUpon>
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
     </Compile>
-  </ItemGroup>
-  <ItemGroup>
-    <EmbeddedResource Include="ExamplesApp.resx">
-      <DependentUpon>ExamplesApp.vb</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="My Project\Resources.resx">
-      <Generator>VbMyResourcesResXFileCodeGenerator</Generator>
-      <LastGenOutput>Resources.Designer.vb</LastGenOutput>
-      <CustomToolNamespace>My.Resources</CustomToolNamespace>
-      <SubType>Designer</SubType>
-    </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>
     <None Include="..\refs\fbe32\aliases.conf">
@@ -143,28 +83,15 @@
       <Link>fbe64\firebird.msg</Link>
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Include="My Project\Application.myapp">
+    <None Update="My Project\Application.myapp">
       <Generator>MyApplicationCodeGenerator</Generator>
       <LastGenOutput>Application.Designer.vb</LastGenOutput>
     </None>
-    <None Include="My Project\Settings.settings">
-      <Generator>SettingsSingleFileGenerator</Generator>
-      <CustomToolNamespace>My</CustomToolNamespace>
-      <LastGenOutput>Settings.Designer.vb</LastGenOutput>
-    </None>
-    <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Bwl.Storage.UniversalORM.Firebird\Bwl.Storage.UniversalORM.Firebird.vbproj">
-      <Project>{b58e49c1-7fd7-4674-a1d4-282bc3c88f47}</Project>
-      <Name>Bwl.Storage.UniversalORM.Firebird</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\Bwl.Storage.UniversalORM\Bwl.Storage.UniversalORM.vbproj">
-      <Project>{cfd756ad-1cb6-4b12-a969-d18a434d1e72}</Project>
-      <Name>Bwl.Storage.UniversalORM</Name>
-    </ProjectReference>
+    <ProjectReference Include="..\Bwl.Storage.UniversalORM.Firebird\Bwl.Storage.UniversalORM.Firebird.vbproj" />
+    <ProjectReference Include="..\Bwl.Storage.UniversalORM\Bwl.Storage.UniversalORM.vbproj" />
   </ItemGroup>
-  <ItemGroup />
   <ItemGroup>
     <Content Include="..\refs\fbe32\fbembed.dll">
       <Link>fbe32\fbembed.dll</Link>
@@ -223,18 +150,4 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
   </ItemGroup>
-  <Import Project="$(MSBuildToolsPath)\Microsoft.VisualBasic.targets" />
-  <PropertyGroup>
-    <PreBuildEvent>"$(SolutionDir)tools\NetRevisionTool.exe" /patch "$(ProjectDir)My Project"</PreBuildEvent>
-  </PropertyGroup>
-  <PropertyGroup>
-    <PostBuildEvent>"$(SolutionDir)tools\NetRevisionTool.exe" /restore "$(ProjectDir)My Project"</PostBuildEvent>
-  </PropertyGroup>
-  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
-       Other similar extension points exist, see Microsoft.Common.targets.
-  <Target Name="BeforeBuild">
-  </Target>
-  <Target Name="AfterBuild">
-  </Target>
-  -->
 </Project>

@@ -2,8 +2,9 @@
 Imports System.Threading
 Imports System.Drawing
 Imports Bwl.Storage.UniversalORM.LocalStorage
+Imports NUnit.Framework
 
-<TestClass()>
+<TestFixture>
 Public MustInherit Class LocalStorageBaseTest
     Private _localStorage As ILocalStorage
 
@@ -98,43 +99,43 @@ Public MustInherit Class LocalStorageBaseTest
         Return True
     End Function
 
-    <TestMethod()>
+    <Test>
     Public Sub RemoveAll()
         _localStorage.RemoveAllObj(GetType(TestData))
         Dim p1 = _localStorage.FindObjCount(GetType(TestData), Nothing)
-        Assert.AreEqual(p1, 0L)
+        NUnit.Framework.Legacy.ClassicAssert.AreEqual(p1, 0L)
 
         _localStorage.RemoveAllObj(GetType(TestDataInternal))
         Dim p2 = _localStorage.FindObjCount(GetType(TestDataInternal), Nothing)
 
         Dim TestDataCount = _localStorage.FindObj(Of TestData)()
-        Assert.AreNotEqual(TestDataCount, Nothing)
-        Assert.AreEqual(TestDataCount.Count, 0)
+        NUnit.Framework.Legacy.ClassicAssert.AreNotEqual(TestDataCount, Nothing)
+        NUnit.Framework.Legacy.ClassicAssert.AreEqual(TestDataCount.Count, 0)
 
         Dim TestDataInternalCount = _localStorage.FindObj(Of TestDataInternal)()
-        Assert.AreNotEqual(TestDataInternalCount, Nothing)
-        Assert.AreEqual(TestDataInternalCount.Count, 0)
+        NUnit.Framework.Legacy.ClassicAssert.AreNotEqual(TestDataInternalCount, Nothing)
+        NUnit.Framework.Legacy.ClassicAssert.AreEqual(TestDataInternalCount.Count, 0)
 
         _localStorage.AddObj(_data1)
         _localStorage.AddObj(_data2)
         _localStorage.AddObj(_data3)
 
         Dim p3 = _localStorage.FindObjCount(GetType(TestData), Nothing)
-        Assert.AreEqual(p3, 3L)
+        NUnit.Framework.Legacy.ClassicAssert.AreEqual(p3, 3L)
 
         Dim p4 = _localStorage.FindObjCount(GetType(TestDataInternal), Nothing)
-        Assert.AreEqual(p4, 0L)
+        NUnit.Framework.Legacy.ClassicAssert.AreEqual(p4, 0L)
 
         Dim p6 = _localStorage.FindObj(Of TestData)()
-        Assert.AreEqual(p6.Length, 3)
+        NUnit.Framework.Legacy.ClassicAssert.AreEqual(p6.Length, 3)
 
         _localStorage.RemoveAllObj(GetType(TestData))
 
         Dim p5 = _localStorage.FindObjCount(GetType(TestData), Nothing)
-        Assert.AreEqual(p5, 0L)
+        NUnit.Framework.Legacy.ClassicAssert.AreEqual(p5, 0L)
     End Sub
 
-    <TestMethod()>
+    <Test>
     Public Sub AddObj()
         _localStorage.RemoveAllObj(GetType(TestData))
         Dim p1 = _localStorage.FindObjCount(GetType(TestData), Nothing)
@@ -144,12 +145,12 @@ Public MustInherit Class LocalStorageBaseTest
         _localStorage.AddObj(_data3)
         Dim p3 = _localStorage.FindObjCount(GetType(TestData), Nothing)
 
-        Assert.AreEqual(p1, 0L)
-        Assert.AreEqual(p2, 2L)
-        Assert.AreEqual(p3, 3L)
+        NUnit.Framework.Legacy.ClassicAssert.AreEqual(p1, 0L)
+        NUnit.Framework.Legacy.ClassicAssert.AreEqual(p2, 2L)
+        NUnit.Framework.Legacy.ClassicAssert.AreEqual(p3, 3L)
     End Sub
 
-    <TestMethod()>
+    <Test>
     Public Sub PlainSqlGetObjCount()
         _localStorage.RemoveAllObj(GetType(TestData))
         _localStorage.AddObj(_data1)
@@ -158,10 +159,10 @@ Public MustInherit Class LocalStorageBaseTest
 
         Dim results = _localStorage.ExecSqlGetObjects(GetType(TestData), "SELECT Count(*) FROM TestData")
 
-        Assert.AreEqual(results(0)(0), 3L)
+        NUnit.Framework.Legacy.ClassicAssert.AreEqual(results(0)(0), 3L)
     End Sub
 
-    <TestMethod()>
+    <Test>
     Public Sub GetSomeFieldDistinct()
         _localStorage.RemoveAllObj(GetType(TestData))
 
@@ -170,13 +171,13 @@ Public MustInherit Class LocalStorageBaseTest
 
         Dim distinctValues = _localStorage.GetSomeFieldDistinct("Cat", GetType(TestData))
 
-        Assert.IsNotNull(distinctValues)
-        Assert.AreEqual(distinctValues.Count, 2)
-        Assert.AreEqual(distinctValues.Contains(_data1.Cat), True)
-        Assert.AreEqual(distinctValues.Contains(_data2.Cat), True)
+        NUnit.Framework.Legacy.ClassicAssert.IsNotNull(distinctValues)
+        NUnit.Framework.Legacy.ClassicAssert.AreEqual(distinctValues.Count, 2)
+        NUnit.Framework.Legacy.ClassicAssert.AreEqual(distinctValues.Contains(_data1.Cat), True)
+        NUnit.Framework.Legacy.ClassicAssert.AreEqual(distinctValues.Contains(_data2.Cat), True)
     End Sub
 
-    <TestMethod()>
+    <Test>
     Public Sub BigData_100KB()
         _localStorage.RemoveAllObj(GetType(TestData))
 
@@ -195,21 +196,21 @@ Public MustInherit Class LocalStorageBaseTest
 
         Dim d2 = _localStorage.GetObj(Of TestData)(d1.ID)
 
-        Assert.AreEqual(p1, 0L)
-        Assert.AreEqual(p2, 1L)
+        NUnit.Framework.Legacy.ClassicAssert.AreEqual(p1, 0L)
+        NUnit.Framework.Legacy.ClassicAssert.AreEqual(p2, 1L)
 
-        Assert.AreEqual(d1.ID, d2.ID)
-        Assert.AreEqual(d1.Cat, d2.Cat)
-        Assert.AreEqual(d1.Image.Width, d2.Image.Width)
-        Assert.AreEqual(d1.Image.Height, d2.Image.Height)
-        Assert.AreEqual(d1.BigData.Length, d2.BigData.Length)
+        NUnit.Framework.Legacy.ClassicAssert.AreEqual(d1.ID, d2.ID)
+        NUnit.Framework.Legacy.ClassicAssert.AreEqual(d1.Cat, d2.Cat)
+        NUnit.Framework.Legacy.ClassicAssert.AreEqual(d1.Image.Width, d2.Image.Width)
+        NUnit.Framework.Legacy.ClassicAssert.AreEqual(d1.Image.Height, d2.Image.Height)
+        NUnit.Framework.Legacy.ClassicAssert.AreEqual(d1.BigData.Length, d2.BigData.Length)
 
-        Assert.AreEqual(d1.BigData(100), d2.BigData(100))
-        Assert.AreEqual(d1.BigData(268), d2.BigData(268))
-        Assert.AreEqual(d1.BigData(43453), d2.BigData(43453))
+        NUnit.Framework.Legacy.ClassicAssert.AreEqual(d1.BigData(100), d2.BigData(100))
+        NUnit.Framework.Legacy.ClassicAssert.AreEqual(d1.BigData(268), d2.BigData(268))
+        NUnit.Framework.Legacy.ClassicAssert.AreEqual(d1.BigData(43453), d2.BigData(43453))
     End Sub
 
-    <TestMethod()>
+    <Test>
     Public Sub UpdateIndex()
         _localStorage.RemoveAllObj(GetType(TestData))
 
@@ -227,32 +228,32 @@ Public MustInherit Class LocalStorageBaseTest
 
         Dim ids = _localStorage.FindObj(Of TestData)(New SearchParams({New FindCriteria("Cat", FindCondition.equal, d1.Cat)}))
 
-        Assert.AreEqual(d1.ID, ids.First)
+        NUnit.Framework.Legacy.ClassicAssert.AreEqual(d1.ID, ids.First)
 
         Dim d2 = _localStorage.GetObj(Of TestData)(d1.ID)
 
-        Assert.AreEqual(d1.Cat, d2.Cat)
+        NUnit.Framework.Legacy.ClassicAssert.AreEqual(d1.Cat, d2.Cat)
 
         d1.Cat = Nothing
         _localStorage.UpdateObj(d1)
 
         d2 = _localStorage.GetObj(Of TestData)(d1.ID)
 
-        Assert.AreEqual(d1.Cat, d2.Cat)
+        NUnit.Framework.Legacy.ClassicAssert.AreEqual(d1.Cat, d2.Cat)
 
 
-        Assert.AreEqual(d1.ID, d2.ID)
-        Assert.AreEqual(d1.Cat, d2.Cat)
-        Assert.AreEqual(d1.Image.Width, d2.Image.Width)
-        Assert.AreEqual(d1.Image.Height, d2.Image.Height)
-        Assert.AreEqual(d1.BigData.Length, d2.BigData.Length)
+        NUnit.Framework.Legacy.ClassicAssert.AreEqual(d1.ID, d2.ID)
+        NUnit.Framework.Legacy.ClassicAssert.AreEqual(d1.Cat, d2.Cat)
+        NUnit.Framework.Legacy.ClassicAssert.AreEqual(d1.Image.Width, d2.Image.Width)
+        NUnit.Framework.Legacy.ClassicAssert.AreEqual(d1.Image.Height, d2.Image.Height)
+        NUnit.Framework.Legacy.ClassicAssert.AreEqual(d1.BigData.Length, d2.BigData.Length)
 
-        Assert.AreEqual(d1.BigData(100), d2.BigData(100))
-        Assert.AreEqual(d1.BigData(268), d2.BigData(268))
-        Assert.AreEqual(d1.BigData(43453), d2.BigData(43453))
+        NUnit.Framework.Legacy.ClassicAssert.AreEqual(d1.BigData(100), d2.BigData(100))
+        NUnit.Framework.Legacy.ClassicAssert.AreEqual(d1.BigData(268), d2.BigData(268))
+        NUnit.Framework.Legacy.ClassicAssert.AreEqual(d1.BigData(43453), d2.BigData(43453))
     End Sub
 
-    <TestMethod()>
+    <Test>
     Public Sub BigData_inCycle_10()
         _localStorage.RemoveAllObj(GetType(TestData))
         For index = 1 To 10
@@ -260,7 +261,7 @@ Public MustInherit Class LocalStorageBaseTest
         Next
     End Sub
 
-    <TestMethod()>
+    <Test>
     Public Sub BigData_10MB(Optional needRemove As Boolean = True, Optional needControlObjCount As Boolean = True)
         If needRemove Then
             _localStorage.RemoveAllObj(GetType(TestData))
@@ -285,26 +286,26 @@ Public MustInherit Class LocalStorageBaseTest
         Dim d2 = _localStorage.GetObj(Of TestData)(d1.ID)
 
         If needControlObjCount Then
-            Assert.AreEqual(p1, 0L)
-            Assert.AreEqual(p2, 1L)
+            NUnit.Framework.Legacy.ClassicAssert.AreEqual(p1, 0L)
+            NUnit.Framework.Legacy.ClassicAssert.AreEqual(p2, 1L)
         End If
 
-        Assert.AreEqual(d1.ID, d2.ID)
-        Assert.AreEqual(d1.Cat, d2.Cat)
-        Assert.AreEqual(d1.Image.Width, d2.Image.Width)
-        Assert.AreEqual(d1.Image.Height, d2.Image.Height)
-        Assert.AreEqual(d1.BigData.Length, d2.BigData.Length)
+        NUnit.Framework.Legacy.ClassicAssert.AreEqual(d1.ID, d2.ID)
+        NUnit.Framework.Legacy.ClassicAssert.AreEqual(d1.Cat, d2.Cat)
+        NUnit.Framework.Legacy.ClassicAssert.AreEqual(d1.Image.Width, d2.Image.Width)
+        NUnit.Framework.Legacy.ClassicAssert.AreEqual(d1.Image.Height, d2.Image.Height)
+        NUnit.Framework.Legacy.ClassicAssert.AreEqual(d1.BigData.Length, d2.BigData.Length)
 
-        Assert.AreEqual(d1.BigData(100), d2.BigData(100))
-        Assert.AreEqual(d1.BigData(268), d2.BigData(268))
-        Assert.AreEqual(d1.BigData(43453), d2.BigData(43453))
-        Assert.AreEqual(d1.BigData(143453), d2.BigData(143453))
-        Assert.AreEqual(d1.BigData(543453), d2.BigData(543453))
-        Assert.AreEqual(d1.BigData(1043453), d2.BigData(1043453))
+        NUnit.Framework.Legacy.ClassicAssert.AreEqual(d1.BigData(100), d2.BigData(100))
+        NUnit.Framework.Legacy.ClassicAssert.AreEqual(d1.BigData(268), d2.BigData(268))
+        NUnit.Framework.Legacy.ClassicAssert.AreEqual(d1.BigData(43453), d2.BigData(43453))
+        NUnit.Framework.Legacy.ClassicAssert.AreEqual(d1.BigData(143453), d2.BigData(143453))
+        NUnit.Framework.Legacy.ClassicAssert.AreEqual(d1.BigData(543453), d2.BigData(543453))
+        NUnit.Framework.Legacy.ClassicAssert.AreEqual(d1.BigData(1043453), d2.BigData(1043453))
 
     End Sub
 
-    <TestMethod()>
+    <Test>
     Public Sub RemoveObj()
         _localStorage.RemoveAllObj(GetType(TestData))
         Dim p1 = _localStorage.FindObjCount(GetType(TestData), Nothing)
@@ -313,12 +314,12 @@ Public MustInherit Class LocalStorageBaseTest
         _localStorage.RemoveObj(Of TestData)(_data1.ID)
         Dim p3 = _localStorage.FindObjCount(GetType(TestData), Nothing)
 
-        Assert.AreEqual(p1, 0L)
-        Assert.AreEqual(p2, 1L)
-        Assert.AreEqual(p3, 0L)
+        NUnit.Framework.Legacy.ClassicAssert.AreEqual(p1, 0L)
+        NUnit.Framework.Legacy.ClassicAssert.AreEqual(p2, 1L)
+        NUnit.Framework.Legacy.ClassicAssert.AreEqual(p3, 0L)
     End Sub
 
-    <TestMethod()>
+    <Test>
     Public Sub RemoveObjs()
         Dim objsToAdd = New TestData() {_data1, _data2, _data3, _data4, _data5, _data6}
         Dim objsToRemove = New String() {_data1.ID, _data4.ID, _data5.ID, _data6.ID}
@@ -333,13 +334,13 @@ Public MustInherit Class LocalStorageBaseTest
         Dim p3 As Long = objsLeft.Count()
         Dim p4 = (objsLeft.Count() = objsShouldLeft.Where(Function(f) objsShouldLeft.Contains(f)).Count())
 
-        Assert.AreEqual(p1, 0L)
-        Assert.AreEqual(p2, 6L)
-        Assert.AreEqual(p3, 2L)
-        Assert.AreEqual(p4, True)
+        NUnit.Framework.Legacy.ClassicAssert.AreEqual(p1, 0L)
+        NUnit.Framework.Legacy.ClassicAssert.AreEqual(p2, 6L)
+        NUnit.Framework.Legacy.ClassicAssert.AreEqual(p3, 2L)
+        NUnit.Framework.Legacy.ClassicAssert.AreEqual(p4, True)
     End Sub
 
-    <TestMethod()>
+    <Test>
     Public Sub GetObj()
         _localStorage.RemoveAllObj(GetType(TestData))
         _localStorage.AddObj(_data1)
@@ -350,12 +351,12 @@ Public MustInherit Class LocalStorageBaseTest
         Dim p2 = _localStorage.GetObj(Of TestData)(_data2.ID)
         Dim p3 = _localStorage.GetObj(Of TestData)(_data3.ID)
 
-        Assert.AreEqual(p1.ID, _data1.ID)
-        Assert.AreEqual(p2.ID, _data2.ID)
-        Assert.AreEqual(p3.ID, _data3.ID)
+        NUnit.Framework.Legacy.ClassicAssert.AreEqual(p1.ID, _data1.ID)
+        NUnit.Framework.Legacy.ClassicAssert.AreEqual(p2.ID, _data2.ID)
+        NUnit.Framework.Legacy.ClassicAssert.AreEqual(p3.ID, _data3.ID)
     End Sub
 
-    <TestMethod()>
+    <Test>
     Public Sub GetObjects()
         _localStorage.RemoveAllObj(GetType(TestData))
         _localStorage.AddObj(_data1)
@@ -364,15 +365,15 @@ Public MustInherit Class LocalStorageBaseTest
 
         Dim ids = _localStorage.FindObj(Of TestData)()
         Dim p1 = _localStorage.GetObjects(Of TestData)(ids)
-        Assert.AreEqual(p1.Count, 3)
+        NUnit.Framework.Legacy.ClassicAssert.AreEqual(p1.Count, 3)
 
         Dim idsNew = p1.Select(Function(val) val.ID)
-        Assert.AreEqual(idsNew.Contains(_data1.ID), True)
-        Assert.AreEqual(idsNew.Contains(_data2.ID), True)
-        Assert.AreEqual(idsNew.Contains(_data3.ID), True)
+        NUnit.Framework.Legacy.ClassicAssert.AreEqual(idsNew.Contains(_data1.ID), True)
+        NUnit.Framework.Legacy.ClassicAssert.AreEqual(idsNew.Contains(_data2.ID), True)
+        NUnit.Framework.Legacy.ClassicAssert.AreEqual(idsNew.Contains(_data3.ID), True)
     End Sub
 
-    <TestMethod()>
+    <Test>
     Public Sub GetObjectsDirect()
         _localStorage.RemoveAllObj(GetType(TestData))
         _localStorage.AddObj(_data1)
@@ -380,15 +381,15 @@ Public MustInherit Class LocalStorageBaseTest
         _localStorage.AddObj(_data3)
 
         Dim p1 = _localStorage.GetObjects(Of TestData)()
-        Assert.AreEqual(p1.Count, 3)
+        NUnit.Framework.Legacy.ClassicAssert.AreEqual(p1.Count, 3)
 
         Dim idsNew = p1.Select(Function(val) val.ID)
-        Assert.AreEqual(idsNew.Contains(_data1.ID), True)
-        Assert.AreEqual(idsNew.Contains(_data2.ID), True)
-        Assert.AreEqual(idsNew.Contains(_data3.ID), True)
+        NUnit.Framework.Legacy.ClassicAssert.AreEqual(idsNew.Contains(_data1.ID), True)
+        NUnit.Framework.Legacy.ClassicAssert.AreEqual(idsNew.Contains(_data2.ID), True)
+        NUnit.Framework.Legacy.ClassicAssert.AreEqual(idsNew.Contains(_data3.ID), True)
     End Sub
 
-    <TestMethod()>
+    <Test>
     Public Sub GetObjectsDirectVsClassic()
         ' Cache
         GetObjects()
@@ -403,10 +404,10 @@ Public MustInherit Class LocalStorageBaseTest
         GetObjectsDirect()
         sw2.Stop()
 
-        Assert.IsTrue(sw2.ElapsedMilliseconds < sw1.ElapsedMilliseconds)
+        NUnit.Framework.Legacy.ClassicAssert.IsTrue(sw2.ElapsedMilliseconds < sw1.ElapsedMilliseconds)
     End Sub
 
-    <TestMethod()>
+    <Test>
     Public Sub FindObjCount_SelectOptions()
         _localStorage.RemoveAllObj(GetType(TestData))
         _localStorage.AddObj(_data1)
@@ -422,12 +423,12 @@ Public MustInherit Class LocalStorageBaseTest
         Dim p2 = _localStorage.FindObjCount(GetType(TestData), sp)
         sp.SelectOptions = New SelectOptions(1, 1)
         Dim p3 = _localStorage.FindObjCount(GetType(TestData), sp)
-        Assert.AreEqual(p1, 3)
-        Assert.AreEqual(p2, 2)
-        Assert.AreEqual(p3, 1)
+        NUnit.Framework.Legacy.ClassicAssert.AreEqual(p1, 3)
+        NUnit.Framework.Legacy.ClassicAssert.AreEqual(p2, 2)
+        NUnit.Framework.Legacy.ClassicAssert.AreEqual(p3, 1)
     End Sub
 
-    <TestMethod()>
+    <Test>
     Public Sub FindObj_Criteria()
         _localStorage.RemoveAllObj(GetType(TestData))
         _localStorage.AddObj(_data1)
@@ -439,10 +440,10 @@ Public MustInherit Class LocalStorageBaseTest
 
         Dim sp = New SearchParams({New FindCriteria("Cat", FindCondition.equal, "happycat")})
         Dim p1 = _localStorage.FindObj(Of TestData)(sp)
-        Assert.AreEqual(p1.Count, 3)
+        NUnit.Framework.Legacy.ClassicAssert.AreEqual(p1.Count, 3)
     End Sub
 
-    <TestMethod()>
+    <Test>
     Public Sub FindObj_LikeCriteria()
         _localStorage.RemoveAllObj(GetType(TestData))
         _localStorage.AddObj(_data1)
@@ -454,13 +455,13 @@ Public MustInherit Class LocalStorageBaseTest
 
         Dim sp = New SearchParams({New FindCriteria("Cat", FindCondition.likeEqual, "%happy%")})
         Dim p1 = _localStorage.FindObj(Of TestData)(sp)
-        Assert.AreEqual(p1.Count, 3)
+        NUnit.Framework.Legacy.ClassicAssert.AreEqual(p1.Count, 3)
         sp = New SearchParams({New FindCriteria("Cat", FindCondition.likeEqual, "%%")})
         Dim p2 = _localStorage.FindObj(Of TestData)(sp)
-        Assert.AreEqual(p2.Count, 6)
+        NUnit.Framework.Legacy.ClassicAssert.AreEqual(p2.Count, 6)
     End Sub
 
-    <TestMethod()>
+    <Test>
     Public Sub FindObj_MultipleCriteria()
         _localStorage.RemoveAllObj(GetType(TestData))
         _localStorage.AddObj(_data1)
@@ -474,24 +475,24 @@ Public MustInherit Class LocalStorageBaseTest
         Dim availableValues = CfJsonConverter.Serialize(New String() {"cat22", "cat44"})
         Dim sp = New SearchParams({New FindCriteria("Cat", FindCondition.multipleEqual, availableValues)})
         Dim p1 = _localStorage.FindObj(Of TestData)(sp)
-        Assert.AreEqual(p1.Count, 2)
+        NUnit.Framework.Legacy.ClassicAssert.AreEqual(p1.Count, 2)
         ' То же, но лишь с одним значением
         sp.FindCriterias = New FindCriteria() {New FindCriteria("Cat", FindCondition.multipleEqual, CfJsonConverter.Serialize(New String() {"cat22"}))}
         p1 = _localStorage.FindObj(Of TestData)(sp)
-        Assert.AreEqual(p1.Count, 1)
+        NUnit.Framework.Legacy.ClassicAssert.AreEqual(p1.Count, 1)
         ' Multiple-условие + дополнительное условие поиска
         sp.FindCriterias = New FindCriteria() {New FindCriteria("Cat", FindCondition.multipleEqual, availableValues),
                                                New FindCriteria("Cat", FindCondition.likeEqual, "%22%")}
         p1 = _localStorage.FindObj(Of TestData)(sp)
-        Assert.AreEqual(p1.Count, 1)
+        NUnit.Framework.Legacy.ClassicAssert.AreEqual(p1.Count, 1)
         ' Условие multiple negative
         sp = New SearchParams({New FindCriteria("Cat", FindCondition.multipleNotEqual, availableValues)})
         p1 = _localStorage.FindObj(Of TestData)(sp)
         Dim p2Values = _localStorage.GetObjects(Of TestData)(p1)
-        Assert.AreEqual(p1.Count, 4)
+        NUnit.Framework.Legacy.ClassicAssert.AreEqual(p1.Count, 4)
     End Sub
 
-    <TestMethod()>
+    <Test>
     Public Sub FindObj_FindCriteriaCriteria()
         _localStorage.RemoveAllObj(GetType(TestData))
         _localStorage.AddObj(_data1)
@@ -509,15 +510,15 @@ Public MustInherit Class LocalStorageBaseTest
         Dim sp = New SearchParams({New FindCriteria("Cat", FindCondition.equal, "happycat"),
                                    New FindCriteria("Cat", FindCondition.findCriteria, serializedFindCriteria)})
         Dim p1 = _localStorage.FindObj(Of TestData)(sp)
-        Assert.AreEqual(p1.Count, 2)
+        NUnit.Framework.Legacy.ClassicAssert.AreEqual(p1.Count, 2)
         ' То же, но negative
         sp = New SearchParams({New FindCriteria("Cat", FindCondition.equal, "happycat"),
                                New FindCriteria("Cat", FindCondition.findCriteriaNegative, serializedFindCriteria)})
         p1 = _localStorage.FindObj(Of TestData)(sp)
-        Assert.AreEqual(p1.Count, 1)
+        NUnit.Framework.Legacy.ClassicAssert.AreEqual(p1.Count, 1)
     End Sub
 
-    <TestMethod()>
+    <Test>
     Public Sub FindObj_SelectOption()
         _localStorage.RemoveAllObj(GetType(TestData))
         _localStorage.AddObj(_data2)
@@ -533,15 +534,15 @@ Public MustInherit Class LocalStorageBaseTest
         sp = New SearchParams(selectOptions:=so, sortParam:=sort)
         Dim p2 = _localStorage.FindObj(Of TestData)(sp)
 
-        Assert.AreEqual(p1.Count, 2)
-        Assert.AreEqual(p1(0), _data2.ID)
-        Assert.AreEqual(p1(1), _data4.ID)
-        Assert.AreEqual(p2.Count, 2)
-        Assert.AreEqual(p2(0), _data4.ID)
-        Assert.AreEqual(p2(1), _data5.ID)
+        NUnit.Framework.Legacy.ClassicAssert.AreEqual(p1.Count, 2)
+        NUnit.Framework.Legacy.ClassicAssert.AreEqual(p1(0), _data2.ID)
+        NUnit.Framework.Legacy.ClassicAssert.AreEqual(p1(1), _data4.ID)
+        NUnit.Framework.Legacy.ClassicAssert.AreEqual(p2.Count, 2)
+        NUnit.Framework.Legacy.ClassicAssert.AreEqual(p2(0), _data4.ID)
+        NUnit.Framework.Legacy.ClassicAssert.AreEqual(p2(1), _data5.ID)
     End Sub
 
-    <TestMethod()>
+    <Test>
     Public Sub FindObj_timestamp_1()
         _localStorage.RemoveAllObj(GetType(TestData))
         _localStorage.AddObj(_data1)
@@ -554,11 +555,11 @@ Public MustInherit Class LocalStorageBaseTest
 
         Dim sp = New SearchParams({New FindCriteria("Timestamp", FindCondition.equal, dt)})
         Dim p1 = _localStorage.FindObj(Of TestData)(sp)
-        Assert.AreEqual(p1.Count, 1)
-        Assert.AreEqual(p1.First, _data2.ID)
+        NUnit.Framework.Legacy.ClassicAssert.AreEqual(p1.Count, 1)
+        NUnit.Framework.Legacy.ClassicAssert.AreEqual(p1.First, _data2.ID)
     End Sub
 
-    <TestMethod()>
+    <Test>
     Public Sub FindObj_timestamp_2()
         _localStorage.RemoveAllObj(GetType(TestData))
         _localStorage.AddObj(_data1)
@@ -568,10 +569,10 @@ Public MustInherit Class LocalStorageBaseTest
 
         Dim sp = New SearchParams({New FindCriteria("Timestamp", FindCondition.greater, DateTime.MinValue)})
         Dim p1 = _localStorage.FindObj(Of TestData)(sp)
-        Assert.AreEqual(p1.Count, 2)
+        NUnit.Framework.Legacy.ClassicAssert.AreEqual(p1.Count, 2)
     End Sub
 
-    <TestMethod()>
+    <Test>
     Public Sub FindObj_timestamp_3()
         _localStorage.RemoveAllObj(GetType(TestData))
         _localStorage.AddObj(_data1)
@@ -583,10 +584,10 @@ Public MustInherit Class LocalStorageBaseTest
 
         Dim sp = New SearchParams({New FindCriteria("Timestamp", FindCondition.less, DateTime.MinValue)})
         Dim p1 = _localStorage.FindObj(Of TestData)(sp)
-        Assert.AreEqual(p1.Count, 0)
+        NUnit.Framework.Legacy.ClassicAssert.AreEqual(p1.Count, 0)
     End Sub
 
-    <TestMethod()>
+    <Test>
     Public Sub FindObj_timestamp_4()
         _localStorage.RemoveAllObj(GetType(TestData))
         _localStorage.AddObj(_data1)
@@ -598,10 +599,10 @@ Public MustInherit Class LocalStorageBaseTest
 
         Dim sp = New SearchParams({New FindCriteria("Timestamp", FindCondition.less, DateTime.MaxValue)})
         Dim p1 = _localStorage.FindObj(Of TestData)(sp)
-        Assert.AreEqual(p1.Count, 2)
+        NUnit.Framework.Legacy.ClassicAssert.AreEqual(p1.Count, 2)
     End Sub
 
-    <TestMethod()>
+    <Test>
     Public Sub FindObj_timestamp_and_string()
         _localStorage.RemoveAllObj(GetType(TestData))
         _localStorage.AddObj(_data1)
@@ -617,11 +618,11 @@ Public MustInherit Class LocalStorageBaseTest
                                   New FindCriteria("Cat", FindCondition.equal, _data2.Cat)
                                   })
         Dim p1 = _localStorage.FindObj(Of TestData)(sp)
-        Assert.AreEqual(p1.Count, 1)
-        Assert.AreEqual(p1.First, _data2.ID)
+        NUnit.Framework.Legacy.ClassicAssert.AreEqual(p1.Count, 1)
+        NUnit.Framework.Legacy.ClassicAssert.AreEqual(p1.First, _data2.ID)
     End Sub
 
-    <TestMethod()>
+    <Test>
     Public Sub FindObj_SortParam()
         _localStorage.RemoveAllObj(GetType(TestData))
 
@@ -646,27 +647,27 @@ Public MustInherit Class LocalStorageBaseTest
         sp.SortParam = sortp
         Dim p3 = _localStorage.FindObj(Of TestData)(sp)
 
-        Assert.AreEqual(p1.Count, 2)
+        NUnit.Framework.Legacy.ClassicAssert.AreEqual(p1.Count, 2)
 
-        Assert.AreEqual(p2(0), _data1.ID)
-        Assert.AreEqual(p2(1), _data2.ID)
+        NUnit.Framework.Legacy.ClassicAssert.AreEqual(p2(0), _data1.ID)
+        NUnit.Framework.Legacy.ClassicAssert.AreEqual(p2(1), _data2.ID)
 
-        Assert.AreEqual(p3(0), _data3.ID)
-        Assert.AreEqual(p3(1), _data2.ID)
+        NUnit.Framework.Legacy.ClassicAssert.AreEqual(p3(0), _data3.ID)
+        NUnit.Framework.Legacy.ClassicAssert.AreEqual(p3(1), _data2.ID)
     End Sub
 
-    <TestMethod()>
+    <Test>
     Public Sub Contains()
         _localStorage.RemoveAllObj(GetType(TestData))
         Dim p1 = _localStorage.Contains(Of TestData)(_data1.ID)
         _localStorage.AddObj(_data1)
         Dim p2 = _localStorage.Contains(Of TestData)(_data1.ID)
 
-        Assert.AreEqual(p1, False)
-        Assert.AreEqual(p2, True)
+        NUnit.Framework.Legacy.ClassicAssert.AreEqual(p1, False)
+        NUnit.Framework.Legacy.ClassicAssert.AreEqual(p2, True)
     End Sub
 
-    <TestMethod()>
+    <Test>
     Public Sub FindObjBetween()
         Dim td1 = New TestData
         td1.Cat = "td"
@@ -728,14 +729,14 @@ Public MustInherit Class LocalStorageBaseTest
         Dim spadd As New SearchParams({New FindCriteria("Cat", FindCondition.equal, "td")})
         spadd.SelectOptions = New SelectOptions(0, 3)
         Dim F1 = _localStorage.FindObj(Of TestData)(spadd)
-        Assert.AreEqual(4, F1.Count)
+        NUnit.Framework.Legacy.ClassicAssert.AreEqual(4, F1.Count)
 
         spadd.SelectOptions = New SelectOptions(0, 2)
         Dim F2 = _localStorage.FindObj(Of TestData)(spadd)
-        Assert.AreEqual(3, F2.Count)
+        NUnit.Framework.Legacy.ClassicAssert.AreEqual(3, F2.Count)
     End Sub
 
-    <TestMethod()>
+    <Test>
     Public Sub TestData_Add_GetObj()
         _localStorage.RemoveAllObj(GetType(TestData))
 
@@ -754,36 +755,36 @@ Public MustInherit Class LocalStorageBaseTest
 
         Dim ob = _localStorage.GetObj(Of TestData)(data.ID)
 
-        Assert.AreNotEqual(ob, Nothing)
-        Assert.AreEqual(ob.Cat, data.Cat)
-        Assert.AreEqual(ob.Kitten, data.Kitten)
-        Assert.AreEqual(ob.Image.Width, data.Image.Width)
-        Assert.AreEqual(ob.Int.SomeData, Nothing)
-        Assert.AreEqual(ob.Int.SomeBytes, Nothing)
-        Assert.AreEqual(ob.Int.First, data.Int.First)
-        Assert.AreEqual(ob.Int.Second, data.Int.Second)
+        NUnit.Framework.Legacy.ClassicAssert.AreNotEqual(ob, Nothing)
+        NUnit.Framework.Legacy.ClassicAssert.AreEqual(ob.Cat, data.Cat)
+        NUnit.Framework.Legacy.ClassicAssert.AreEqual(ob.Kitten, data.Kitten)
+        NUnit.Framework.Legacy.ClassicAssert.AreEqual(ob.Image.Width, data.Image.Width)
+        NUnit.Framework.Legacy.ClassicAssert.AreEqual(ob.Int.SomeData, Nothing)
+        NUnit.Framework.Legacy.ClassicAssert.AreEqual(ob.Int.SomeBytes, Nothing)
+        NUnit.Framework.Legacy.ClassicAssert.AreEqual(ob.Int.First, data.Int.First)
+        NUnit.Framework.Legacy.ClassicAssert.AreEqual(ob.Int.Second, data.Int.Second)
 
         Dim obWithoutBlob = _localStorage.GetObj(Of TestData)(data.ID, False)
 
-        Assert.AreNotEqual(obWithoutBlob, Nothing)
-        Assert.AreEqual(obWithoutBlob.Cat, data.Cat)
-        Assert.AreEqual(obWithoutBlob.Kitten, data.Kitten)
-        Assert.AreEqual(obWithoutBlob.Image, Nothing)
-        Assert.AreEqual(obWithoutBlob.Int.SomeData, Nothing)
-        Assert.AreEqual(obWithoutBlob.Int.SomeBytes, Nothing)
-        Assert.AreEqual(obWithoutBlob.Int.First, data.Int.First)
-        Assert.AreEqual(obWithoutBlob.Int.Second, data.Int.Second)
+        NUnit.Framework.Legacy.ClassicAssert.AreNotEqual(obWithoutBlob, Nothing)
+        NUnit.Framework.Legacy.ClassicAssert.AreEqual(obWithoutBlob.Cat, data.Cat)
+        NUnit.Framework.Legacy.ClassicAssert.AreEqual(obWithoutBlob.Kitten, data.Kitten)
+        NUnit.Framework.Legacy.ClassicAssert.AreEqual(obWithoutBlob.Image, Nothing)
+        NUnit.Framework.Legacy.ClassicAssert.AreEqual(obWithoutBlob.Int.SomeData, Nothing)
+        NUnit.Framework.Legacy.ClassicAssert.AreEqual(obWithoutBlob.Int.SomeBytes, Nothing)
+        NUnit.Framework.Legacy.ClassicAssert.AreEqual(obWithoutBlob.Int.First, data.Int.First)
+        NUnit.Framework.Legacy.ClassicAssert.AreEqual(obWithoutBlob.Int.Second, data.Int.Second)
     End Sub
 
-    <TestMethod()>
+    <Test>
     Public Sub GetBadObjById()
         _localStorage.RemoveAllObj(GetType(TestData))
         Dim id = Guid.NewGuid.ToString("B")
         Dim obj = _localStorage.GetObj(Of TestData)(id)
-        Assert.AreEqual(obj, Nothing)
+        NUnit.Framework.Legacy.ClassicAssert.AreEqual(obj, Nothing)
     End Sub
 
-    <TestMethod()>
+    <Test>
     Public Sub FindByBadField()
         _localStorage.RemoveAllObj(GetType(TestData))
         Dim sp = New SearchParams
@@ -795,14 +796,14 @@ Public MustInherit Class LocalStorageBaseTest
         Catch ex As Exception
             exc = ex
         End Try
-        Assert.AreNotEqual(exc, Nothing)
+        NUnit.Framework.Legacy.ClassicAssert.AreNotEqual(exc, Nothing)
     End Sub
 
-    <TestMethod()>
+    <Test>
     Public Sub ContainsBadObjById()
         _localStorage.RemoveAllObj(GetType(TestData))
         Dim contains = _localStorage.Contains(Of TestData)("{FE61FF34-CA73-4E8D-9515-5C8D47859B73}")
-        Assert.AreEqual(contains, False)
+        NUnit.Framework.Legacy.ClassicAssert.AreEqual(contains, False)
     End Sub
 
 
@@ -810,13 +811,13 @@ Public MustInherit Class LocalStorageBaseTest
     ''' Надо вынести отдельно
     ''' </summary>
     ''' <remarks></remarks>
-    <TestMethod()> Public Sub FirebirdLocalStorageDB_GetDataInfo()
+    <Test> Public Sub FirebirdLocalStorageDB_GetDataInfo()
         Dim tempS = New ObjDataInfoGenerator()
         Dim pp = tempS.GetObjDataInfo(_data1)
         Dim f = pp.GetOneFileForWeb
         Dim ob_ttt = tempS.GetObject(ObjDataInfo.GetFromOneFile(f))
         Dim obttt = CType(ob_ttt, TestData)
-        Assert.AreEqual(_data1.ID, obttt.ID)
+        NUnit.Framework.Legacy.ClassicAssert.AreEqual(_data1.ID, obttt.ID)
     End Sub
 
 
@@ -837,7 +838,7 @@ Public MustInherit Class LocalStorageBaseTest
     Private _localStorage1 As ILocalStorage
     Private _localStorage2 As ILocalStorage
 
-    <TestMethod()>
+    <Test>
     Public Sub BigData_N_Bytes_2Thread()
 
         _localStorage1 = CreateLocalStorage()
@@ -862,8 +863,8 @@ Public MustInherit Class LocalStorageBaseTest
         _sema1.WaitOne()
         _sema2.WaitOne()
 
-        Assert.AreEqual(_exc_10kb_2thread_1, Nothing)
-        Assert.AreEqual(_exc_10kb_2thread_2, Nothing)
+        NUnit.Framework.Legacy.ClassicAssert.AreEqual(_exc_10kb_2thread_1, Nothing)
+        NUnit.Framework.Legacy.ClassicAssert.AreEqual(_exc_10kb_2thread_2, Nothing)
     End Sub
 
     Private Sub f1_N_Bytes_1()
@@ -883,14 +884,14 @@ Public MustInherit Class LocalStorageBaseTest
 
                 Dim d2 = _localStorage1.GetObj(Of TestData)(d1.ID)
 
-                Assert.AreEqual(d1.ID, d2.ID)
-                Assert.AreEqual(d1.Cat, d2.Cat)
-                Assert.AreEqual(d1.Image.Width, d2.Image.Width)
-                Assert.AreEqual(d1.Image.Height, d2.Image.Height)
-                Assert.AreEqual(d1.BigData.Length, d2.BigData.Length)
+                NUnit.Framework.Legacy.ClassicAssert.AreEqual(d1.ID, d2.ID)
+                NUnit.Framework.Legacy.ClassicAssert.AreEqual(d1.Cat, d2.Cat)
+                NUnit.Framework.Legacy.ClassicAssert.AreEqual(d1.Image.Width, d2.Image.Width)
+                NUnit.Framework.Legacy.ClassicAssert.AreEqual(d1.Image.Height, d2.Image.Height)
+                NUnit.Framework.Legacy.ClassicAssert.AreEqual(d1.BigData.Length, d2.BigData.Length)
 
-                Assert.AreEqual(d1.BigData(100), d2.BigData(100))
-                Assert.AreEqual(d1.BigData(268), d2.BigData(268))
+                NUnit.Framework.Legacy.ClassicAssert.AreEqual(d1.BigData(100), d2.BigData(100))
+                NUnit.Framework.Legacy.ClassicAssert.AreEqual(d1.BigData(268), d2.BigData(268))
             Next
         Catch ex As Exception
             _exc_10kb_2thread_1 = ex
@@ -918,14 +919,14 @@ Public MustInherit Class LocalStorageBaseTest
                 Dim d2 = _localStorage2.GetObj(Of TestData)(d1.ID)
 
 
-                Assert.AreEqual(d1.ID, d2.ID)
-                Assert.AreEqual(d1.Cat, d2.Cat)
-                Assert.AreEqual(d1.Image.Width, d2.Image.Width)
-                Assert.AreEqual(d1.Image.Height, d2.Image.Height)
-                Assert.AreEqual(d1.BigData.Length, d2.BigData.Length)
+                NUnit.Framework.Legacy.ClassicAssert.AreEqual(d1.ID, d2.ID)
+                NUnit.Framework.Legacy.ClassicAssert.AreEqual(d1.Cat, d2.Cat)
+                NUnit.Framework.Legacy.ClassicAssert.AreEqual(d1.Image.Width, d2.Image.Width)
+                NUnit.Framework.Legacy.ClassicAssert.AreEqual(d1.Image.Height, d2.Image.Height)
+                NUnit.Framework.Legacy.ClassicAssert.AreEqual(d1.BigData.Length, d2.BigData.Length)
 
-                Assert.AreEqual(d1.BigData(100), d2.BigData(100))
-                Assert.AreEqual(d1.BigData(268), d2.BigData(268))
+                NUnit.Framework.Legacy.ClassicAssert.AreEqual(d1.BigData(100), d2.BigData(100))
+                NUnit.Framework.Legacy.ClassicAssert.AreEqual(d1.BigData(268), d2.BigData(268))
             Next
         Catch ex As Exception
             _exc_10kb_2thread_2 = ex

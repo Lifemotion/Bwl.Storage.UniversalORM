@@ -1,4 +1,5 @@
-﻿Imports Npgsql
+﻿Imports System.Data
+Imports Npgsql
 
 Public Class PgUtils
 

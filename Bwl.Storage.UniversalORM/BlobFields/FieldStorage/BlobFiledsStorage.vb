@@ -8,7 +8,6 @@ Public Class BlobFiledsStorage
     'Private ReadOnly _typesInfo As New Dictionary(Of Type, String())()
 
     Public Sub New()
-        AddBinaryConverter(New BitmapBinaryConverter)
         AddBinaryConverter(New BytesBinaryConverter)
     End Sub
 
@@ -148,11 +147,12 @@ Public Class BlobFiledsStorage
                         Dim streamSaver = _blobStreamSavers.FirstOrDefault(Function(s) s.SupportedTypes.Contains(blobType))
 
                         If (streamSaver IsNot Nothing) Then
-                            Dim blobInfo = New BlobField
-                            blobInfo.BlobId = Guid.NewGuid.ToString
-                            blobInfo.FieldName = pair.Key
-                            blobInfo.FieldType = blobType
-                            blobInfo.Data = streamSaver.ToBinary(blobValue)
+                            Dim blobInfo = New BlobField With {
+                                .BlobId = Guid.NewGuid.ToString,
+                                .FieldName = pair.Key,
+                                .FieldType = blobType,
+                                .Data = streamSaver.ToBinary(blobValue)
+                            }
                             objBlobInfo.BlobFields.Add(blobInfo)
                         End If
                     End If

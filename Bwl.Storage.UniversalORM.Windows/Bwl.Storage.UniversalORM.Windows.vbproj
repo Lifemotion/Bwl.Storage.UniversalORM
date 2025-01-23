@@ -1,0 +1,16 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <RootNamespace>Bwl.Storage.UniversalORM.Windows</RootNamespace>
+    <TargetFrameworks>net48;net8.0-windows</TargetFrameworks>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="System.Drawing.Common" Version="9.0.1" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Bwl.Storage.UniversalORM\Bwl.Storage.UniversalORM.vbproj" />
+  </ItemGroup>
+
+</Project>

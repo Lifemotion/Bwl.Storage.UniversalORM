@@ -1,4 +1,5 @@
-﻿Imports FirebirdSql.Data.FirebirdClient
+﻿Imports System.Data
+Imports FirebirdSql.Data.FirebirdClient
 
 Public Class FbUtils
 
@@ -61,7 +62,6 @@ Public Class FbUtils
             End If
         End If
     End Sub
-
 
     Public Shared Function TableExists(connString As String, tableName As String) As Boolean
         Dim res = False

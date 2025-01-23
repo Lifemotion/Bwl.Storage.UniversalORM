@@ -1,4 +1,4 @@
-﻿Imports Microsoft.Data.SqlClient
+﻿Imports Bwl.Storage.UniversalORM.MSSQL
 
 Public Class AdoDbTest
     Inherits Bwl.Framework.FormAppBase

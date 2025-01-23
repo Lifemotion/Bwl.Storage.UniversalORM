@@ -1,4 +1,6 @@
 ﻿Public Interface ILocalStorage
+
+    Sub AddBinaryConverter(converter As IBinaryConverter)
     Sub AddObj(obj As ObjBase, Optional type As Type = Nothing)
 
     ''' <summary>Добоавление объектов одинакового типа в хранилище.</summary>

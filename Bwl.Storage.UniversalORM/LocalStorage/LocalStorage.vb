@@ -33,6 +33,14 @@ Public Class LocalStorage
         _storageManager = storageManager
     End Sub
 
+    ''' <summary>
+    ''' Add custom binary converter
+    ''' </summary>
+    ''' <param name="converter">A class with IBinaryConverter realization</param>
+    Public Sub AddBinaryConverter(converter As IBinaryConverter) Implements ILocalStorage.AddBinaryConverter
+        _blobStorage.AddBinaryConverter(converter)
+    End Sub
+
     Private Function GetStorage(type As Type) As IObjStorage
         If type Is Nothing Then Return Nothing
         SyncLock (_storages)

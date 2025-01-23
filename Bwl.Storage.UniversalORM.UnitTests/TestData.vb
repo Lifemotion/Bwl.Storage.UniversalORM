@@ -1,6 +1,6 @@
 ﻿Imports Newtonsoft.Json
 Imports Bwl.Storage.UniversalORM
-Imports System.Drawing
+Imports SkiaSharp
 
 Public Class TestData
     Implements ObjBase
@@ -24,7 +24,7 @@ Public Class TestData
     Public Property ID As String Implements ObjBase.ID
 
     <Blob> <JsonIgnore>
-    Public Property Image As Bitmap
+    Public Property Image As SKBitmap
 End Class
 
 Public Class TestDataInternal

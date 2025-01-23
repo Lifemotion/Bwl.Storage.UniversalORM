@@ -1,4 +1,5 @@
-﻿Imports Bwl.Framework
+﻿Imports System.Drawing
+Imports Bwl.Framework
 Imports Bwl.Storage.UniversalORM
 Imports Newtonsoft.Json
 

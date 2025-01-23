@@ -98,7 +98,7 @@ Public Class PgStorage
 
         Dim mainSelect = String.Format("SELECT COUNT(*) FROM ""{0}"" {1}", Name, whereSql)
         Dim countLimit As Long
-        If searchParams.SelectOptions IsNot Nothing Then
+        If searchParams IsNot Nothing AndAlso searchParams.SelectOptions IsNot Nothing Then
             countLimit = If(searchParams.SelectOptions.SelectMode = SelectMode.Top, searchParams.SelectOptions.TopValue, searchParams.SelectOptions.EndValue - searchParams.SelectOptions.StartValue + 1)
         Else
             countLimit = 0
@@ -743,7 +743,7 @@ Public Class PgStorage
     End Function
 
     Private Sub Save(id As String, json As String, type As Type)
-        Dim rType = IIf(type.AssemblyQualifiedName = SupportedType.AssemblyQualifiedName, "-", type.AssemblyQualifiedName)
+        Dim rType = If(type.AssemblyQualifiedName = SupportedType.AssemblyQualifiedName, "-", type.AssemblyQualifiedName)
         Dim parameters = {New NpgsqlParameter("@p1", id), New NpgsqlParameter("@p2", json), New NpgsqlParameter("@p3", rType)}
         Dim sql = String.Format("INSERT INTO ""{0}""(GUID ,JSON, TYPE) VALUES(@p1, @p2, @p3)", Name)
         PgUtils.ExecSql(ConnectionString, sql, parameters)

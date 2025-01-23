@@ -1,4 +1,5 @@
-﻿Imports System.Data.SQLite
+﻿Imports System.Data
+Imports Microsoft.Data.Sqlite
 
 Public Class SqliteStorage
     Inherits CommonObjStorage
@@ -85,7 +86,7 @@ Public Class SqliteStorage
         '''' main sql
         Dim mainSelect = String.Format("SELECT COUNT(*) FROM ""{0}"" {1}", Name, whereSql)
         Dim countLimit As Long
-        If searchParams.SelectOptions IsNot Nothing Then
+        If searchParams IsNot Nothing AndAlso searchParams.SelectOptions IsNot Nothing Then
             countLimit = If(searchParams.SelectOptions.SelectMode = SelectMode.Top, searchParams.SelectOptions.TopValue, searchParams.SelectOptions.EndValue - searchParams.SelectOptions.StartValue + 1)
         Else
             countLimit = 0
@@ -686,7 +687,7 @@ Public Class SqliteStorage
     End Function
 
     Private Sub Save(id As String, json As String, type As Type)
-        Dim rType = IIf(type.AssemblyQualifiedName = SupportedType.AssemblyQualifiedName, "-", type.AssemblyQualifiedName)
+        Dim rType = If(type.AssemblyQualifiedName = SupportedType.AssemblyQualifiedName, "-", type.AssemblyQualifiedName)
         Dim parameters = {New SQLiteParameter("@p1", id), New SQLiteParameter("@p2", json), New SQLiteParameter("@p3", rType)}
         Dim sql = String.Format("INSERT INTO ""{0}""(GUID ,JSON, TYPE) VALUES(@p1, @p2, @p3)", Name)
         SqliteUtils.ExecSql(ConnectionString, sql, parameters)

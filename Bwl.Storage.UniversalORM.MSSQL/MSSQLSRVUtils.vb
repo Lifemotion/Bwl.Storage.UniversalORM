@@ -56,6 +56,7 @@ Public Class MSSQLSRVUtils
                 conStrBld2.UserID = connStringBld.UserID
                 conStrBld2.Password = connStringBld.Password
                 conStrBld2.DataSource = connStringBld.DataSource
+                conStrBld2.TrustServerCertificate = connStringBld.TrustServerCertificate
                 Dim sql = String.Format("CREATE DATABASE [{0}]", dbName)
                 MSSQLSRVUtils.ExecSQL(conStrBld2.ConnectionString, sql)
                 Threading.Thread.Sleep(2000)

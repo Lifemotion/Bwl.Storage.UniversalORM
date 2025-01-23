@@ -1,4 +1,5 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
+
 	<PropertyGroup>
 		<TargetFramework>netstandard2.0</TargetFramework>
 		<OutputType>Library</OutputType>
@@ -6,14 +7,14 @@
 		<GenerateAssemblyInfo>false</GenerateAssemblyInfo>
 	</PropertyGroup>
 	<PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
-		<OutputPath>..\debug\UniversalORM Postgresql\</OutputPath>
-		<DocumentationFile>Bwl.Storage.UniversalORM.Postgresql.xml</DocumentationFile>
+		<OutputPath>..\debug\UniversalORM MSSQL\</OutputPath>
+		<DocumentationFile>Bwl.Storage.UniversalORM.MSSQL.xml</DocumentationFile>
 		<NoWarn>42016,41999,42017,42018,42019,42032,42036,42020,42021,42022</NoWarn>
 	</PropertyGroup>
 	<PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
 		<DefineDebug>false</DefineDebug>
-		<OutputPath>..\release\UniversalORM Postgresql\</OutputPath>
-		<DocumentationFile>Bwl.Storage.UniversalORM.Postgresql.xml</DocumentationFile>
+		<OutputPath>..\release\UniversalORM MSSQL\</OutputPath>
+		<DocumentationFile>Bwl.Storage.UniversalORM.MSSQL.xml</DocumentationFile>
 		<NoWarn>42016,41999,42017,42018,42019,42032,42036,42020,42021,42022</NoWarn>
 	</PropertyGroup>
 	<ItemGroup>
@@ -34,10 +35,13 @@
 	<PropertyGroup>
 		<RunPostBuildEvent>Always</RunPostBuildEvent>
 	</PropertyGroup>
+	
 	<ItemGroup>
 		<ProjectReference Include="..\Bwl.Storage.UniversalORM\Bwl.Storage.UniversalORM.vbproj" />
 	</ItemGroup>
+	
 	<ItemGroup>
-		<PackageReference Include="Npgsql" Version="8.0.6" />
+		<PackageReference Include="Microsoft.Data.SqlClient" Version="5.2.2" />
 	</ItemGroup>
+
 </Project>

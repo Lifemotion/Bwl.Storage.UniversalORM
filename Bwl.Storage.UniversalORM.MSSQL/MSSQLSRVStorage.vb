@@ -1,4 +1,5 @@
 ﻿
+Imports System.Text
 Imports Microsoft.Data.SqlClient
 
 Public Class MSSQLSRVStorage
@@ -109,7 +110,13 @@ Public Class MSSQLSRVStorage
         End If
 
         '''' main sql
-        Dim mainSelect = String.Format("Select count(*) from (select {4} [{1}].[guid] FROM {2} {3}) a ", topSql, Name, fromSql, whereSql, topSql)
+        Dim betweenSql = String.Empty
+        Dim mainSelect = String.Empty
+        If (searchParams IsNot Nothing) AndAlso (searchParams.SelectOptions IsNot Nothing) AndAlso (searchParams.SelectOptions.SelectMode = SelectMode.Between) Then
+            ' ORDER BY is required if you want to use OFFSET and FETCH
+            betweenSql = String.Format("ORDER BY [{0}].[guid] OFFSET {2} ROWS FETCH NEXT {3} ROWS ONLY", Name, fromSql, searchParams.SelectOptions.StartValue, searchParams.SelectOptions.EndValue - searchParams.SelectOptions.StartValue + 1)
+        End If
+        mainSelect = String.Format("Select count(*) from (select {4} [{1}].[guid] FROM {2} {3} {5}) a ", topSql, Name, fromSql, whereSql, topSql, betweenSql)
         Dim count = MSSQLSRVUtils.ExecSQLScalar(ConnectionString, mainSelect, parameters)
         If count IsNot Nothing Then
             res = Convert.ToInt64(count)
@@ -183,9 +190,9 @@ Public Class MSSQLSRVStorage
         If (searchParams IsNot Nothing) AndAlso (searchParams.SelectOptions IsNot Nothing) AndAlso (searchParams.SelectOptions.SelectMode = SelectMode.Between) Then
             betweenSql = String.Format("OFFSET {2} ROWS FETCH NEXT {3} ROWS ONLY", Name, fromSql, searchParams.SelectOptions.StartValue, searchParams.SelectOptions.EndValue - searchParams.SelectOptions.StartValue + 1)
         End If
-        mainSelect = String.Format("Select {0} [{1}].[guid] FROM {2} {3} ORDER BY [{4}].[{5}] {6} {7}", topSql, Name, fromSql, whereSql, sortTableName, sortField, sortModeStr, betweenSql)
+        mainSelect = String.Format("SELECT {0} [{1}].[guid] FROM {2} {3} ORDER BY [{4}].[{5}] {6} {7}", topSql, Name, fromSql, whereSql, sortTableName, sortField, sortModeStr, betweenSql)
         If ((topSql <> "") And (searchParams IsNot Nothing AndAlso searchParams.SortParam Is Nothing)) Then
-            mainSelect = String.Format("Select {0} [{1}].[guid] FROM {2} {3}", topSql, Name, fromSql, whereSql)
+            mainSelect = String.Format("SELECT {0} [{1}].[guid] FROM {2} {3}", topSql, Name, fromSql, whereSql)
         End If
         If (searchParams Is Nothing) Then 'Or ((searchParams IsNot Nothing) AndAlso (searchParams.SortParam Is Nothing)) Then
             mainSelect = String.Format("SELECT {3} [{0}].[guid] FROM {1} {2}", Name, fromSql, whereSql, topSql)
@@ -538,7 +545,7 @@ Public Class MSSQLSRVStorage
                             If t.BaseType = enumType Then
                                 sql = String.Format(My.Resources.CreateStringIndexTableSQL, indexTableName, Name, Byte.MaxValue.ToString)
                             Else
-                                Throw New Exception("Обнаружен не поддерживаемый тип индексируемого поля " + Name + " _ " + t.FullName)
+                                Throw New Exception($"Обнаружен не поддерживаемый тип индексируемого поля {Name}_{t.FullName}")
                             End If
                     End Select
                     MSSQLSRVUtils.ExecSQL(ConnectionString, sql)
@@ -548,9 +555,8 @@ Public Class MSSQLSRVStorage
         Return indexTableName
     End Function
 
-    Private Function GenerateFromSql(criterias As IEnumerable(Of FindCriteria), sort As SortParam) As String
-        Dim fromSQl As String = " [" + Name + "] "
-        Dim where = String.Empty
+    Private Function GetTablesForFromSql(criterias As IEnumerable(Of FindCriteria), sort As SortParam) As List(Of String)
+        Dim tableList = New List(Of String)
         For Each index In _indexingMembers
             Dim crt = Nothing
             If (criterias IsNot Nothing) Then
@@ -560,56 +566,77 @@ Public Class MSSQLSRVStorage
             If sort IsNot Nothing AndAlso sort.Field = index.Name Then
                 sortField = True
             End If
-            If (crt IsNot Nothing Or sortField) Then
+            If (crt IsNot Nothing OrElse sortField) Then
                 Dim indexTableName = GetIndexTableName(index)
-                fromSQl += String.Format(", [{0}]", indexTableName)
+                tableList.Add(indexTableName)
             End If
         Next
-        Return fromSQl
+
+        If (criterias IsNot Nothing) Then
+            For Each criteria In criterias.Where(Function(f) {FindCondition.findCriteria, FindCondition.findCriteriaNegative}.Any(Function(s) s = f.Condition))
+                tableList.AddRange(GetTablesForFromSql(CfJsonConverter.Deserialize(Of FindCriteria())(criteria.Value), sort))
+            Next
+        End If
+
+        Return tableList
+    End Function
+
+    Private Function GenerateFromSql(criterias As IEnumerable(Of FindCriteria), sort As SortParam) As String
+        Dim tables = GetTablesForFromSql(criterias, sort)
+        If Not tables.Any() Then Return $" [{Name}]"
+        Dim tablesWConn = tables.Distinct().Select(Function(f) $"{f} ON [{Name}].[guid] = [{f}].[guid]")
+        Return $" [{Name}] LEFT JOIN {tablesWConn.Aggregate(Function(f, s) $"{f} LEFT JOIN {s}")}"
     End Function
 
     Private Function GenerateWhereSql(criterias As IEnumerable(Of FindCriteria), sort As SortParam, Optional paramStartValue As Integer = 0) As SqlHelper
-        Dim where = String.Empty
-        Dim multipleConditions = New FindCondition() {FindCondition.multipleEqual,
-                                                      FindCondition.multipleLikeEqual,
-                                                      FindCondition.multipleNotEqual,
-                                                      FindCondition.multipleNotLikeEqual,
-                                                      FindCondition.multipleGreater,
-                                                      FindCondition.multipleLess,
-                                                      FindCondition.multipleGreaterOrEqual,
-                                                      FindCondition.multipleLessOrEqual}
-        Dim findCriteriaConditions = New FindCondition() {FindCondition.findCriteria,
-                                                          FindCondition.findCriteriaNegative}
-        For Each index In _indexingMembers
-            Dim crt = Nothing
-            If (criterias IsNot Nothing) Then
-                crt = criterias.FirstOrDefault(Function(c) c.Field = index.Name)
-            End If
-            Dim sortField = False
-            If sort IsNot Nothing AndAlso sort.Field = index.Name Then
-                sortField = True
-            End If
-            If (crt IsNot Nothing Or sortField) Then
-                Dim indexTableName = GetIndexTableName(index)
-                If (String.IsNullOrEmpty(where)) Then
-                    where = String.Format(" ([{0}].[guid] = [{1}].[guid]) ", Name, indexTableName)
-                Else
-                    where += " AND " + String.Format(" ([{0}].[guid] = [{1}].[guid]) ", Name, indexTableName)
-                End If
-            End If
-        Next
+        Return GenerateWhereSql(criterias, sort, paramStartValue, Nothing)
+    End Function
+
+    Private Function GenerateWhereSql(criterias As IEnumerable(Of FindCriteria), sort As SortParam, paramStartValue As Integer, ByRef indexTablesToConnect As List(Of String)) As SqlHelper
+        Dim where = New StringBuilder()
+        Dim multipleConditions = {FindCondition.multipleEqual,
+                                    FindCondition.multipleLikeEqual,
+                                    FindCondition.multipleNotEqual,
+                                    FindCondition.multipleNotLikeEqual,
+                                    FindCondition.multipleGreater,
+                                    FindCondition.multipleLess,
+                                    FindCondition.multipleGreaterOrEqual,
+                                    FindCondition.multipleLessOrEqual}
+        Dim findCriteriaConditions = {FindCondition.findCriteria,
+                                        FindCondition.findCriteriaNegative}
+
+        'Dim connectIndexTables = False ' In any included GenerateWhereSql it'll always be false
+        'If (indexTablesToConnect Is Nothing) Then
+        '    indexTablesToConnect = New List(Of String)
+        '    connectIndexTables = True
+        'End If
+
+        'For Each index In _indexingMembers
+        '    Dim crt = Nothing
+        '    If (criterias IsNot Nothing) Then
+        '        crt = criterias.FirstOrDefault(Function(c) c.Field = index.Name)
+        '    End If
+        '    Dim sortField = False
+        '    If sort IsNot Nothing AndAlso sort.Field = index.Name Then
+        '        sortField = True
+        '    End If
+        '    If (crt IsNot Nothing OrElse sortField) Then
+        '        indexTablesToConnect.Add(GetIndexTableName(index))
+        '    End If
+        'Next
+
         Dim parameters As New List(Of SqlParameter)()
         Dim i = paramStartValue
         If criterias IsNot Nothing Then
             For Each crit In criterias
                 Dim value = crit.Value
                 If crit.Field.ToLower = "id" Then
-                    Dim pName = "@p" + i.ToString
-                    Dim str = String.Format(" ([{0}].[guid] = {1}) ", Name, pName)
-                    If (String.IsNullOrEmpty(where)) Then
-                        where += str
+                    Dim pName = $"@p{i}"
+                    Dim str = $" ([{Name}].[guid] = {pName}) "
+                    If (String.IsNullOrEmpty(where.ToString())) Then
+                        where.Append(str)
                     Else
-                        where += " AND " + str
+                        where.Append(" AND " + str)
                     End If
                     parameters.Add(New SqlParameter(pName, value))
                 Else
@@ -617,34 +644,34 @@ Public Class MSSQLSRVStorage
                     If (ind IsNot Nothing) Then
                         Dim indexTableName = GetIndexTableName(ind)
                         Dim str = String.Empty
-                        If multipleConditions.Any(Function(f) f = crit.Condition) Then
-                            str = GetMultipleConditionString(i, parameters, crit.Condition, indexTableName, value)
-                        ElseIf findCriteriaConditions.Any(Function(f) f = crit.Condition) Then
-                            Dim findCriteria = CfJsonConverter.Deserialize(Of FindCriteria())(value)
-                            Dim val = GenerateWhereSql(findCriteria, sort, i)
-                            parameters.AddRange(val.Parameters)
-                            str = If(crit.Condition = FindCondition.findCriteriaNegative, " NOT (", " (") + val.SQL.Remove(0, 7) + ") "
-                            i += (val.Parameters.Count + 1)
-                        Else
 
+                        If findCriteriaConditions.Any(Function(f) f = crit.Condition) Then
+                            Dim findCriteria = CfJsonConverter.Deserialize(Of FindCriteria())(value)
+                            Dim val = GenerateWhereSql(findCriteria, sort, i, indexTablesToConnect)
+                            parameters.AddRange(val.Parameters)
+                            str = $"{If(crit.Condition = FindCondition.findCriteriaNegative, " NOT (", " (")}{val.SQL.Remove(0, 7)} )"
+                            i += (val.Parameters.Count + 1)
+                        ElseIf multipleConditions.Any(Function(f) f = crit.Condition) Then
+                            str = GetMultipleConditionString(i, parameters, crit.Condition, indexTableName, value)
+                        Else
                             Dim pName = "@p" + i.ToString
                             Select Case crit.Condition
                                 Case FindCondition.equal
-                                    str = String.Format(" ([{0}].[value] = {1}) ", indexTableName, pName)
+                                    str = $" ([{indexTableName}].[value] IS NOT NULL AND [{indexTableName}].[value] = {pName}) "
                                 Case FindCondition.greater
-                                    str = String.Format(" ([{0}].[value] > {1}) ", indexTableName, pName)
+                                    str = $" ([{indexTableName}].[value] IS NOT NULL AND [{indexTableName}].[value] > {pName}) "
                                 Case FindCondition.less
-                                    str = String.Format(" ([{0}].[value] < {1}) ", indexTableName, pName)
+                                    str = $" ([{indexTableName}].[value] IS NOT NULL AND [{indexTableName}].[value] < {pName}) "
                                 Case FindCondition.notEqual
-                                    str = String.Format(" ([{0}].[value] <> {1}) ", indexTableName, pName)
+                                    str = $" ([{indexTableName}].[value] IS NOT NULL AND [{indexTableName}].[value] <> {pName}) "
                                 Case FindCondition.likeEqual
-                                    str = String.Format(" ([{0}].[value] LIKE {1}) ", indexTableName, pName)
+                                    str = $" ([{indexTableName}].[value] IS NOT NULL AND [{indexTableName}].[value] LIKE {pName}) "
                                 Case FindCondition.notLikeEqual
-                                    str = String.Format(" ([{0}].[value] NOT LIKE {1}) ", indexTableName, pName)
+                                    str = $" ([{indexTableName}].[value] IS NOT NULL AND [{indexTableName}].[value] NOT LIKE {pName}) "
                                 Case FindCondition.greaterOrEqual
-                                    str = String.Format(" ([{0}].[value] >= {1}) ", indexTableName, pName)
+                                    str = $" ([{indexTableName}].[value] IS NOT NULL AND [{indexTableName}].[value] >= {pName}) "
                                 Case FindCondition.lessOrEqual
-                                    str = String.Format(" ([{0}].[value] <= {1}) ", indexTableName, pName)
+                                    str = $" ([{indexTableName}].[value] IS NOT NULL AND [{indexTableName}].[value] <= {pName}) "
                             End Select
                             If (TypeOf (value) Is DateTime) Then
                                 value = CType(value, DateTime).Ticks
@@ -652,22 +679,38 @@ Public Class MSSQLSRVStorage
                             parameters.Add(New SqlParameter(pName, value))
                             i += 1
                         End If
-                        If (String.IsNullOrEmpty(where)) Then
-                            where += str
+                        If (String.IsNullOrEmpty(where.ToString())) Then
+                            where.Append(str)
                         Else
-                            where += " AND " + str
+                            where.Append($" AND {str}")
                         End If
                     Else
-                        Throw New Exception("Поле " + crit.Field + " не является индексируемым")
+                        Throw New Exception($"Поле {crit.Field} не является индексируемым")
                     End If
                 End If
             Next
         End If
 
-        If String.IsNullOrWhiteSpace(where) Then
+        'If connectIndexTables AndAlso indexTablesToConnect IsNot Nothing AndAlso indexTablesToConnect.Any() Then
+        '    ' This must be added in the very beginning
+        '    Dim indexTableConnString = $" {indexTablesToConnect.Distinct().Select(Function(f) $"([{Name}].[guid] = [{f}].[guid])").Aggregate(Function(f, t) $"{f} AND {t}")}"
+        '    Dim whereSql = where.ToString()
+        '    where = New StringBuilder()
+
+        '    where.Append(indexTableConnString)
+        '    If Not String.IsNullOrWhiteSpace(whereSql) Then
+        '        If Not String.IsNullOrWhiteSpace(where.ToString()) Then
+        '            where.Append($" AND {whereSql}")
+        '        Else
+        '            where.Append(whereSql)
+        '        End If
+        '    End If
+        'End If
+
+        If String.IsNullOrWhiteSpace(where.ToString()) Then
             Return Nothing
         Else
-            Return New SqlHelper(" WHERE " + where, parameters)
+            Return New SqlHelper($" WHERE {where}", parameters)
         End If
     End Function
 
@@ -675,8 +718,8 @@ Public Class MSSQLSRVStorage
         Dim res = ""
         Dim valuesFromArrayOfStrings = CfJsonConverter.Deserialize(Of String())(jsonValues)
         Dim valuesToAggregate = New List(Of String)
-        Dim multipleNegativeConditions = New FindCondition() {FindCondition.multipleNotEqual,
-                                                              FindCondition.multipleNotLikeEqual}
+        Dim multipleNegativeConditions = {FindCondition.multipleNotEqual,
+                                            FindCondition.multipleNotLikeEqual}
         Dim multipleValueAggregator = If(multipleNegativeConditions.Any(Function(f) f = condition), " AND ", " OR ")
         For Each value As String In valuesFromArrayOfStrings
             Dim pName = "@p" + i.ToString

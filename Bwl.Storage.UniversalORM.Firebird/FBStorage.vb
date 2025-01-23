@@ -73,8 +73,12 @@ Public Class FBStorage
         '''' TOP
         Dim topSql = String.Empty
         If (searchParams IsNot Nothing) AndAlso (searchParams.SelectOptions IsNot Nothing) Then
-            If searchParams.SelectOptions.TopValue > 0 Then
-                topSql = " FIRST " + searchParams.SelectOptions.TopValue.ToString + " "
+            If (searchParams.SelectOptions.SelectMode = SelectMode.Top) Then
+                If searchParams.SelectOptions.TopValue > 0 Then
+                    topSql = " FIRST " + searchParams.SelectOptions.TopValue.ToString + " "
+                End If
+            ElseIf (searchParams.SelectOptions.SelectMode = SelectMode.Between) Then
+                topSql = " FIRST " + (searchParams.SelectOptions.EndValue - searchParams.SelectOptions.StartValue + 1).ToString() + " SKIP " + searchParams.SelectOptions.StartValue.ToString() + " "
             End If
         End If
 
@@ -129,9 +133,13 @@ Public Class FBStorage
 
         '''' TOP
         Dim topSql = String.Empty
-        If (searchParams IsNot Nothing) AndAlso (searchParams.SelectOptions IsNot Nothing) AndAlso (searchParams.SelectOptions.SelectMode = SelectMode.Top) Then
-            If searchParams.SelectOptions.TopValue > 0 Then
-                topSql = " FIRST " + searchParams.SelectOptions.TopValue.ToString + " "
+        If (searchParams IsNot Nothing) AndAlso (searchParams.SelectOptions IsNot Nothing) Then
+            If (searchParams.SelectOptions.SelectMode = SelectMode.Top) Then
+                If searchParams.SelectOptions.TopValue > 0 Then
+                    topSql = " FIRST " + searchParams.SelectOptions.TopValue.ToString + " "
+                End If
+            ElseIf (searchParams.SelectOptions.SelectMode = SelectMode.Between) Then
+                topSql = " FIRST " + (searchParams.SelectOptions.EndValue - searchParams.SelectOptions.StartValue + 1).ToString() + " SKIP " + searchParams.SelectOptions.StartValue.ToString() + " "
             End If
         End If
 
@@ -176,18 +184,12 @@ Public Class FBStorage
 
         Dim betweenSql = String.Empty
         Dim mainSelect = String.Empty
-        If (searchParams IsNot Nothing) AndAlso (searchParams.SelectOptions IsNot Nothing) AndAlso (searchParams.SelectOptions.SelectMode = SelectMode.Between) Then
-            'BUG: 'mainSelect = String.Format("SELECT FIRST {1} SKIP {2} GUID FROM {0}", Name, searchParams.SelectOptions.EndValue - searchParams.SelectOptions.StartValue + 1, searchParams.SelectOptions.StartValue)
-            mainSelect = String.Format("SELECT FIRST {2} SKIP {3} GUID FROM {0} {1} ORDER BY {4} {5}", Name, whereSql,
-                                       searchParams.SelectOptions.EndValue - searchParams.SelectOptions.StartValue + 1,
-                                       searchParams.SelectOptions.StartValue, """" + sortField.ToUpper() + """", sortModeStr)
-        Else
-            '''' main sql			
-            If (searchParams Is Nothing) Or ((searchParams IsNot Nothing) AndAlso (searchParams.SortParam Is Nothing)) Then
-                mainSelect = String.Format("SELECT {2} GUID FROM {0} {1}", Name, whereSql, topSql)
-            ElseIf (searchParams.SortParam IsNot Nothing) Then
-                mainSelect = String.Format("SELECT {2} GUID FROM {0} {1} ORDER BY {3} {4}", Name, whereSql, topSql, """" + sortField.ToUpper() + """", sortModeStr)
-            End If
+
+        '''' main sql			
+        If (searchParams Is Nothing) Or ((searchParams IsNot Nothing) AndAlso (searchParams.SortParam Is Nothing)) Then
+            mainSelect = String.Format("SELECT {2} GUID FROM {0} {1}", Name, whereSql, topSql)
+        ElseIf (searchParams.SortParam IsNot Nothing) Then
+            mainSelect = String.Format("SELECT {2} GUID FROM {0} {1} ORDER BY {3} {4}", Name, whereSql, topSql, """" + sortField.ToUpper() + """", sortModeStr)
         End If
         Dim list = FbUtils.GetObjectList(ConnectionString, mainSelect, parameters)
         If (list IsNot Nothing AndAlso list.Any) Then
@@ -287,9 +289,13 @@ Public Class FBStorage
 
         '''' TOP
         Dim topSql = String.Empty
-        If (searchParams IsNot Nothing) AndAlso (searchParams.SelectOptions IsNot Nothing) AndAlso (searchParams.SelectOptions.SelectMode = SelectMode.Top) Then
-            If searchParams.SelectOptions.TopValue > 0 Then
-                topSql = " FIRST " + searchParams.SelectOptions.TopValue.ToString + " "
+        If (searchParams IsNot Nothing) AndAlso (searchParams.SelectOptions IsNot Nothing) Then
+            If (searchParams.SelectOptions.SelectMode = SelectMode.Top) Then
+                If searchParams.SelectOptions.TopValue > 0 Then
+                    topSql = " FIRST " + searchParams.SelectOptions.TopValue.ToString + " "
+                End If
+            ElseIf (searchParams.SelectOptions.SelectMode = SelectMode.Between) Then
+                topSql = " FIRST " + (searchParams.SelectOptions.EndValue - searchParams.SelectOptions.StartValue + 1).ToString() + " SKIP " + searchParams.SelectOptions.StartValue.ToString() + " "
             End If
         End If
 
@@ -334,18 +340,11 @@ Public Class FBStorage
 
         Dim betweenSql = String.Empty
         Dim mainSelect = String.Empty
-        If (searchParams IsNot Nothing) AndAlso (searchParams.SelectOptions IsNot Nothing) AndAlso (searchParams.SelectOptions.SelectMode = SelectMode.Between) Then
-            'BUG: 'mainSelect = String.Format("SELECT FIRST {1} SKIP {2} GUID, JSON, TYPE FROM {0}", Name, searchParams.SelectOptions.EndValue - searchParams.SelectOptions.StartValue + 1, searchParams.SelectOptions.StartValue)
-            mainSelect = String.Format("SELECT FIRST {2} SKIP {3} GUID, JSON, TYPE FROM {0} {1} ORDER BY {4} {5}", Name, whereSql,
-                                       searchParams.SelectOptions.EndValue - searchParams.SelectOptions.StartValue + 1,
-                                       searchParams.SelectOptions.StartValue, """" + sortField.ToUpper() + """", sortModeStr)
-        Else
-            '''' main sql			
-            If (searchParams Is Nothing) Or ((searchParams IsNot Nothing) AndAlso (searchParams.SortParam Is Nothing)) Then
-                mainSelect = String.Format("SELECT {2} GUID, JSON, TYPE FROM {0} {1}", Name, whereSql, topSql)
-            ElseIf (searchParams.SortParam IsNot Nothing) Then
-                mainSelect = String.Format("SELECT {2} GUID, JSON, TYPE FROM {0} {1} ORDER BY {3} {4}", Name, whereSql, topSql, """" + sortField.ToUpper() + """", sortModeStr)
-            End If
+        '''' main sql			
+        If (searchParams Is Nothing) Or ((searchParams IsNot Nothing) AndAlso (searchParams.SortParam Is Nothing)) Then
+            mainSelect = String.Format("SELECT {2} GUID, JSON, TYPE FROM {0} {1}", Name, whereSql, topSql)
+        ElseIf (searchParams.SortParam IsNot Nothing) Then
+            mainSelect = String.Format("SELECT {2} GUID, JSON, TYPE FROM {0} {1} ORDER BY {3} {4}", Name, whereSql, topSql, """" + sortField.ToUpper() + """", sortModeStr)
         End If
         Dim resList = New List(Of ObjBase)
         Dim valuesObjList = FbUtils.GetObjectList(ConnectionString, mainSelect, parameters)
@@ -482,6 +481,7 @@ Public Class FBStorage
                     If (indexing.Length > 0 And indexing.Length < Byte.MaxValue) Then
                         len = indexing.Length.ToString
                     End If
+                    If (len > 252) Then len = 252
                     sql = String.Format(My.Resources.AddStringColumn, Name, indexName, len)
 
                 Case GetType(Integer)
@@ -548,22 +548,23 @@ Public Class FBStorage
         ExecuteBatchCommands(cmdList)
     End Sub
 
-
     Private Function GenerateWhereSql(criterias As IEnumerable(Of FindCriteria), Optional paramStartValue As Integer = 0) As SqlHelper
         Dim where = String.Empty
         Dim parameters As New List(Of FbParameter)()
         Dim i = paramStartValue
         Const quote As String = """"
-        Dim multipleConditions = New FindCondition() {FindCondition.multipleEqual,
-                                                      FindCondition.multipleLikeEqual,
-                                                      FindCondition.multipleNotEqual,
-                                                      FindCondition.multipleNotLikeEqual,
-                                                      FindCondition.multipleGreater,
-                                                      FindCondition.multipleLess,
-                                                      FindCondition.multipleGreaterOrEqual,
-                                                      FindCondition.multipleLessOrEqual}
-        Dim findCriteriaConditions = New FindCondition() {FindCondition.findCriteria,
-                                                          FindCondition.findCriteriaNegative}
+        Dim multipleConditions = {
+            FindCondition.multipleEqual,
+            FindCondition.multipleLikeEqual,
+            FindCondition.multipleNotEqual,
+            FindCondition.multipleNotLikeEqual,
+            FindCondition.multipleGreater,
+            FindCondition.multipleLess,
+            FindCondition.multipleGreaterOrEqual,
+            FindCondition.multipleLessOrEqual
+        }
+        Dim findCriteriaConditions = {FindCondition.findCriteria,
+                                        FindCondition.findCriteriaNegative}
         If criterias IsNot Nothing Then
             For Each crit In criterias
                 Dim value = crit.Value
@@ -590,25 +591,27 @@ Public Class FBStorage
                             str = If(crit.Condition = FindCondition.findCriteriaNegative, " NOT (", " (") + val.SQL.Remove(0, 7) + ") "
                             i += (val.Parameters.Count + 1)
                         Else
-
                             Dim pName = "@p" + i.ToString
+                            ' Костыль для null строк
+                            Dim firstVal = "{0}"
+                            If (ind.Type = GetType(String)) Then firstVal = "COALESCE({0}, '')"
                             Select Case crit.Condition
                                 Case FindCondition.equal
-                                    str = String.Format(" ({0} = {1}) ", quote + indexName + quote, pName)
+                                    str = String.Format(" (" + firstVal + " = {1}) ", quote + indexName + quote, pName)
                                 Case FindCondition.greater
-                                    str = String.Format(" ({0} > {1}) ", quote + indexName + quote, pName)
+                                    str = String.Format(" (" + firstVal + " > {1}) ", quote + indexName + quote, pName)
                                 Case FindCondition.less
-                                    str = String.Format(" ({0} < {1}) ", quote + indexName + quote, pName)
+                                    str = String.Format(" (" + firstVal + " < {1}) ", quote + indexName + quote, pName)
                                 Case FindCondition.notEqual
-                                    str = String.Format(" ({0} <> {1}) ", quote + indexName + quote, pName)
+                                    str = String.Format(" (" + firstVal + " <> {1}) ", quote + indexName + quote, pName)
                                 Case FindCondition.likeEqual
-                                    str = String.Format(" ({0} SIMILAR TO {1}) ", quote + indexName + quote, pName)
+                                    str = String.Format(" (" + firstVal + " SIMILAR TO {1}) ", quote + indexName + quote, pName)
                                 Case FindCondition.notLikeEqual
-                                    str = String.Format(" ({0} NOT SIMILAR TO {1}) ", quote + indexName + quote, pName)
+                                    str = String.Format(" (" + firstVal + " NOT SIMILAR TO {1}) ", quote + indexName + quote, pName)
                                 Case FindCondition.greaterOrEqual
-                                    str = String.Format(" ({0} >= {1}) ", quote + indexName + quote, pName)
+                                    str = String.Format(" (" + firstVal + " >= {1}) ", quote + indexName + quote, pName)
                                 Case FindCondition.lessOrEqual
-                                    str = String.Format(" ({0} <= {1}) ", quote + indexName + quote, pName)
+                                    str = String.Format(" (" + firstVal + " <= {1}) ", quote + indexName + quote, pName)
                             End Select
 
                             If (TypeOf (value) Is DateTime) Then
@@ -676,7 +679,7 @@ Public Class FBStorage
     End Function
 
     Private Sub Save(connStr As String, id As String, json As String, type As Type)
-        Dim rtype = IIf(type.AssemblyQualifiedName = SupportedType.AssemblyQualifiedName, "-", type.AssemblyQualifiedName)
+        Dim rtype = If(type.AssemblyQualifiedName = SupportedType.AssemblyQualifiedName, "-", type.AssemblyQualifiedName)
         Dim parameters = {New FbParameter("@p1", id), New FbParameter("@p2", json), New FbParameter("@p3", rtype)}
         Dim sql = String.Format("INSERT INTO {0}(GUID ,JSON, TYPE) VALUES(@p1, @p2, @p3)", Name)
         FbUtils.ExecSQL(ConnectionString, sql, parameters)

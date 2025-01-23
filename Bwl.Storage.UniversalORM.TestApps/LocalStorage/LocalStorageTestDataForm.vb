@@ -1,4 +1,5 @@
-﻿Imports Microsoft.Data.SqlClient
+﻿Imports Bwl.Storage.UniversalORM.MSSQL
+Imports Microsoft.Data.SqlClient
 Imports System.IO
 
 Public Class LocalStorageTestDataForm
@@ -25,6 +26,7 @@ Public Class LocalStorageTestDataForm
 
         'Dim localstorage = New LocalStorage(storageManager, New Blob.MemorySaver())
         Dim localstorage = New LocalStorage(storageManager, blobFileSaver)
+        localstorage.AddBinaryConverter(New BytesBinaryConverter)
         localstorage.RemoveAllObj(GetType(LocalStorageTestData))
         localstorage.RemoveAllObj(GetType(LocalStorageTestDataInternal))
         localstorage.RemoveAllObj(GetType(LocalStorageTestData2))
@@ -166,7 +168,7 @@ Public Class LocalStorageTestDataForm
         Dim di2 = ObjDataInfo.GetFromFiles(files)
         Dim data5 = objDataGen.GetObject(di2)
 
-        If MessageBox.Show("Выполнено") = Windows.Forms.DialogResult.OK Then
+        If MessageBox.Show("Выполнено") = DialogResult.OK Then
             End
         End If
     End Sub

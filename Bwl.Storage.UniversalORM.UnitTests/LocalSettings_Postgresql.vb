@@ -23,8 +23,8 @@ Public Class LocalSettings_Postgresql
             Dim dbStorage = _settings.CreateChildStorage("DB_Postgres")
 
             Dim hostSetting = dbStorage.CreateStringSetting("DBHostSetting", "localhost")
-            Dim portSetting = dbStorage.CreateIntegerSetting("DBPortSetting", 5433)
-            Dim dbSetting = dbStorage.CreateStringSetting("DBDatabaseName", "OrlanWeb")
+            Dim portSetting = dbStorage.CreateIntegerSetting("DBPortSetting", 5432)
+            Dim dbSetting = dbStorage.CreateStringSetting("DBDatabaseName", "TestDatabase")
             Dim userSetting = dbStorage.CreateStringSetting("DBUserSetting", "postgres")
             Dim passSetting = dbStorage.CreateStringSetting("DBPassSetting", "password")
             Dim dbTimeout = dbStorage.CreateIntegerSetting("dbTimeout", 10)

@@ -1,4 +1,5 @@
-﻿Imports System.Data.SQLite
+﻿Imports System.Data
+Imports Microsoft.Data.Sqlite
 Imports System.Threading
 
 Public Class SqliteUtils
@@ -10,12 +11,13 @@ Public Class SqliteUtils
     ''' <param name="sql">SQL-запрос</param>
     ''' <param name="parameters">Параметры запроса</param>
     ''' <param name="longTask">Задача может выполняться долго (ОПАСНО! Выполнение без таймаута!)</param>
-    Public Shared Sub ExecSql(connString As String, sql As String, Optional parameters As SQLiteParameter() = Nothing, Optional longTask As Boolean = False)
-        Using con = New SQLiteConnection(connString)
+    Public Shared Sub ExecSql(connString As String, sql As String, Optional parameters As SqliteParameter() = Nothing, Optional longTask As Boolean = False)
+        Using con = New SqliteConnection(connString)
             con.Open()
+            OptimizeSQLite(con)
             Using proc = con.BeginTransaction()
                 Try
-                    Using cmd = New SQLiteCommand(con)
+                    Using cmd = con.CreateCommand()
                         cmd.Transaction = proc
 
                         ' Для больших и долгих задач лучше всего использовать память, чтобы избежать ошибок доступа
@@ -24,7 +26,7 @@ Public Class SqliteUtils
                             cmd.ExecuteNonQuery()
                         End If
 
-                        If parameters IsNot Nothing Then cmd.Parameters.AddRange(parameters.ToArray())
+                        If parameters IsNot Nothing Then cmd.Parameters.AddRange(parameters.AsEnumerable())
                         cmd.CommandText = $"{sql};"
                         If longTask Then cmd.CommandTimeout = 0 ' Опасно! 0 означает что задача может выполняться бесконечно! 
                         cmd.ExecuteNonQuery()
@@ -42,11 +44,18 @@ Public Class SqliteUtils
                 Catch ex As Exception
                     proc.Rollback()
                     Dim readableParams = If(parameters IsNot Nothing AndAlso parameters.Any(),
-                                             parameters.Select(Function(f) $"{f.ParameterName}, type {f.TypeName}, value {f.Value}").Aggregate(Function(f, t) f + vbNewLine + t),
+                                             parameters.Select(Function(f) $"{f.ParameterName}, type {f.DbType}, value {f.Value}").Aggregate(Function(f, t) f + vbNewLine + t),
                                             "None")
                     Throw New Exception($"SqliteUtils.ExecSQL. Connection string: {connString}{vbNewLine}SQL: {sql}{vbNewLine} Params: {readableParams}{vbNewLine} ERR: {ex.ToString()}")
                 End Try
             End Using
+        End Using
+    End Sub
+
+    Private Shared Sub OptimizeSQLite(connection As SqliteConnection)
+        Using cmd = connection.CreateCommand()
+            cmd.CommandText = "PRAGMA journal_mode=WAL; PRAGMA synchronous=NORMAL;"
+            cmd.ExecuteNonQuery()
         End Using
     End Sub
 
@@ -57,14 +66,15 @@ Public Class SqliteUtils
     ''' <param name="sql">SQL-запрос</param>
     ''' <param name="parameters">Параметры запроса</param>
     ''' <returns>Объект</returns>
-    Public Shared Function ExecSqlScalar(connString As String, sql As String, Optional parameters As SQLiteParameter() = Nothing) As Object
-        Using con = New SQLiteConnection(connString)
+    Public Shared Function ExecSqlScalar(connString As String, sql As String, Optional parameters As SqliteParameter() = Nothing) As Object
+        Using con = New SqliteConnection(connString)
             con.Open()
+            OptimizeSQLite(con)
             Try
                 Dim result As Object
-                Using cmd = New SQLiteCommand(con)
+                Using cmd = con.CreateCommand()
                     If parameters IsNot Nothing Then
-                        cmd.Parameters.AddRange(parameters.ToArray())
+                        cmd.Parameters.AddRange(parameters.AsEnumerable())
                     End If
                     cmd.CommandText = sql
                     result = cmd.ExecuteScalar()
@@ -72,7 +82,7 @@ Public Class SqliteUtils
                 Return result
             Catch ex As Exception
                 Dim readableParams = If(parameters IsNot Nothing AndAlso parameters.Any(),
-                                        parameters.Select(Function(f) $"{f.ParameterName}, type {f.TypeName}, value {f.Value}").Aggregate(Function(f, t) f + vbNewLine + t),
+                                        parameters.Select(Function(f) $"{f.ParameterName}, type {f.DbType}, value {f.Value}").Aggregate(Function(f, t) f + vbNewLine + t),
                                         "None")
                 Throw New Exception($"SqliteUtils.ExecSQLScalar. Connection string: {connString}{vbNewLine}SQL: {sql}{vbNewLine} Params: {readableParams}{vbNewLine} ERR: {ex.ToString()}")
             End Try
@@ -83,7 +93,7 @@ Public Class SqliteUtils
     ''' Создание БД (прим. - база создаётся автоматически при попытке подключения, если её не существует)
     ''' </summary>
     ''' <param name="connStringBld">Строка подключения</param>
-    Public Shared Sub CreateDb(connStringBld As SQLiteConnectionStringBuilder)
+    Public Shared Sub CreateDb(connStringBld As SqliteConnectionStringBuilder)
         If (Not CheckConnection(connStringBld.ConnectionString)) Then
             Thread.Sleep(2000)
             If (Not CheckConnection(connStringBld.ConnectionString)) Then
@@ -113,8 +123,9 @@ Public Class SqliteUtils
     ''' <param name="connString">Строка подключения</param>
     ''' <returns>Соединение ОК</returns>
     Private Shared Function CheckConnection(connString As String) As Boolean
-        Using con = New SQLiteConnection(connString)
+        Using con = New SqliteConnection(connString)
             con.Open()
+            OptimizeSQLite(con)
             Try
                 Return con.State = ConnectionState.Open
             Catch ex As Exception
@@ -130,14 +141,15 @@ Public Class SqliteUtils
     ''' <param name="sql">SQL-запрос</param>
     ''' <param name="parameters">Параметры запроса</param>
     ''' <returns>Список объектов</returns>
-    Public Shared Function GetObjectList(connString As String, sql As String, Optional parameters As SQLiteParameter() = Nothing) As List(Of List(Of Object))
-        Using con = New SQLiteConnection(connString)
+    Public Shared Function GetObjectList(connString As String, sql As String, Optional parameters As SqliteParameter() = Nothing) As List(Of List(Of Object))
+        Using con = New SqliteConnection(connString)
             con.Open()
+            OptimizeSQLite(con)
             Try
                 Dim result As List(Of List(Of Object))
-                Using cmd = New SQLiteCommand(con)
+                Using cmd = con.CreateCommand()
                     If parameters IsNot Nothing AndAlso parameters.Any() Then
-                        cmd.Parameters.AddRange(parameters.ToArray())
+                        cmd.Parameters.AddRange(parameters.AsEnumerable())
                     End If
                     cmd.CommandText = sql
                     Using sr = cmd.ExecuteReader()
@@ -149,7 +161,7 @@ Public Class SqliteUtils
                 Return result
             Catch ex As Exception
                 Dim readableParams = If(parameters IsNot Nothing AndAlso parameters.Any(),
-                                        parameters.Select(Function(f) $"{f.ParameterName}, type {f.TypeName}, value {f.Value}").Aggregate(Function(f, t) f + vbNewLine + t),
+                                        parameters.Select(Function(f) $"{f.ParameterName}, type {f.DbType}, value {f.Value}").Aggregate(Function(f, t) f + vbNewLine + t),
                                         "None")
                 Throw New Exception($"SqliteUtils.GetObjectList. Connection string: {connString}{vbNewLine}SQL: {sql}{vbNewLine} Params: {readableParams}{vbNewLine} ERR: {ex.ToString()}")
             End Try

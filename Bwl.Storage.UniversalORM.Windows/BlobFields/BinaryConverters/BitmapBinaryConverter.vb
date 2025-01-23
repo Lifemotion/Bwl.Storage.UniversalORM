@@ -1,4 +1,5 @@
 ﻿Imports System.Drawing
+Imports System.Drawing.Imaging
 Imports System.IO
 
 Public Class BitmapBinaryConverter
@@ -18,7 +19,7 @@ Public Class BitmapBinaryConverter
         If (blob IsNot Nothing) AndAlso (blob.GetType = GetType(Bitmap)) Then
             Dim bmp = CType(blob, Bitmap)
             Dim stream = New MemoryStream
-            bmp.Save(stream, System.Drawing.Imaging.ImageFormat.Jpeg)
+            bmp.Save(stream, ImageFormat.Jpeg)
             Dim len = Convert.ToInt32(stream.Length)
             Dim bytes(len - 1) As Byte
             stream.Position = 0

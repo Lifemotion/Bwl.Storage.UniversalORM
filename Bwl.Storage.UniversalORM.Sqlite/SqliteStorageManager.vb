@@ -1,4 +1,4 @@
-﻿Imports System.Data.SQLite
+﻿Imports Microsoft.Data.Sqlite
 
 Public Class SqliteStorageManager
     Implements IObjStorageManager

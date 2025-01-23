@@ -1,25 +1,22 @@
-﻿Imports System.Text
-Imports Microsoft.VisualStudio.TestTools.UnitTesting
-Imports Microsoft.Data.SqlClient
-Imports System.IO
-Imports Bwl.Storage.UniversalORM
-Imports System.Drawing
-Imports Bwl.Storage.UniversalORM.LocalStorage
-Imports FirebirdSql.Data.FirebirdClient
+﻿Imports Bwl.Storage.UniversalORM
 Imports NUnit.Framework
 Imports Bwl.Framework
+Imports Bwl.Storage.UniversalORM.SkiaSharp
 
-<TestFixture> Public Class LocalStorageTest_Firebird_Embed
+<TestFixture>
+Public Class LocalStorageTest_Firebird_Embed
     Inherits LocalStorageBaseTest
 
     Protected Overrides Function CreateLocalStorage() As ILocalStorage
+        DbType = DatabaseTestType.Firebird
         Dim app = New AppBase()
         Dim settings = New LocalSettings_Firebird(app.RootStorage)
         Dim manager = New FbStorageManager(settings.ConnectionStringBuilder_Embeded)
 
         Dim blobSaverDir = IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "..\BlobData")
         Dim blobFileSaver = New FileBlobFieldsWriter(blobSaverDir)
-        Dim localStorage = New Bwl.Storage.UniversalORM.LocalStorage(manager, blobFileSaver)
+        Dim localStorage = New LocalStorage(manager, blobFileSaver)
+        localStorage.AddBinaryConverter(New SKBitmapBinaryConverter)
         Return localStorage
     End Function
 
